@@ -1,0 +1,85 @@
+<style>
+    /* Skeleton loading animation */
+.skeleton-box {
+  background: linear-gradient(
+    100deg,
+    #e5e7eb 25%,
+    #f3f4f6 50%,
+    #e5e7eb 75%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+</style>
+
+<!-- Product Grid Skeleton -->
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 lg:gap-6 mb-8" id="product-skeleton-container">
+  <!-- Repeat skeleton cards as needed -->
+  <div class="product-card animate-pulse bg-white rounded-lg overflow-hidden">
+    <div class="relative w-full h-48 bg-gray-200 skeleton-box"></div>
+    <div class="p-4">
+      <div class="h-3 bg-gray-200 rounded w-1/2 mb-2 skeleton-box"></div>
+      <div class="h-4 bg-gray-300 rounded w-3/4 mb-3 skeleton-box"></div>
+      <div class="flex items-center space-x-2 mb-3">
+        <div class="h-3 w-16 bg-gray-200 rounded skeleton-box"></div>
+        <div class="h-3 w-6 bg-gray-300 rounded skeleton-box"></div>
+      </div>
+      <div class="flex items-center justify-between">
+        <div class="h-4 w-10 bg-gray-300 rounded skeleton-box"></div>
+        <div class="h-8 w-8 bg-gray-200 rounded-full skeleton-box"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Duplicate the skeleton card for however many you need -->
+</div>
+
+
+<script>
+    // Show skeletons
+function showSkeletons(containerId, count = 6) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    container.innerHTML += skeletonCardHTML(); // See below
+  }
+}
+
+// Remove skeletons and load real data
+function loadProducts() {
+  const container = document.getElementById('product-skeleton-container');
+  container.innerHTML = ''; // clear skeletons
+  container.innerHTML = actualProductHTML(); // or render real data dynamically
+}
+// -----------------------------------------------
+function skeletonCardHTML() {
+  return `
+    <div class="product-card animate-pulse bg-white rounded-lg overflow-hidden">
+      <div class="relative w-full h-48 bg-gray-200 skeleton-box"></div>
+      <div class="p-4">
+        <div class="h-3 bg-gray-200 rounded w-1/2 mb-2 skeleton-box"></div>
+        <div class="h-4 bg-gray-300 rounded w-3/4 mb-3 skeleton-box"></div>
+        <div class="flex items-center space-x-2 mb-3">
+          <div class="h-3 w-16 bg-gray-200 rounded skeleton-box"></div>
+          <div class="h-3 w-6 bg-gray-300 rounded skeleton-box"></div>
+        </div>
+        <div class="flex items-center justify-between">
+          <div class="h-4 w-10 bg-gray-300 rounded skeleton-box"></div>
+          <div class="h-8 w-8 bg-gray-200 rounded-full skeleton-box"></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+</script>

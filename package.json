@@ -1,0 +1,20 @@
+{
+  "name": "ecommerce-platform",
+  "private": true,
+  "version": "1.0.0",
+  "_moduleAliases": {
+    "@core": "core",
+    "@models": "core/models",
+    "@services": "core/services",
+    "@middleware": "core/middleware",
+    "@config": "core/config",
+    "@utils": "core/utils"
+  },
+  "dependencies": {
+    "module-alias": "^2.2.2"
+  },
+  "scripts": {
+    "admin": "node admin/server.js",
+    "client": "node client/server.js"
+  }
+}

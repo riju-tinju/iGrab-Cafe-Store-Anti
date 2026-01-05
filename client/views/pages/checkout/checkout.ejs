@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Coffee & Sweets Store</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        @import url('https://api.fontshare.com/v2/css?f[]=chillax@400,500,600,700&display=swap');
+
+        :root {
+            --primary-green: #003F2E;
+            --accent-beige: #E6D4B8;
+            --text-black: #212121;
+            --muted-bg: #F9F9F9;
+            --accent-gold: #D69C4E;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--muted-bg);
+            color: var(--text-black);
+        }
+
+        .font-chillax {
+            font-family: 'Chillax', sans-serif;
+        }
+
+        .font-dm-sans {
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .bg-primary-green {
+            background-color: var(--primary-green);
+        }
+
+        .bg-accent-beige {
+            background-color: var(--accent-beige);
+        }
+
+        .bg-accent-gold {
+            background-color: var(--accent-gold);
+        }
+
+        .text-primary-green {
+            color: var(--primary-green);
+        }
+
+        .text-accent-gold {
+            color: var(--accent-gold);
+        }
+
+        .border-primary-green {
+            border-color: var(--primary-green);
+        }
+
+        .border-accent-beige {
+            border-color: var(--accent-beige);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-green);
+            color: white;
+            border-radius: 15px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #002f23;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background-color: var(--accent-gold);
+            color: white;
+            border-radius: 15px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: #c4823d;
+            transform: translateY(-1px);
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-field {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 3px rgba(0, 63, 46, 0.1);
+        }
+
+        .payment-option {
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .payment-option.selected {
+            border-color: var(--primary-green);
+            background-color: rgba(0, 63, 46, 0.05);
+        }
+
+        .payment-option:hover {
+            border-color: var(--accent-gold);
+        }
+
+        .order-item {
+            border-bottom: 1px solid #f3f4f6;
+            padding: 16px 0;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .fixed-bottom-btn {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 16px 20px 20px;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+        }
+
+        .mobile-only {
+            display: block;
+        }
+
+        .desktop-only {
+            display: none;
+        }
+
+        @media (min-width: 1024px) {
+            .mobile-only {
+                display: none;
+            }
+
+            .desktop-only {
+                display: block;
+            }
+
+            .fixed-bottom-btn {
+                position: relative;
+                box-shadow: none;
+                background: transparent;
+                padding: 0;
+            }
+        }
+
+        .location-btn {
+            background: rgba(0, 63, 46, 0.1);
+            border: 2px dashed var(--primary-green);
+            border-radius: 12px;
+            color: var(--primary-green);
+            transition: all 0.3s ease;
+        }
+
+        .location-btn:hover {
+            background: rgba(0, 63, 46, 0.15);
+        }
+
+        .badge {
+            background-color: var(--accent-gold);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+    </style>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="flex items-center justify-between px-4 py-4 lg:px-6">
+            <button class="text-2xl text-primary-green">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="font-chillax text-xl font-bold text-primary-green">Checkout</h1>
+            <div class="w-8"></div>
+        </div>
+    </header>
+
+    <div class="max-w-4xl mx-auto px-4 py-6 lg:px-6 pb-32 lg:pb-6">
+        <div class="lg:grid lg:grid-cols-2 lg:gap-8">
+            <!-- Left Column - User Details & Payment -->
+            <div class="space-y-6">
+                <!-- User Details Section -->
+                <section class="card p-6">
+                    <h2 class="font-chillax text-xl font-bold mb-6 text-primary-green">
+                        <i class="fas fa-user mr-2"></i>
+                        Delivery Details
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block font-dm-sans font-medium text-sm text-gray-700 mb-2">Full Name</label>
+                            <input type="text" name="fullName" class="input-field w-full"
+                                placeholder="Enter your full name">
+                        </div>
+
+                        <div>
+                            <label class="block font-dm-sans font-medium text-sm text-gray-700 mb-2">Contact
+                                Number</label>
+                            <input type="tel" name="phone" class="input-field w-full" placeholder="+971 XX XXX XXXX">
+                        </div>
+
+                        <div>
+                            <label class="block font-dm-sans font-medium text-sm text-gray-700 mb-2">City</label>
+                            <input type="text" class="input-field w-full" placeholder="" name="city">
+                        </div>
+
+                        <div>
+                            <label class="block font-dm-sans font-medium text-sm text-gray-700 mb-2">Address</label>
+                            <textarea name="address" class="input-field w-full resize-none" rows="3"
+                                placeholder="Example: Green Tower, Flat 503, Sheikh Zayed Road, Dubai Marina"></textarea>
+                        </div>
+
+                        <!-- <button class="location-btn w-full p-4 font-dm-sans font-medium">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            📍 Mark Location on Map
+                        </button> -->
+                    </div>
+                </section>
+
+                <!-- Payment Method Section -->
+                <section class="card p-6">
+                    <h2 class="font-chillax text-xl font-bold mb-6 text-primary-green">
+                        <i class="fas fa-credit-card mr-2"></i>
+                        Payment Method
+                    </h2>
+
+                    <div class="space-y-4">
+                        <div class="payment-option p-4 selected" onclick="selectPayment(this)">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">💵</div>
+                                    <div>
+                                        <h3 class="font-dm-sans font-semibold" payment-name="COD">Cash on Delivery</h3>
+                                        <p class="text-sm text-gray-600">Pay when your order arrives</p>
+                                    </div>
+                                </div>
+                                <div class="radio-btn">
+                                    <i class="fas fa-check-circle text-primary-green"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="payment-option p-4" onclick="selectPayment(this)">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="text-2xl mr-3">💳</div>
+                                    <div>
+                                        <h3 class="font-dm-sans font-semibold" payment-name="Online-payment">Online
+                                            Payment</h3>
+                                        <p class="text-sm text-gray-600">Pay securely online</p>
+                                    </div>
+                                </div>
+                                <div class="radio-btn">
+                                    <i class="far fa-circle text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column - Order Summary -->
+            <div class="mt-6 lg:mt-0">
+                <section class="card p-6">
+                    <h2 class="font-chillax text-xl font-bold mb-6 text-primary-green">
+                        <i class="fas fa-shopping-bag mr-2"></i>
+                        Order Summary
+                    </h2>
+
+                    <div class="space-y-4 mb-6">
+                        <!-- Order Item 1 -->
+                        <% checkoutData.items.forEach((item)=> { %>
+                            <div class="order-item">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-start space-x-3">
+                                        <img src="<%= item.image %>" alt="Classic Beef Burger"
+                                            class="w-16 h-16 rounded-lg object-cover">
+                                        <div>
+                                            <h3 class="font-dm-sans font-semibold">
+                                                <%= item.productName %>
+                                            </h3>
+                                            <p class="text-sm text-gray-600">Quantity: <%= item.qty %>
+                                            </p>
+                                            <!-- <div class="flex items-center mt-1">
+                                            <span class="text-yellow-400 text-sm">★★★★☆</span>
+                                            <span class="text-xs text-gray-500 ml-1">(21)</span>
+                                        </div> -->
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="font-dm-sans font-semibold">AED <%= item.total %>
+                                        </p>
+                                        <p class="text-sm text-gray-600">AED <%= item.unitPrice %> each</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }); %>
+                                <!-- Order Item 2 -->
+                                <!-- <div class="order-item">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-start space-x-3">
+                                    <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=80&h=80&fit=crop&crop=center" 
+                                         alt="Cappuccino" class="w-16 h-16 rounded-lg object-cover">
+                                    <div>
+                                        <h3 class="font-dm-sans font-semibold">Cappuccino</h3>
+                                        <p class="text-sm text-gray-600">Quantity: 1</p>
+                                        <div class="flex items-center mt-1">
+                                            <span class="text-yellow-400 text-sm">★★★★★</span>
+                                            <span class="text-xs text-gray-500 ml-1">(89)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-dm-sans font-semibold">AED 18</p>
+                                    <p class="text-sm text-gray-600">AED 18 each</p>
+                                </div>
+                            </div>
+                        </div> -->
+
+                                <!-- Order Item 3 -->
+                                <!-- <div class="order-item">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-start space-x-3">
+                                    <img src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=80&h=80&fit=crop&crop=center" 
+                                         alt="Chocolate Croissant" class="w-16 h-16 rounded-lg object-cover">
+                                    <div>
+                                        <h3 class="font-dm-sans font-semibold">Chocolate Croissant</h3>
+                                        <p class="text-sm text-gray-600">Quantity: 3</p>
+                                        <div class="flex items-center mt-1">
+                                            <span class="text-yellow-400 text-sm">★★★★☆</span>
+                                            <span class="text-xs text-gray-500 ml-1">(45)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-dm-sans font-semibold">AED 36</p>
+                                    <p class="text-sm text-gray-600">AED 12 each</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+
+                                <!-- Price Breakdown -->
+                                <div class="border-t pt-4 pb-10 space-y-3">
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-600">Subtotal</span>
+                                        <span class="font-dm-sans font-medium">AED <%= checkoutData?.subTotal %></span>
+                                    </div>
+
+                                    <% checkoutData.charges.forEach((charge)=> { %>
+                                        <div class="flex justify-between text-sm">
+                                            <span class="text-gray-600">
+                                                <%= charge.chargingName %>
+                                            </span>
+                                            <span class="font-dm-sans font-medium">AED <%= charge.price.toFixed(2) %>
+                                            </span>
+                                        </div>
+
+                                        <% }); %>
+                                            <!-- <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Packaging Fee</span>
+                            <span class="font-dm-sans font-medium">AED 3</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">VAT (5%)</span>
+                            <span class="font-dm-sans font-medium">AED 5.90</span>
+                        </div> -->
+                                            <!-- <div class="border-t pt-3">
+                            <div class="flex justify-between">
+                                <span class="font-chillax text-lg font-bold">Total</span>
+                                <span class="font-chillax text-lg font-bold text-primary-green">AED 123.90</span>
+                            </div>
+                        </div> -->
+                                </div>
+
+                                <!-- Desktop Place Order Button -->
+                                <div class="desktop-only mt-6">
+                                    <button class="btn-primary w-full py-4 text-lg font-dm-sans font-semibold">
+                                        <i class="fas fa-check-circle mr-2"></i>
+                                        Place Order
+                                    </button>
+                                </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Fixed Bottom Button -->
+    <div class="mobile-only fixed-bottom-btn">
+        <div class="flex items-center justify-between mb-3">
+            <div>
+                <p class="text-sm text-gray-600">Total Amount</p>
+                <p class="font-chillax text-xl font-bold text-primary-green">AED <%= checkoutData?.totalAmount %>
+                </p>
+            </div>
+            <div class="badge">
+                <%= checkoutData?.items.length || 'NAN' %>
+            </div>
+        </div>
+        <button id="place-order-btn" class="btn-primary w-full py-4 text-lg font-dm-sans font-semibold">
+            <i class="fas fa-check-circle mr-2"></i>
+            Place Order
+        </button>
+    </div>
+
+    <script>
+        function selectPayment(element) {
+            // Remove selected class from all payment options
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('selected');
+                const icon = option.querySelector('.radio-btn i');
+                icon.className = 'far fa-circle text-gray-400';
+            });
+
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            const icon = element.querySelector('.radio-btn i');
+            icon.className = 'fas fa-check-circle text-primary-green';
+        }
+
+        // Add some interactivity for demo purposes
+        document.addEventListener('DOMContentLoaded', function () {
+            const inputs = document.querySelectorAll('.input-field');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function () {
+                    this.style.transform = 'translateY(-1px)';
+                });
+
+                input.addEventListener('blur', function () {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Location button click handler
+            document.querySelector('.location-btn').addEventListener('click', function () {
+                this.innerHTML = '<i class="fas fa-map-marker-alt mr-2"></i>📍 Location Selected';
+                this.style.backgroundColor = 'rgba(0, 63, 46, 0.15)';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-map-marker-alt mr-2"></i>📍 Mark Location on Map';
+                    this.style.backgroundColor = 'rgba(0, 63, 46, 0.1)';
+                }, 2000);
+            });
+
+        });
+    </script>
+
+    <script>
+        // Existing functions (keeping them unchanged)
+        function selectPayment(element) {
+            // Remove selected class from all payment options
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('selected');
+                const icon = option.querySelector('.radio-btn i');
+                icon.className = 'far fa-circle text-gray-400';
+            });
+
+            // Add selected class to clicked option
+            element.classList.add('selected');
+            const icon = element.querySelector('.radio-btn i');
+            icon.className = 'fas fa-check-circle text-primary-green';
+        }
+
+        // Enhanced DOMContentLoaded with Place Order functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            // Existing input interactions (keeping unchanged)
+            const inputs = document.querySelectorAll('.input-field');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function () {
+                    this.style.transform = 'translateY(-1px)';
+                });
+
+                input.addEventListener('blur', function () {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // NEW: Place Order Implementation
+            const placeOrderBtn = document.getElementById('place-order-btn');
+
+            if (placeOrderBtn) {
+                placeOrderBtn.addEventListener('click', handlePlaceOrder);
+            }
+
+            // Also handle desktop button if it exists
+            const desktopPlaceOrderBtn = document.querySelector('.desktop-only button');
+            if (desktopPlaceOrderBtn) {
+                desktopPlaceOrderBtn.addEventListener('click', handlePlaceOrder);
+            }
+        });
+
+        /**
+         * Main Place Order Handler
+         * Collects form data, sends request, and handles responses
+         */
+        async function handlePlaceOrder(event) {
+            event.preventDefault();
+
+            try {
+                // Show loading state
+                showLoadingState();
+
+                // Collect form data
+                const formData = collectFormData();
+
+                // Validate required fields
+                if (!validateFormData(formData)) {
+                    hideLoadingState();
+                    return;
+                }
+
+                // Send request to backend
+                const response = await sendPlaceOrderRequest(formData);
+
+                // Handle response based on status
+                handleOrderResponse(response);
+
+            } catch (error) {
+                console.error('Place order error:', error);
+                hideLoadingState();
+                showErrorMessage('Network error. Please check your connection and try again.');
+            }
+        }
+
+        /**
+         * Collect all form input data
+         * @returns {Object} Form data object
+         */
+        function collectFormData() {
+            const selectedPayment = document.querySelector('.payment-option.selected');
+            const paymentMethod = selectedPayment ?
+                selectedPayment.querySelector('[payment-name]').getAttribute('payment-name') : 'COD';
+
+            return {
+                fullName: document.querySelector('input[name="fullName"]')?.value?.trim() || '',
+                phone: document.querySelector('input[name="phone"]')?.value?.trim() || '',
+                city: document.querySelector('input[name="city"]')?.value?.trim() || '',
+                address: document.querySelector('textarea[name="address"]')?.value?.trim() || '',
+                paymentMethod: paymentMethod
+            };
+        }
+
+        /**
+         * Validate form data
+         * @param {Object} formData - Form data to validate
+         * @returns {Boolean} Validation result
+         */
+        function validateFormData(formData) {
+            const requiredFields = [
+                { field: 'fullName', message: 'Please enter your full name' },
+                { field: 'phone', message: 'Please enter your contact number' },
+                { field: 'city', message: 'Please enter your city' },
+                { field: 'address', message: 'Please enter your delivery address' }
+            ];
+
+            for (const { field, message } of requiredFields) {
+                if (!formData[field]) {
+                    showErrorMessage(message);
+                    focusField(field);
+                    return false;
+                }
+            }
+
+            // Validate phone number format (basic UAE format)
+            const phoneRegex = /^(\+971|0)?[0-9]{9}$/;
+            if (!phoneRegex.test(formData.phone.replace(/\s/g, ''))) {
+                showErrorMessage('Please enter a valid UAE phone number');
+                focusField('phone');
+                return false;
+            }
+
+            return true;
+        }
+
+        /**
+         * Focus on specific field for user correction
+         * @param {String} fieldName - Name of field to focus
+         */
+        function focusField(fieldName) {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            if (field) {
+                field.focus();
+                field.style.borderColor = '#ef4444';
+                setTimeout(() => {
+                    field.style.borderColor = '';
+                }, 3000);
+            }
+        }
+
+        /**
+         * Send place order request to backend
+         * @param {Object} formData - Form data to send
+         * @returns {Promise} Response data
+         */
+        async function sendPlaceOrderRequest(formData) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+            try {
+                const response = await fetch('/checkout/place-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data;
+
+            } catch (error) {
+                clearTimeout(timeoutId);
+
+                if (error.name === 'AbortError') {
+                    throw new Error('Request timeout. Please try again.');
+                }
+                throw error;
+            }
+        }
+
+        /**
+         * Handle order response based on status
+         * @param {Object} response - Backend response
+         */
+        function handleOrderResponse(response) {
+            hideLoadingState();
+
+            if (!response || !response.status) {
+                showErrorMessage('Invalid response from server. Please try again.');
+                return;
+            }
+
+            switch (response.status) {
+                case 'COD':
+                    showOrderConfirmation(response.data);
+                    break;
+
+                case 'COO':
+                    showStripeCheckout(response.data);
+                    break;
+
+                case 'FAILD':
+                    showOrderFailure();
+                    break;
+
+                default:
+                    showErrorMessage('Unknown response status. Please try again.');
+            }
+        }
+
+        /**
+         * Show loading state on buttons
+         */
+        function showLoadingState() {
+            const buttons = [
+                document.getElementById('place-order-btn'),
+                document.querySelector('.desktop-only button')
+            ].filter(Boolean);
+
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+                btn.style.opacity = '0.8';
+            });
+        }
+
+        /**
+         * Hide loading state on buttons
+         */
+        function hideLoadingState() {
+            const buttons = [
+                document.getElementById('place-order-btn'),
+                document.querySelector('.desktop-only button')
+            ].filter(Boolean);
+
+            buttons.forEach(btn => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Place Order';
+                btn.style.opacity = '1';
+            });
+        }
+
+        /**
+         * Show order confirmation screen for COD
+         * @param {Object} orderData - Order data from backend
+         */
+        function showOrderConfirmation(orderData) {
+            const overlay = createFullScreenOverlay();
+            
+            console.log('Order Data:', orderData);
+            console.log('Order Data Metadata:', orderData?.metadata);
+            let paymentMethodName = orderData?.paymentMethod ==='Cash'? 'Cash on Delivery' : 'Online Payment';
+            let orderIdforDisplay= orderData.orderId ||  null;
+            let orderIdElement
+            if(orderIdforDisplay)
+              {
+                 orderIdElement=`<p class="order-id">Order ID: #${orderIdforDisplay}</p>`
+              }           
+               // Play celebration sound (safe for autoplay policies)
+            playNotificationSound();
+
+            overlay.innerHTML = `
+        <div class="confirmation-container">
+            <div class="celebration-animation">
+                <div class="confetti">🎉</div>
+                <div class="confetti">🎊</div>
+                <div class="confetti">✨</div>
+                <div class="confetti">🌟</div>
+            </div>
+            
+            <div class="confirmation-content">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                
+                <h2>Order Confirmed!</h2>
+                ${orderIdElement || ''}               
+                <div class="success-message">
+                    <p>🎉 Your order has been successfully placed!</p>
+                    <p>💰 Payment: ${paymentMethodName}</p>
+                    <p>🚚 We'll deliver your order soon</p>
+                </div>
+                
+                <div class="countdown-container">
+                    <p>Redirecting to home in <span id="countdown">5</span> seconds...</p>
+                    <div class="countdown-bar">
+                        <div class="countdown-progress"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+            document.body.appendChild(overlay);
+
+            // Add celebration animations
+            addCelebrationAnimations(overlay);
+
+            // Start countdown
+            startCountdown(16, () => {
+                window.location.href = '/';
+            });
+        }
+
+        /**
+         * Show order failure screen
+         */
+        function showOrderFailure() {
+            setTimeout(() => {
+                const overlay = createFullScreenOverlay();
+
+                overlay.innerHTML = `
+            <div class="failure-container">
+                <div class="failure-content">
+                    <div class="failure-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    
+                    <h2>Order Failed</h2>
+                    
+                    <div class="failure-message">
+                        <p>😔 Sorry, we couldn't process your order</p>
+                        <p>🔄 Don't worry, let's try again!</p>
+                    </div>
+                    
+                    <div class="countdown-container">
+                        <p>Redirecting to checkout in <span id="countdown">3</span> seconds...</p>
+                        <div class="countdown-bar">
+                            <div class="countdown-progress"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+                document.body.appendChild(overlay);
+
+                // Start countdown
+                startCountdown(8, () => {
+                    window.location.href = '/checkout';
+                });
+
+            }, 2000);
+        }
+
+        /**
+         * Show Stripe checkout for online payments
+         * @param {Object} paymentData - Payment data from backend
+         */
+        function showStripeCheckout(paymentData) {
+            // Create Stripe checkout overlay
+            const overlay = createFullScreenOverlay();
+
+            overlay.innerHTML = `
+        <div class="stripe-container">
+            <div class="stripe-header">
+                <button class="close-stripe" onclick="closeStripeCheckout()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h2>Secure Payment</h2>
+            </div>
+            
+            <div class="stripe-content">
+                <div id="stripe-element">
+                    <!-- Stripe Elements will be mounted here -->
+                </div>
+                
+                <div class="payment-summary">
+                    <p>Total Amount: <strong>AED ${paymentData?.amount/100 || '0.00'}</strong></p>
+                </div>
+                
+                <button id="stripe-pay-btn" class="btn-primary w-full py-4 mt-4">
+                    <i class="fas fa-credit-card mr-2"></i>
+                    Pay Now
+                </button>
+            </div>
+            
+            <div class="stripe-footer">
+                <p><i class="fas fa-lock mr-1"></i> Secured by Stripe</p>
+            </div>
+        </div>
+    `;
+
+            document.body.appendChild(overlay);
+
+            // Initialize Stripe (Note: You'll need to include Stripe.js in your HTML)
+            initializeStripe(paymentData);
+        }
+
+        /**
+         * Initialize Stripe payment processing
+         * @param {Object} paymentData - Payment data
+         */
+        function initializeStripe(paymentData) {
+            // Note: This assumes Stripe.js is loaded
+            if (typeof Stripe === 'undefined') {
+                console.error('Stripe.js not loaded');
+                showErrorMessage('Payment system not available. Please try Cash on Delivery.');
+                closeStripeCheckout();
+                return;
+            }
+
+            // Initialize Stripe with your publishable key
+            // const stripe = Stripe('pk_test_51NpNxqSAiSUmmD0cJCOM67vp3pEldTmjhrFVoGxK6tLO1m1A9CnZPdvCpke6wL568yMAQFhsG9z3HTeQmfJZslrs00YrpEaEst');
+            const stripe = Stripe('<%= paymentSettings.stripe.publishableKey %>');
+            alert('<%= paymentSettings.stripe.publishableKey %>')
+            // This is a placeholder - implement actual Stripe integration
+            console.log('Stripe integration needed:', paymentData);
+
+            // For demo purposes, show a message
+            //         document.getElementById('stripe-element').innerHTML = `
+            //     <div class="p-4 bg-blue-50 rounded-lg">
+            //         <p class="text-blue-800">
+            //             <i class="fas fa-info-circle mr-2"></i>
+            //             Stripe integration placeholder. 
+            //             Please implement with your Stripe publishable key.
+            //         </p>
+            //     </div>
+            // `;
+
+            // Add this actual Stripe implementation:
+            const elements = stripe.elements();
+            const cardElement = elements.create('card', {
+                style: {
+                    base: {
+                        fontSize: '16px',
+                        color: '#32325d',
+                        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                        '::placeholder': {
+                            color: '#aab7c4'
+                        }
+                    },
+                    invalid: {
+                        color: '#fa755a',
+                        iconColor: '#fa755a'
+                    }
+                }
+            });
+
+            cardElement.mount('#stripe-element');
+
+            // Handle form submission
+            document.getElementById('stripe-pay-btn').addEventListener('click', async (e) => {
+                e.preventDefault();
+
+                const { error, paymentIntent } = await stripe.confirmCardPayment(paymentData.client_secret, {
+                    payment_method: {
+                        card: cardElement
+                    },                    
+                });
+
+                if (error) {
+                    showErrorMessage(error.message);
+                } else if (paymentIntent.status === 'succeeded') {
+                    closeStripeCheckout();
+                    showOrderConfirmation(paymentIntent);
+                }
+            });
+
+
+        }
+
+        /**
+         * Close Stripe checkout overlay
+         */
+        function closeStripeCheckout() {
+            const overlay = document.querySelector('.fullscreen-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+        }
+
+        /**
+         * Create full screen overlay
+         * @returns {HTMLElement} Overlay element
+         */
+        function createFullScreenOverlay() {
+            const overlay = document.createElement('div');
+            overlay.className = 'fullscreen-overlay';
+
+            // Add styles
+            const style = document.createElement('style');
+            style.textContent = `
+        .fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .confirmation-container, .failure-container, .stripe-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .success-icon, .failure-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .success-icon { color: var(--primary-green); }
+        .failure-icon { color: #ef4444; }
+        
+        .confirmation-content h2, .failure-content h2 {
+            font-family: 'Chillax', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--primary-green);
+        }
+        
+        .failure-content h2 { color: #ef4444; }
+        
+        .order-id {
+            font-family: 'DM Sans', sans-serif;
+            color: #666;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .success-message, .failure-message {
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        
+        .countdown-container {
+            margin-top: 30px;
+        }
+        
+        .countdown-bar {
+            width: 100%;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .countdown-progress {
+            height: 100%;
+            background: var(--primary-green);
+            border-radius: 2px;
+            transition: width linear;
+        }
+        
+        .celebration-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .confetti {
+            position: absolute;
+            font-size: 2rem;
+            animation: confettiFall 3s linear infinite;
+        }
+        
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(600px) rotate(360deg); opacity: 0; }
+        }
+        
+        .stripe-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .close-stripe {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .stripe-content {
+            margin: 20px 0;
+        }
+        
+        .stripe-footer {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .payment-summary {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+    `;
+
+            if (!document.querySelector('#overlay-styles')) {
+                style.id = 'overlay-styles';
+                document.head.appendChild(style);
+            }
+
+            return overlay;
+        }
+
+        /**
+         * Add celebration animations to overlay
+         * @param {HTMLElement} overlay - Overlay element
+         */
+        function addCelebrationAnimations(overlay) {
+            const confettiElements = overlay.querySelectorAll('.confetti');
+
+            confettiElements.forEach((confetti, index) => {
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = (index * 0.5) + 's';
+                confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+            });
+        }
+
+        /**
+         * Start countdown timer
+         * @param {Number} seconds - Countdown duration
+         * @param {Function} callback - Function to call when countdown ends
+         */
+        function startCountdown(seconds, callback) {
+            const countdownElement = document.getElementById('countdown');
+            const progressElement = document.querySelector('.countdown-progress');
+
+            if (!countdownElement || !progressElement) return;
+
+            let remaining = seconds;
+
+            // Set initial progress width
+            progressElement.style.width = '100%';
+            progressElement.style.transitionDuration = `${seconds}s`;
+
+            // Start progress animation
+            setTimeout(() => {
+                progressElement.style.width = '0%';
+            }, 100);
+
+            const timer = setInterval(() => {
+                remaining--;
+                countdownElement.textContent = remaining;
+
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    callback();
+                }
+            }, 1000);
+        }
+
+        /**
+         * Play notification sound (safe for autoplay policies)
+         */
+        function playNotificationSound() {
+            try {
+                // Create audio context for clapping sound simulation
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+                // Simple success beep
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+
+            } catch (error) {
+                // Silent fail for audio - not critical
+                console.log('Audio notification not available');
+            }
+        }
+
+        /**
+         * Show error message to user
+         * @param {String} message - Error message to display
+         */
+        function showErrorMessage(message) {
+            // Remove existing error messages
+            const existingError = document.querySelector('.error-toast');
+            if (existingError) {
+                existingError.remove();
+            }
+
+            const errorToast = document.createElement('div');
+            errorToast.className = 'error-toast';
+            errorToast.innerHTML = `
+        <div class="error-content">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>${message}</span>
+        </div>
+    `;
+
+            // Add error toast styles
+            const errorStyle = document.createElement('style');
+            errorStyle.textContent = `
+        .error-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ef4444;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            z-index: 10000;
+            animation: slideDown 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-100%); }
+            to { transform: translateX(-50%) translateY(0); }
+        }
+        
+        .error-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+        }
+    `;
+
+            if (!document.querySelector('#error-styles')) {
+                errorStyle.id = 'error-styles';
+                document.head.appendChild(errorStyle);
+            }
+
+            document.body.appendChild(errorToast);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (errorToast.parentNode) {
+                    errorToast.remove();
+                }
+            }, 5000);
+        }
+    </script>
+
+</body>
+
+</html>

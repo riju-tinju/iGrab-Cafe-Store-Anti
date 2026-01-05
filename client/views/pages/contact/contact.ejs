@@ -1,0 +1,309 @@
+<%- include('../../partials/Header') %>
+
+  <head>
+    <style>
+      /* Form Styles */
+      .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid #e0e0e0;
+        background-color: white;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+      }
+
+      .form-input:focus {
+        border-color: var(--accent-gold);
+        box-shadow: 0 0 0 2px rgba(214, 156, 78, 0.2);
+        outline: none;
+      }
+
+      .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-black);
+      }
+
+      .contact-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+      }
+
+      .contact-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .social-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: var(--primary-green);
+        color: white;
+        margin-right: 0.75rem;
+        transition: all 0.3s ease;
+      }
+
+      .social-icon:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        background-color: var(--accent-gold);
+      }
+
+      .map-container {
+        height: 300px;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      }
+
+      @media (min-width: 768px) {
+        .map-container {
+          height: 400px;
+        }
+      }
+
+      .inquiry-option {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0.5rem;
+        border: 2px solid #e0e0e0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .inquiry-option:hover {
+        border-color: var(--accent-gold);
+      }
+
+      .inquiry-option.active {
+        border-color: var(--primary-green);
+        background-color: rgba(0, 63, 46, 0.05);
+      }
+
+      .inquiry-option input {
+        margin-right: 0.5rem;
+      }
+
+      /* Desktop Optimizations */
+      @media (min-width: 1024px) {
+        .main-container {
+          margin-top: 80px;
+          padding: 0 2rem;
+        }
+
+        .contact-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 2rem;
+        }
+      }
+    </style>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        // Handle inquiry option selection
+        const inquiryOptions = document.querySelectorAll('.inquiry-option');
+        inquiryOptions.forEach(option => {
+          option.addEventListener('click', function () {
+            // Clear all active states
+            inquiryOptions.forEach(o => o.classList.remove('active'));
+            // Set this option as active
+            this.classList.add('active');
+            // Check the radio button
+            const radio = this.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+          });
+        });
+
+        // Form submission
+        const contactForm = document.getElementById('contact-form');
+        contactForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          // In a real scenario, you'd send the form data to your server
+          // For now, just show a success message
+          showToast('Your message has been sent successfully!');
+          contactForm.reset();
+          // Uncheck inquiry options
+          inquiryOptions.forEach(o => o.classList.remove('active'));
+        });
+
+        // Copy address to clipboard
+        // const copyBtn = document.getElementById('copy-address');
+        // copyBtn.addEventListener('click', function () {
+        //   const address = document.getElementById('store-address').innerText;
+        //   navigator.clipboard.writeText(address).then(() => {
+        //     showToast('Address copied to clipboard!');
+        //   });
+        // });
+        // Copy address to clipboard
+        const copyBtn = document.getElementById('copy-address');
+        copyBtn.addEventListener('click', function () {
+          const addressElements = document.getElementsByClassName('store-address');
+          const addresses = Array.from(addressElements).map(el => el.innerText);
+          const joinedAddress = addresses.join('\n'); // Join with newline, or use ', ' for comma separation
+
+          navigator.clipboard.writeText(joinedAddress).then(() => {
+            showToast('Address copied to clipboard!');
+          });
+        });
+      });
+    </script>
+  </head>
+
+  <!-- Main Content -->
+  <main class="main-container pt-10 mt-20 lg:mt-24 pb-20 lg:pb-10 px-4 lg:px-8">
+    <!-- Page Title -->
+    <div class="mb-8">
+      <h1 class="text-3xl lg:text-4xl font-bold mb-2">Contact Us</h1>
+      <p class="text-gray-600">We'd love to hear from you. Reach out to us with any questions or feedback.</p>
+    </div>
+
+    <!-- Contact Information & Form Section -->
+    <div class="contact-grid mb-10">
+      <!-- Left side - Contact Info -->
+      <div class="mb-8 lg:mb-0">
+        <!-- Store Information Card -->
+        <div class="contact-card mb-6">
+          <h3 class="text-xl font-bold mb-4 text-primary">Visit Our Store</h3>
+          <div class="flex mb-4">
+            <div class="mr-3 text-primary">
+              <i class="fas fa-map-marker-alt text-xl"></i>
+            </div>
+            <div>
+              <p id="store-address" class="mb-1 store-address">Igrab Story Cafe, Muwileh University Road, </p>
+              <p class="store-address">Al Mansoor Building, Shop Number 18.</p>
+              <button id="copy-address" class="mt-2 text-sm text-accent flex items-center">
+                <i class="fas fa-copy mr-1"></i> Copy Address
+              </button>
+            </div>
+          </div>
+          <div class="flex mb-4">
+            <div class="mr-3 text-primary">
+              <i class="fas fa-clock text-xl"></i>
+            </div>
+            <div>
+              <p class="mb-1"><span class="font-medium">Mon-Fri:</span> 7:00 AM - 8:00 PM</p>
+              <p class="mb-1"><span class="font-medium">Saturday:</span> 8:00 AM - 9:00 PM</p>
+              <p><span class="font-medium">Sunday:</span> 8:00 AM - 6:00 PM</p>
+            </div>
+          </div>
+          <div class="flex mb-4">
+            <div class="mr-3 text-primary">
+              <i class="fas fa-phone-alt text-xl"></i>
+            </div>
+            <div>
+              <p class="mb-1"><a href="tel:+12125556789" class="hover:text-accent">(212) 555-6789</a></p>
+              <p class="text-sm text-gray-500">For orders and inquiries</p>
+            </div>
+          </div>
+          <div class="flex">
+            <div class="mr-3 text-primary">
+              <i class="fas fa-envelope text-xl"></i>
+            </div>
+            <div>
+              <p class="mb-1"><a href="mailto:hello@iGrab Story.com" class="hover:text-accent">hello@iGrab Story.com</a></p>
+              <p class="text-sm text-gray-500">We aim to respond within 24 hours</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social Media Card -->
+        <div class="contact-card">
+          <h3 class="text-xl font-bold mb-4 text-primary">Connect With Us</h3>
+          <div class="flex flex-wrap">
+            <a href="#" class="social-icon mb-3">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#" class="social-icon mb-3">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="#" class="social-icon mb-3">
+              <i class="fab fa-whatsapp"></i>
+            </a>
+          </div>
+          <p class="text-sm text-gray-600 mt-2">Follow us for daily updates, special promotions, and coffee inspiration!
+          </p>
+        </div>
+
+        <!-- Map Container (Mobile Only) -->
+        <div class="mt-6 lg:hidden">
+          <h3 class="text-xl font-bold mb-4 text-primary">Find Us</h3>
+          <div class="map-container">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.9663095343405!2d-74.00425384959301!3d40.74076104379132!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a9b3117469%3A0xd134e199a405a163!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1629910735043!5m2!1sen!2sus"
+              width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side - Contact Form -->
+      <div>
+        <div class="bg-white p-6 rounded-2xl shadow-sm">
+          <h3 class="text-xl font-bold mb-4 text-primary">Send Us a Message</h3>
+          <form id="contact-form">
+            <div class="mb-4">
+              <label for="name" class="form-label">Your Name</label>
+              <input type="text" id="name" name="name" class="form-input" placeholder="Enter your name" required>
+            </div>
+            <div class="mb-4">
+              <label for="email" class="form-label">Your Email</label>
+              <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email" required>
+            </div>
+            <div class="mb-6">
+              <label class="form-label">Inquiry Type</label>
+              <div class="inquiry-options">
+                <label class="inquiry-option active">
+                  <input type="radio" name="inquiry-type" value="general" checked class="hidden">
+                  <span class="text-accent mr-2">💬</span> General Inquiry
+                </label>
+                <label class="inquiry-option">
+                  <input type="radio" name="inquiry-type" value="order" class="hidden">
+                  <span class="text-accent mr-2">🛒</span> Order Issue
+                </label>
+                <label class="inquiry-option">
+                  <input type="radio" name="inquiry-type" value="return" class="hidden">
+                  <span class="text-accent mr-2">📦</span> Return/Exchange
+                </label>
+                <label class="inquiry-option">
+                  <input type="radio" name="inquiry-type" value="business" class="hidden">
+                  <span class="text-accent mr-2">🤝</span> Business Inquiry
+                </label>
+              </div>
+            </div>
+            <div class="mb-6">
+              <label for="message" class="form-label">Message</label>
+              <textarea id="message" name="message" rows="5" class="form-input"
+                placeholder="Tell us how we can help you" required></textarea>
+            </div>
+            <button type="submit" class="btn-primary w-full">Send Message</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map Section (Desktop Only) -->
+    <section class="mb-10 hidden lg:block">
+      <h3 class="text-2xl font-bold mb-4 text-primary">Find Us</h3>
+      <div class="map-container">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.9663095343405!2d-74.00425384959301!3d40.74076104379132!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a9b3117469%3A0xd134e199a405a163!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1629910735043!5m2!1sen!2sus"
+          width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+      </div>
+    </section>
+
+
+
+  </main>
+
+  <%- include('../../partials/Footer') %>

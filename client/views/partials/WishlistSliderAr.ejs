@@ -1,0 +1,378 @@
+<!-- !!!!! PLEASE NOTE -->
+<!-- Css styles are in CartSlider partial file -->
+
+<head>
+    <!-- Material Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@6.9.96/css/materialdesignicons.min.css" rel="stylesheet" />
+</head>
+<!-- Wishlist Modal -->
+<div class="wishlist-modal">
+    <div class="wishlist-content" dir="rtl">
+        <div class="wishlist-header">
+            <h2 class="text-xl font-bold">قائمة الأمنيات</h2>
+            <button id="close-wishlist" class="close-wishlist">
+                <i class="mdi mdi-close text-xl"></i>
+            </button>
+            <!-- <script>
+                var closeWishlistBtnn = document.getElementById('close-wishlist');
+                closeWishlistBtnn.addEventListener('click', () => {
+                    wishlistModal.style.display = 'none';
+                });
+            </script> -->
+        </div>
+
+        <div id="wishlist-items-container" class="wishlist-items">
+            <!-- Wishlist items will be loaded here -->
+        </div>
+
+        <!-- <div class="wishlist-footer">
+            <button class="btn-primary w-full" id="moveAlltoCartBtn" >نقل الكل إلى السلة</button>
+        </div> -->
+    </div>
+</div>
+
+
+<script>
+    const wishlistBtn = document.getElementById("wishlist-btn");
+    const desktopWishlistBtn = document.getElementById("desktop-wishlist-btn");
+    const wishlistItemsContainer = document.getElementById(
+        "wishlist-items-container"
+    );
+
+    const wishlistModal = document.querySelector(".wishlist-modal");
+    const closeWishlistBtn = document.querySelector(".close-wishlist");
+
+    let wishlistItems = [];
+
+    /**
+     * Event Listeners
+     */
+
+    // Wishlist modal open/close
+    wishlistBtn.addEventListener("click", openWishlistModal);
+    desktopWishlistBtn.addEventListener("click", openWishlistModal);
+    closeWishlistBtn.addEventListener("click", closeWishlistModal);
+    /**
+     * Wishlist Functionality
+     */
+    function openWishlistModal() {
+        wishlistModal.style.display = "flex";
+        loadWishlistItems();
+    }
+
+    function closeWishlistModal() {
+        wishlistModal.style.display = "none";
+        document.getElementById("moveAlltoCartBtn").remove();
+        document.querySelector(".wishlist-footer").remove();
+    }
+
+    /**
+     * Loads wishlist items with skeleton loading UI and API request
+     */
+    function loadWishlistItems() {
+        // 1. Show skeleton loading UI
+        showWishlistSkeleton();
+
+        // 2. Simulate API request to backend
+        fetchWishlistItems()
+            .then((data) => {
+                // 3. Replace skeleton with actual wishlist items
+                renderWishlistItems(data);
+            })
+            .catch((error) => {
+                // 4. Show error message if request fails
+                showWishlistError("فشل في تحميل عناصر قائمة الأمنيات. يرجى المحاولة مرة أخرى.");
+                console.error("Wishlist fetch error:", error);
+            });
+    }
+
+    /**
+     * Shows skeleton loading UI in the wishlist
+     */
+    function showWishlistSkeleton() {
+        let skeletonHTML = "";
+
+        // Create 3 skeleton items
+        for (let i = 0; i < 3; i++) {
+            skeletonHTML += `
+                <div class="skeleton-item">
+                    <div class="skeleton skeleton-image"></div>
+                    <div class="flex-1">
+                        <div class="skeleton skeleton-text"></div>
+                        <div class="skeleton skeleton-text short"></div>
+                        <div class="mt-2 skeleton w-16 h-6 rounded"></div>
+                    </div>
+                </div>`;
+        }
+
+        wishlistItemsContainer.innerHTML = skeletonHTML;
+    }
+
+    /**
+     * Shows error message in wishlist
+     */
+    function showWishlistError(message) {
+        wishlistItemsContainer.innerHTML = `
+            <div class="error-message">
+                <i class="mdi mdi-alert-circle text-2xl mb-2"></i>
+                <p>${message}</p>
+            </div>`;
+    }
+
+    /**
+     * Simulates fetching wishlist items from API
+     * In a real app, this would be an actual API call
+     * @returns {Promise} Promise that resolves to wishlist items
+     */
+
+    async function fetchWishlistItems() {
+        try {
+            // Start both the fetch and a 1.5-second delay
+            const [items] = await Promise.all([
+                fetch("/api/get-wishlist", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                }).then(async (response) => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return await response.json();
+                }),
+                new Promise(resolve => setTimeout(resolve, 1500)), // 1.5s delay
+            ]);
+
+            console.log(items); // Log fetched items
+            return items;
+        } catch (error) {
+            console.error("Error fetching wishlist:", error);
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Delay even on error
+            throw new Error("فشل في جلب عناصر قائمة الأمنيات"); // Re-throw with a clean message
+        }
+    }
+
+    /**
+     * Renders wishlist items in the wishlist container
+     */
+    function renderWishlistItems(items) {
+        console.log("Wishlist items:", items);
+        if (items.length === 0) {
+            wishlistItemsContainer.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="mdi mdi-heart-outline text-4xl text-gray-400"></i>
+                    <p class="mt-2 text-gray-500">قائمة الأمنيات فارغة</p>
+                    <button onclick="open_url('shop')" class="secondary-btn btn-secondary mt-4" style="background:#e6d4b8;color:black">تصفح المنتجات</button>
+                </div>`;
+            return;
+        }
+
+        // adding the button
+        // Create the new div element you want to insert
+        const newDiv = document.createElement("div");
+        newDiv.classList.add("wishlist-footer"); // Add the class to the new div
+
+        // Add the content (the button inside the new div)
+        newDiv.innerHTML = `
+    <button class="btn-primary w-full" id="moveAlltoCartBtn" onclick="moveAllToCartFromWishlist(this)">نقل الكل إلى السلة</button>
+`;
+
+        // Get the target div where you want to insert the new div after
+        const targetDiv = document.getElementById("wishlist-items-container");
+
+        // Insert the new div after the target div
+        targetDiv.parentNode.insertBefore(newDiv, targetDiv.nextSibling);
+        // -----------------------------------
+        let wishlistHTML = "";
+
+        items.forEach((item) => {
+
+            let cartButtonHtml
+            if (!item.isAvailable) {
+                cartButtonHtml = `<button style="color:#710d0d;border-radius:4px" class="move-to-cart-btn text-xs py-1 px-3" data-id="${item.id}">
+                                نفد المخزون
+                            </button>`
+            }
+            if (item.isAvailable) {
+                cartButtonHtml = `<button onclick="addItemToCartFromWishlist('${item.id}',this)" style="background:#e6d4b8;color:black" class="move-to-cart-btn secondary-btn btn-secondary text-xs py-1 px-3" data-id="${item.id}">
+                                إضافة للسلة
+                            </button>`
+            }
+            wishlistHTML += `
+                <div class="wishlist-item" data-id="${item.id}">
+                    <div class="item-image" style="background-image: url('${item.image}')"></div>
+                    <div class="item-details flex-1">
+                        <div class="flex justify-between">
+                            <h3 class="font-bold">${item.nameAr}</h3>
+                            <button class="remove-wishlist-item" data-id="${item.id}">
+                                <i class="mdi mdi-close text-gray-400"></i>
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-500">${item.categoryAr}</p>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="font-bold">درهم ${item.price.toFixed(0)}</span>
+                            ${cartButtonHtml}
+                        </div>
+                    </div>
+                </div>`;
+        });
+
+        wishlistItemsContainer.innerHTML = wishlistHTML;
+
+        // Add event listeners for wishlist buttons
+        document.querySelectorAll(".remove-wishlist-item").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                console.log(btn)
+                console.log(btn.dataset.id)
+                removeWishlistItem(btn.dataset.id);
+            });
+        });
+
+        document.querySelectorAll(".move-to-cart-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                moveToCart(parseInt(btn.dataset.id));
+            });
+        });
+    }
+
+    async function removeWishlistItem(id) {
+        try {
+            console.log("Removing item with ID:", id);
+            const response = await fetch(`/api/remove-wishlist/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ productId: id }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error("Error removing item:", errorData.message || response.statusText);
+                showToast("فشل في إزالة العنصر من قائمة الأمنيات.");
+                return;
+            }
+
+            // Remove the item from DOM
+            const itemElement = document.querySelector(`.wishlist-item[data-id="${id}"]`);
+            if (itemElement) {
+                itemElement.remove();
+            }
+            showToast("تم إزالة العنصر من قائمة الأمنيات!");
+
+            // Check if wishlist is now empty
+            const wishlistItemsContainer = document.querySelector("#wishlist-items-container");
+            const remainingItems = wishlistItemsContainer.querySelectorAll(".wishlist-item");
+            if (remainingItems.length === 0) {
+                wishlistItemsContainer.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="mdi mdi-heart-outline text-4xl text-gray-400"></i>
+                    <p class="mt-2 text-gray-500">قائمة الأمنيات فارغة</p>
+                    <button onclick="open_url('shop')" class="secondary-btn btn-secondary mt-4" style="background:#e6d4b8;color:black">تصفح المنتجات</button>
+                </div>               
+`;
+            }
+
+            // Use a template literal to construct the selector string
+            const productWishBtnSelector = `[btn-product-id="${id}"]`;
+
+            // Pass the constructed selector string to querySelector
+            const productWishBtnElement = document.querySelector(productWishBtnSelector);
+            productWishBtnElement.innerHTML = `<i class="far fa-heart text-gray-600"></i>`;
+            const wishlistCountElement = document.getElementById('wishlist-count');
+
+            if (wishlistCountElement) {
+                let currentCount = parseInt(wishlistCountElement.textContent);
+                if (currentCount > 0) {
+                    wishlistCountElement.textContent = --currentCount; // Decrement and assign
+                } else {
+                    console.log("Wishlist count is already 0.");
+                }
+            } else {
+                console.error("Element with ID 'wishlist-count' not found.");
+            }
+        } catch (error) {
+            console.error("Network error:", error);
+            showToast("حدث خطأ ما. يرجى المحاولة مرة أخرى لاحقاً.");
+        }
+    }
+
+    const addItemToCartFromWishlist = async (itemId, cartButton) => {
+        try {
+            const response = await fetch('/api/addItemToCartFromWishlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ itemId })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'فشل في إضافة العنصر إلى السلة');
+                showToast('فشل في إضافة العنصر إلى السلة')
+            }
+
+            const data = await response.json();
+
+            // Success handling
+            showToast('تم إضافة العنصر بنجاح!', 'success');
+            cartButton.textContent='إضافة للسلة ✅'
+            // closeWishlistModal();
+
+            // Optional: Update UI state
+            updateCartCounter();
+
+        } catch (error) {
+            console.error('Add to cart error:', error);
+
+            // User-friendly error messages
+            const errorMessage = error.message.includes('network')
+                ? 'خطأ في الشبكة - يرجى التحقق من اتصالك'
+                : error.message || 'لا يمكن إضافة العنصر';
+
+            showToast(errorMessage, 'error');
+        }
+    };
+
+    const moveAllToCartFromWishlist = async (button)=>{
+         try {
+             button.textContent= 'نقل الكل إلى السلة ✅'
+            const response = await fetch('/api/addAlltoCartFromWishlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'فشل في إضافة العناصر إلى السلة');
+                showToast('فشل في إضافة العناصر إلى السلة')
+            }
+
+            const data = await response.json();
+
+            // Success handling
+            showToast('تم إضافة العناصر بنجاح!', 'success');
+            button.textContent='نقل الكل إلى السلة ✅'
+            updateCartCounter(data.movedCount || 0)
+            closeWishlistModal();
+            openCartModal();
+
+        } catch (error) {
+            console.error('Add to cart error:', error);
+
+            // User-friendly error messages
+            const errorMessage = error.message.includes('network')
+                ? 'خطأ في الشبكة - يرجى التحقق من اتصالك'
+                : error.message || 'لا يمكن إضافة العناصر';
+
+            showToast(errorMessage, 'error');
+        }
+    }
+
+    // function closeWishlistModal() {
+    // wishlistModal.style.display = "none";
+    // document.getElementById("moveAlltoCartBtn").remove();
+    // document.querySelector(".wishlist-footer").remove();
+    // }
+</script>

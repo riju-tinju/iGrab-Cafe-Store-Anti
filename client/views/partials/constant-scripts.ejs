@@ -1,0 +1,72 @@
+<!-- views/partials/common-functions.ejs -->
+<script>
+  // Universal URL opener function
+  function open_url(path) {
+    window.location.href = `/${path}`;
+  }
+
+  function updateCartCounter(addingCount) {
+    const cartCount = document.getElementById('cart-count');
+    let count = parseInt(cartCount.textContent) || 0;
+    if (addingCount) {
+      count = count + addingCount
+      cartCount.textContent = count;
+      return
+    }
+    count++;
+    cartCount.textContent = count;
+    animateCartBadge();
+    return
+  }
+
+  function animateCartBadge() {
+    const badges = document.querySelectorAll('.badge');
+    badges.forEach(badge => {
+      badge.classList.add('badge-animated');
+      setTimeout(() => {
+        badge.classList.remove('badge-animated');
+      }, 300);
+    });
+  }
+
+  async function AddToCart(productId) {
+    try {
+      const response = await fetch("/api/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ productId }),
+      });
+
+      const result = await response.json();
+      console.log(result);
+
+      if (result.ToastMessage) {
+        showToast(result.ToastMessage);
+        console.log("no stocks available");
+        return;
+      }
+
+      if (response.ok) {
+        // Increment cart count
+        const cartCountEl = document.getElementById("cart-count");
+        const desktopCartCountEl = document.getElementById("desktop-cart-count");
+
+        const currentCount = parseInt(cartCountEl.innerText) || 0;
+        cartCountEl.innerText = currentCount + 1;
+        desktopCartCountEl.innerText = currentCount + 1;
+
+        animateCartBadge?.(); // optional animation
+        showToast("item added to cart");
+      } else {
+        showToast("An Error Occurred");
+        console.error("Error adding to cart:", result.error || "Unknown error");
+      }
+    } catch (err) {
+      showToast("An Error Occurred");
+      console.error("Fetch error:", err);
+    }
+  }
+
+</script>

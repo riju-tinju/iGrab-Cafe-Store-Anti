@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no">
+  <title>iGrab Story - Product Details</title>
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+  <!-- Chillax Font -->
+  <link href="https://api.fontshare.com/v2/css?f[]=chillax@400,500,600,700&display=swap" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      tap-highlight-color: transparent;
+    }
+
+    /* Base Styles */
+    :root {
+      --primary-green: #003F2E;
+      --accent-beige: #E6D4B8;
+      --text-black: #212121;
+      --muted-bg: #F9F9F9;
+      --accent-gold: #D69C4E;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--text-black);
+      background-color: var(--muted-bg);
+      overflow-x: hidden;
+    }
+
+    body {
+      user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+    }
+
+    h1,
+    h2,
+    h3 {
+      font-family: 'Chillax', sans-serif !important;
+      font-weight: 700;
+    }
+
+    h4,
+    h5,
+    h6,
+    button,
+    .ui-label {
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .caption {
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+    }
+
+    /* Custom Utility Classes */
+    .bg-primary {
+      background-color: var(--primary-green);
+    }
+
+    .bg-accent {
+      background-color: var(--accent-beige);
+    }
+
+    .bg-muted {
+      background-color: var(--muted-bg);
+    }
+
+    .text-primary {
+      color: var(--primary-green);
+    }
+
+    .text-accent {
+      color: var(--accent-gold);
+    }
+
+    .btn-primary {
+      background-color: var(--primary-green);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: #002a1e;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: var(--accent-gold);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      background-color: #c48b3e;
+      transform: translateY(-2px);
+    }
+
+    /* Badge Count */
+    .badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: var(--accent-gold);
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    /* Animation for Badge */
+    @keyframes badgeBounce {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.2);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .badge-animated {
+      animation: badgeBounce 0.3s ease;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 30px;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    /* Image Slider */
+    .image-slider {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .slider-container {
+      display: flex;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .slide {
+      min-width: 100%;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Dots for slider */
+    .slider-dots {
+      display: flex;
+      justify-content: center;
+      margin-top: -20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin: 0 4px;
+      background-color: rgba(255, 255, 255, 0.5);
+      transition: background-color 0.3s ease;
+    }
+
+    .dot.active {
+      background-color: white;
+    }
+
+    /* Share Dropdown */
+    .share-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 200px;
+      z-index: 100;
+      transform: translateY(10px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .share-dropdown.show {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .share-option {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      transition: background-color 0.2s ease;
+    }
+
+    .share-option:hover {
+      background-color: #f5f5f5;
+    }
+
+    /* Description Toggle */
+    .description-truncated {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .description-full {
+      display: block;
+    }
+
+    /* Quantity Selector Animation */
+    @keyframes expandIn {
+      from {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .animate-expand {
+      animation: expandIn 0.3s ease;
+    }
+
+    /* Cart Button Animation */
+    @keyframes cartBump {
+      0% {
+        transform: scale(1);
+      }
+
+      25% {
+        transform: scale(1.2);
+      }
+
+      50% {
+        transform: scale(0.95);
+      }
+
+      75% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .cart-bump {
+      animation: cartBump 0.4s ease forwards;
+    }
+
+    /* Desktop Optimizations */
+    @media (min-width: 1024px) {
+      .product-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .sticky-top-bar {
+        padding: 0 2rem;
+      }
+
+      .image-slider {
+        height: 500px;
+      }
+
+      .product-info-section {
+        padding: 0 2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">Item added to cart!</div>
+
+  <!-- Sticky Top Bar (Product Actions) -->
+  <header class="sticky-top-bar sticky top-0 z-50 bg-white shadow-sm h-16 flex items-center justify-between px-4">
+    <button id="back-button" class="p-2 rounded-full hover:bg-gray-100">
+      <i class="fas fa-arrow-left text-lg"></i>
+    </button>
+
+    <div class="flex items-center space-x-3">
+      <!-- Share Button with Dropdown -->
+      <div class="relative">
+        <button id="share-button" class="p-2 rounded-full hover:bg-gray-100">
+          <i class="fas fa-share-alt text-lg"></i>
+        </button>
+        <!-- Share Dropdown Menu -->
+        <div id="share-dropdown" class="share-dropdown">
+          <div class="share-option" id="share-whatsapp">
+            <i class="fab fa-whatsapp text-green-500 text-xl mr-3"></i>
+            <span>WhatsApp</span>
+          </div>
+          <div class="share-option" id="share-instagram">
+            <i class="fab fa-instagram text-pink-500 text-xl mr-3"></i>
+            <span>Instagram</span>
+          </div>
+          <div class="share-option" id="share-copy-link">
+            <i class="fas fa-link text-blue-500 text-xl mr-3"></i>
+            <span>Copy Link</span>
+          </div>
+        </div>
+      </div>
+      <script>
+        const shareButton = document.getElementById('share-button');
+        // const shareDropdown = document.getElementById('share-dropdown');
+
+        // shareButton.addEventListener('click', function(e) {
+        //   // e.stopPropagation();
+        //   shareDropdown.classList.toggle('show');
+        // });
+        document.getElementById('share-button').addEventListener('click', function (e) {
+          e.stopPropagation();
+          document.getElementById('share-dropdown').classList.toggle('show');
+        });
+      </script>
+      <!-- Wishlist Button -->
+      <button id="wishlist-button" onclick="add_or_remove_product_to_wishlists('<%= product._id %>',this)"
+        class="p-2 rounded-full hover:bg-gray-100">
+        <i class="<%= product.isWishlisted ?'fas fa-heart text-lg text-red-500':'far fa-heart text-lg' %>"></i>
+      </button>
+
+      <!-- Cart Button with Count -->
+      <div class="relative">
+        <button id="cart-button" class="p-2 rounded-full hover:bg-gray-100">
+          <i class="fas fa-shopping-bag text-lg"></i>
+        </button>
+        <span class="badge" id="cart-count">
+          <%= customer.total_cart || 0 %>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="pb-24">
+    <!-- Product Image Section -->
+    <section class="image-slider">
+      <div class="slider-container" id="image-slider">
+        <div class="slide">
+          <img
+            src="https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1037&q=80"
+            alt="Double Espresso" class="w-full h-auto object-cover">
+        </div>
+        <div class="slide">
+          <img
+            src="https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1037&q=80"
+            alt="Double Espresso" class="w-full h-auto object-cover">
+        </div>
+        <div class="slide">
+          <img
+            src="https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1037&q=80"
+            alt="Double Espresso" class="w-full h-auto object-cover">
+        </div>
+        <!-- <div class="slide">
+          <img src="https://images.unsplash.com/photo-1485808191679-5f86510681a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1173&q=80" alt="Espresso being prepared" class="w-full h-auto object-cover">
+        </div>
+        <div class="slide">
+          <img src="https://images.unsplash.com/photo-1594631252845-29fc4cc8cde9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1064&q=80" alt="Espresso closeup" class="w-full h-auto object-cover">
+        </div> -->
+      </div>
+      <div class="slider-dots" id="slider-dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </section>
+
+    <div class="product-container" dir="rtl">
+      <!-- Product Essentials -->
+      <section class="product-info-section p-4">
+        <div class="mb-2 flex items-center">
+          <!-- <span class="bg-primary text-white text-xs px-2 py-1 rounded-md">BESTSELLER</span> -->
+          <% if (product.category && product.category.name && product.category.name.ar) { %>
+            <span class="text-sm text-gray-500">
+              <%= product.category.name.ar %>
+            </span>
+            <% } %>
+        </div>
+
+        <h1 class="text-2xl lg:text-3xl font-bold mb-2">
+          <%= product.name.ar %>
+        </h1>
+
+        <div class="flex items-center mb-3">
+          <div class="flex text-accent">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star-half-alt"></i>
+          </div>
+          <span class="text-sm text-gray-500 ml-1">(<%= product.sales.totalReviews %> reviews)</span>
+        </div>
+
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <span class="text-2xl font-bold text-accent">
+              <%= product?.pricing.currency %>
+                <%= product.pricing.price %>
+            </span>
+            <!-- <span class="text-sm text-gray-500 line-through ml-2">$4.25</span> -->
+          </div>
+          <!-- <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-md">18% OFF</span> -->
+        </div>
+
+        <div class="brand-info flex items-center p-3 bg-white rounded-lg shadow-sm mb-6">
+          <div class="h-10 bg-primary rounded-full flex items-center justify-center text-white mr-3">
+            <!-- <i class="fas fa-mug-hot"></i> -->
+            <!-- <img style="height:56px;width:auto;" src="/assets/brands/1.png"> -->
+            <img style="height:56px;width:auto;" src="<%= product?.brand?.logo %>">
+          </div>
+          <div>
+            <h4 class="font-bold">
+              <%= product?.brand?.name.ar %>
+            </h4>
+            <p class="text-sm text-gray-500"><%= product?.brand?.tagline?.ar %></p>
+          </div>
+        </div>
+
+        <!-- Product Description -->
+        <div class="mb-6">
+          <h3 class="text-lg font-bold mb-2">Description</h3>
+          <p id="description-text" class="text-gray-700 description-truncated">
+            <%= product?.description?.ar %>
+          </p>
+          <button id="read-more-btn" class="text-primary font-medium mt-2">Read More</button>
+        </div>
+      </section>
+      <% if (product.reviews && product.reviews.length> 0) { %>
+        <!-- Customer Reviews Preview -->
+        <section class="reviews-section p-4">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold">Customer Reviews</h3>
+            <button class="text-accent font-medium">View All</button>
+          </div>
+
+          <% product.reviews.forEach(function(review) { const fullStars=Math.floor(review.rating); const
+            halfStar=review.rating % 1>= 0.5 ? 1 : 0;
+            const emptyStars = 5 - fullStars - halfStar;
+            %>
+            <!-- Review Card -->
+            <div class="bg-white rounded-xl p-6 shadow-sm mb-4">
+              <div class="flex text-accent mb-4">
+                <% for (let i=0; i < fullStars; i++) { %>
+                  <i class="fas fa-star"></i>
+                  <% } %>
+                    <% if (halfStar) { %>
+                      <i class="fas fa-star-half-alt"></i>
+                      <% } %>
+                        <% for (let i=0; i < emptyStars; i++) { %>
+                          <i class="far fa-star"></i>
+                          <% } %>
+              </div>
+              <p class="mb-4 text-gray-700">"<%= review?.review %>"</p>
+              <div class="flex items-center">
+                <img src="<%= review.profileImage %>" alt="<%= review.name %>" class="w-10 h-10 rounded-full mr-3" />
+                <div>
+                  <h4 class="font-bold">
+                    <%= review?.name %>
+                  </h4>
+                  <p class="text-sm text-gray-500">
+                    <%= review?.profession %>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <% }) %>
+
+              <!-- Review 2 -->
+              <!-- <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="flex text-accent mb-4">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star-half-alt"></i>
+                </div>
+                <p class="mb-4 text-gray-700">"This espresso has the perfect balance - not too bitter, not too acidic. I
+                  love how consistent it is every time I order. The baristas really know their craft."</p>
+                <div class="flex items-center">
+                  <div class="w-10 h-10 bg-primary rounded-full mr-3"></div>
+                  <div>
+                    <h4 class="font-bold">Sarah Chen</h4>
+                    <p class="text-sm text-gray-500">Coffee Enthusiast</p>
+                  </div>
+                </div>
+              </div> -->
+              <% } %>
+        </section>
+    </div>
+  </main>
+
+  <!-- Fixed Bottom Cart Bar -->
+  <footer class="cart-bar fixed bottom-0 left-0 right-0 bg-white shadow-lg p-4 z-40">
+    <div id="add-to-cart-container" class="<%= product.isInCart.inCart?'hidden':''%> flex">
+      <button id="add-to-basket-btn" class="btn-primary w-full py-3 text-center">Add to Basket</button>
+    </div>
+
+    <div id="quantity-selector-container" class="<%= product.isInCart.inCart?'':'hidden'%> animate-expand">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <button id="decrease-btn" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+            <i class="fas fa-minus text-gray-600"></i>
+          </button>
+          <span id="quantity" class="mx-4 font-bold text-lg">
+            <%= product.isInCart.qty || 'NAN' %>
+          </span>
+          <button id="increase-btn" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+            <i class="fas fa-plus text-gray-600"></i>
+          </button>
+        </div>
+        <div id="cart-total-for-product-page" class="font-bold text-lg text-accent">AED <%= product.isInCart.total
+            || 'NAN' %>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Toast notification
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Image Slider Logic
+      const slider = document.getElementById('image-slider');
+      const dots = Array.from(document.querySelectorAll('.dot'));
+      let currentSlide = 0;
+      let startX, moveX;
+
+      // Touch events for swiping
+      slider.addEventListener('touchstart', function (e) {
+        startX = e.touches[0].clientX;
+      });
+
+      slider.addEventListener('touchmove', function (e) {
+        if (!startX) return;
+        moveX = e.touches[0].clientX;
+      });
+
+      slider.addEventListener('touchend', function () {
+        if (!startX || !moveX) return;
+
+        const diffX = startX - moveX;
+        const threshold = 50; // minimum distance to be considered as swipe
+
+        if (Math.abs(diffX) > threshold) {
+          if (diffX > 0) { // Swipe left
+            goToSlide(currentSlide + 1);
+          } else { // Swipe right
+            goToSlide(currentSlide - 1);
+          }
+        }
+
+        // Reset values
+        startX = null;
+        moveX = null;
+      });
+
+      function goToSlide(n) {
+        const slides = slider.querySelectorAll('.slide');
+
+        if (n >= slides.length) {
+          currentSlide = 0;
+        } else if (n < 0) {
+          currentSlide = slides.length - 1;
+        } else {
+          currentSlide = n;
+        }
+
+        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+        // Update dots
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === currentSlide);
+        });
+      }
+
+      // Dot navigation
+      dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+          goToSlide(i);
+        });
+      });
+
+      // Description Read More Toggle
+      const descriptionText = document.getElementById('description-text');
+      const readMoreBtn = document.getElementById('read-more-btn');
+
+      readMoreBtn.addEventListener('click', function () {
+        if (descriptionText.classList.contains('description-truncated')) {
+          descriptionText.classList.remove('description-truncated');
+          descriptionText.classList.add('description-full');
+          readMoreBtn.textContent = 'Read Less';
+        } else {
+          descriptionText.classList.remove('description-full');
+          descriptionText.classList.add('description-truncated');
+          readMoreBtn.textContent = 'Read More';
+        }
+      });
+
+      // Cart Functionality
+      const addToBasketBtn = document.getElementById('add-to-basket-btn');
+      const addToCartContainer = document.getElementById('add-to-cart-container');
+      const quantitySelector = document.getElementById('quantity-selector-container');
+      const increaseBtn = document.getElementById('increase-btn');
+      const decreaseBtn = document.getElementById('decrease-btn');
+      const quantityDisplay = document.getElementById('quantity');
+      const cartButton = document.getElementById('cart-button');
+      const cartCount = document.getElementById('cart-count');
+      const productPrice = '<%= product?.pricing?.price || 0 %>'
+      const proId = '<%= product?._id || "" %>'
+
+
+      addToBasketBtn.addEventListener('click', async function () {
+        addToCartContainer.classList.add('hidden');
+        quantitySelector.classList.remove('hidden');
+
+        // Animate cart icon
+        cartButton.classList.add('cart-bump');
+        setTimeout(() => {
+          cartButton.classList.remove('cart-bump');
+        }, 400);
+
+        let addToBasketFun = await AddOrMinusCartItemQtyInProductPage('PLUS', proId);
+        if (!addToBasketFun) {
+          addToCartContainer.classList.remove('hidden');
+          quantitySelector.classList.add('hidden');
+          return;
+        }
+        return
+        // // Update cart count
+        // const currentCount = parseInt(cartCount.textContent);
+        // cartCount.textContent = currentCount + 1;
+
+        // // Show notification
+        // showToast('Item added to cart!');
+      });
+
+      increaseBtn.addEventListener('click', async function () {
+        let increaseButtonFun = await AddOrMinusCartItemQtyInProductPage('PLUS', proId);
+
+
+        // let quantity = parseInt(quantityDisplay.textContent);
+        // quantity++;
+        // quantityDisplay.textContent = quantity;
+      });
+
+      decreaseBtn.addEventListener('click', async function () {
+        let addToBasketFun = await AddOrMinusCartItemQtyInProductPage('MINUS', proId);
+        // let quantity = parseInt(quantityDisplay.textContent);
+        // if (quantity > 1) {
+        //   quantity--;
+        //   quantityDisplay.textContent = quantity;
+        // } else {
+        //   // Reset to add to cart button
+        //   addToCartContainer.classList.remove('hidden');
+        //   quantitySelector.classList.add('hidden');
+        // }
+      });
+      async function AddOrMinusCartItemQtyInProductPage(action, productId) {
+        try {
+          const response = await fetch("/api/update-cartItem-qty-for-product-page", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId, action })
+          });
+
+          if (!response.ok) {
+            let resData=await response.json()
+            console.log(response)
+            console.log("resData __:", resData.errorCode)
+           if( resData.errorCode==='OUT_OF_STOCK'){
+              showToast("Sorry, this item is temporarily out of stock.");
+              return false
+           }
+            showToast("Failed to update item quantity in cart");
+            throw new Error("Failed to update item from cart");
+            return false;
+          }
+
+          const data = await response.json();
+          if (data.cartItemQty == 0) {
+            document.getElementById('add-to-cart-container').classList.remove('hidden');
+            document.getElementById('quantity-selector-container').classList.add('hidden');
+          } else {
+            document.getElementById('add-to-cart-container').classList.add('hidden');
+            document.getElementById('quantity-selector-container').classList.remove('hidden');
+          }
+
+          
+          if(data.success == false) {
+            return showToast("Failed to update the cart item");
+          }
+
+          document.getElementById('cart-count').textContent = data.cartCount || 0;
+
+          document.getElementById('quantity').textContent = data.cartItemQty || 'NaN';
+
+          document.getElementById('cart-total-for-product-page').textContent = 'AED ' + data.cartItemQty * productPrice || 'NaN';
+
+          return true;
+        } catch (error) {
+
+          console.error("Error removing cart item:", error);
+          showToast("Failed to update the cart item");
+          await new Promise(resolve => setTimeout(resolve, 2000)); // Optional delay for user experience
+          return false;
+        }
+      }
+
+
+
+      // Share Functionality
+      // const shareButton = document.getElementById('share-button');
+      // const shareDropdown = document.getElementById('share-dropdown');
+
+      // shareButton.addEventListener('click', function(e) {
+      //   // e.stopPropagation();
+      //   shareDropdown.classList.toggle('show');
+      // });
+
+      // document.addEventListener('click', function(e) {
+      //   if (!shareButton.contains(e.target) && !shareDropdown.contains(e.target)) {
+      //     shareDropdown.classList.remove('show');
+      //   }
+      // });
+
+      // Share options functionality
+      document.getElementById('share-whatsapp').addEventListener('click', function () {
+        window.open(`https://wa.me/?text=${encodeURIComponent(window.location.href)}`, '_blank');
+        shareDropdown.classList.remove('show');
+      });
+
+      document.getElementById('share-instagram').addEventListener('click', function () {
+        showToast('Instagram sharing requires the Instagram app');
+        shareDropdown.classList.remove('show');
+      });
+
+      document.getElementById('share-copy-link').addEventListener('click', function () {
+        navigator.clipboard.writeText(window.location.href).then(function () {
+          showToast('Link copied to clipboard!');
+        });
+        shareDropdown.classList.remove('show');
+      });
+
+      // Back button functionality
+      document.getElementById('back-button').addEventListener('click', function () {
+        window.history.back();
+      });
+
+      // Auto swipe functionality
+      // Uncomment to enable
+
+      setInterval(() => {
+        goToSlide(currentSlide + 1);
+      }, 5000);
+
+    });
+  </script>
+  <script>
+    document.getElementById('cart-button').addEventListener('click', function () {
+      openCartModal();
+    });
+
+    async function add_or_remove_product_to_wishlists(productId, wishButton) {
+
+
+      await fetch('/api/add-or-remove-wishlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId
+        })
+      })
+        .then(response => {
+          if (!response.ok) {
+            // Handle HTTP errors (400, 404, 500, etc.)
+            showToast('Failed to update wishlist');
+            return response.json().then(err => {
+              throw new Error(err.error || 'Failed to update wishlist');
+            });
+          }
+          console.log(response)
+          return response.json();
+        })
+        .then(data => {
+          console.log('Wishlist response:', data);
+          if (data.status) {
+            const funResult = data.status;
+            switch (funResult) {
+              case 'ADDED':
+                wishButton.innerHTML = '<i class="fas fa-heart text-lg text-red-500"></i>'
+                showToast('Item added to wishlist!');
+                break;
+              case 'REMOVED':
+                wishButton.innerHTML = '<i class="far fa-heart text-lg"></i>';
+                showToast('Item removed from wishlist!');
+                break;
+              default:
+                console.log('Unknown status:', funResult);
+                showToast('Unknown status received from server');
+            }
+
+          } else if (data.error) {
+            showToast(data.error);
+          }
+        })
+        .catch(error => {
+          console.error('Wishlist error:', error);
+
+        });
+    }
+  </script>
+  <%- include('../../partials/constant-scripts') %>
+    <%- include('../../partials/CartSlider') %>
+</body>
+
+</html>

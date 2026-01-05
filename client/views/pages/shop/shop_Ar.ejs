@@ -1,0 +1,581 @@
+<%- include('../../partials/Header') %>
+  <script>
+    const customer = <%- JSON.stringify(customer) %>
+  </script>
+  <!-- Main Content -->
+  <!-- Main Product Listing Content -->
+  <main class="main-container mt-20 lg:mt-24 pb-20 lg:pb-10 px-4 lg:px-8" dir="rtl">
+    <!-- Page Title -->
+    <div class="py-3">
+      <h1 class="text-2xl lg:text-3xl font-bold">منتجاتنا</h1>
+      <p class="text-sm text-gray-500">اعثر على قهوتك المفضلة والحلويات</p>
+    </div>
+
+    <!-- Search and Filter Bar -->
+    <div class="flex items-center mb-4 rounded-lg bg-white p-2" dir="rtl">
+      <div class="search-container flex-grow flex items-center relative">
+        <i id="product-search-icon" class="fas fa-search search-icon"></i>
+        <input id="product-search-input" type="text" class="search-input w-full" placeholder="البحث عن المنتجات...">
+      </div>
+      <div class="flex items-center">
+        <button id="brand-btn" class="mr-2 p-2 rounded-full hover:bg-gray-100">
+          <i class="fas fa-crown text-gray-600"></i>
+        </button>
+        <button id="sort-btn" class="mr-2 p-2 rounded-full hover:bg-gray-100">
+          <i class="fas fa-sort text-gray-600"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Categories Scrollable Tabs -->
+    <div class="mb-6" id="category-pill-container">
+      <div class="flex overflow-x-auto space-x-3 py-2 no-scrollbar" dir="rtl">
+        <div class="category-pill active" id="All">الكل</div>
+        <div class="category-pill" id="Best_Selling">الأكثر مبيعاً</div>
+        <% categories.forEach(Category=> { %>
+          <div class="category-pill" id="<%= Category.name.ar %>">
+            <%= Category.name.ar %>
+          </div>
+          <% }); %>
+      </div>
+    </div>
+    <style>
+      .show-filter-status {
+        background: var(--accent-beige);
+        color: var(--primary-green);
+        padding: 6px 12px;
+      }
+    </style>
+ 
+    <!-- Product Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 lg:gap-6 mb-8"
+      id="product-skeleton-container">
+      
+      <% products.forEach(product=> { %>
+        <% let isInWishlist=customer.wishlist.some(item=> item.toString() === product._id.toString()); %>
+          <div class="product-card">
+            <div class="relative">
+              <img src="<%= product.images[0] %>" alt="<%= product.name.ar %>" class="w-full h-48 object-cover">
+              <button onclick="add_or_remove_product_to_wishlist('<%= product._id %>',this)"
+                class="wishlist-btn absolute top-3 left-3 bg-white p-2 rounded-full shadow-md"
+                btn-product-id="<%= product._id %>">
+                <i class="<%= isInWishlist ? 'fas fa-heart text-accent' : 'far fa-heart text-gray-600' %>"></i>
+              </button>
+            </div>
+            <div class="p-4">
+              <% if (product.category && product.category.name && product.category.name.ar) { %>
+                <div class="text-sm text-gray-500 mb-1">
+                  <%= product.category.name.ar %>
+                </div>
+                <% } %>
+
+                  <a href="/product/<%= product.meta.slug %>">
+                    <h3 class="font-bold mb-1">
+                      <%= product.name.ar %>
+                    </h3>
+                  </a>
+
+                  <!-- Star Rating Section -->
+                  <div class="flex items-center mb-3">
+                    <div class="flex text-accent">
+                      <% const fullStars=Math.floor(product.sales.starRating); %>
+                        <% const halfStar=product.sales.starRating % 1>= 0.5; %>
+                          <% const emptyStars=5 - fullStars - (halfStar ? 1 : 0); %>
+
+                            <% for(let i=0; i < fullStars; i++) { %>
+                              <i class="fas fa-star text-sm"></i>
+                              <% } %>
+                                <% if(halfStar) { %>
+                                  <i class="fas fa-star-half-alt text-sm"></i>
+                                  <% } %>
+                                    <% for(let i=0; i < emptyStars; i++) { %>
+                                      <i class="far fa-star text-sm"></i>
+                                      <% } %>
+                    </div>
+                    <span class="text-sm text-gray-500 mr-1">(<%= product.sales.totalReviews %>)</span>
+                  </div>
+
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold">
+                      <%= product.pricing.currency %>
+                        <%= product.pricing.price %>
+                    </span>
+                    <button onclick="AddToCart('<%= product._id %>')" productId="<%= product._id %>" class="add-to-cart bg-primary text-white p-2 rounded-full">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+            </div>
+          </div>
+          <% }); %>
+
+            <script>
+                function add_or_remove_product_to_wishlist(productId, wishButton) {
+                  const wishlistCount = document.getElementById('wishlist-count');
+                  let count = parseInt(wishlistCount.textContent) || 0;
+
+                  fetch('api/add-or-remove-wishlist', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      productId
+                    })
+                  })
+                    .then(response => {
+                      if (!response.ok) {
+                        return response.json().then(err => {
+                          throw new Error(err.error || 'فشل في تحديث قائمة الأمنيات');
+                        });
+                      }
+                      return response.json();
+                    })
+                    .then(data => {
+                      if (data.status) {
+                        const funResult = data.status;
+                        switch (funResult) {
+                          case 'ADDED':
+                            wishButton.innerHTML = '<i class="fas fa-heart text-accent"></i>';
+                            count++;
+                            showToast('تم إضافة العنصر إلى قائمة الأمنيات!');
+                            break;
+                          case 'REMOVED':
+                            wishButton.innerHTML = '<i class="far fa-heart text-gray-600"></i>';
+                            count--;
+                            showToast('تم إزالة العنصر من قائمة الأمنيات!');
+                            break;
+                          default:
+                            window.location.href = '/login';
+                        }
+                        wishlistCount.textContent = count;
+                        animateCartBadge();
+                      } else if (data.error) {
+                        showToast(data.error);
+                      }
+                    })
+                    .catch(error => {
+                      console.error('خطأ في قائمة الأمنيات:', error);
+                      showToast(error.message || 'حدث خطأ أثناء تحديث قائمة الأمنيات');
+                      if (error.message.includes('login') || error.message.includes('User not found')) {
+                        window.location.href = '/login';
+                      }
+                    });
+                }
+            </script>
+    </div>
+
+    <!-- Load More Button -->
+    <div class="flex justify-center mb-8">
+      <button id="load_more_btn" class="btn-secondary flex items-center">
+        تحميل المزيد
+        <i class="fas fa-chevron-down mr-2"></i>
+      </button>
+    </div>
+
+    <!-- Sort Modal (Bottom Sheet) - Hidden by default -->
+    <div id="sort-modal"
+      class="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-lg transform translate-y-full transition-transform duration-300 ease-in-out z-50" dir="rtl">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold">ترتيب</h3>
+          <button id="close-sort-modal" class="text-gray-500">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <form id="sort-form">
+          <!-- Sort Option 1 -->
+          <div class="flex items-center py-3 border-b border-gray-100">
+            <input type="radio" id="new" name="sort" value="new" checked class="h-4 w-4 text-primary">
+            <label for="new" class="mr-3 text-gray-800">الجديد</label>
+          </div>
+
+          <!-- Sort Option 2 -->
+          <div class="flex items-center py-3 border-b border-gray-100">
+            <input type="radio" id="price-high" name="sort" value="price-high" class="h-4 w-4 text-primary">
+            <label for="price-high" class="mr-3 text-gray-800">السعر من الأعلى للأقل</label>
+          </div>
+
+          <!-- Sort Option 3 -->
+          <div class="flex items-center py-3 border-b border-gray-100">
+            <input type="radio" id="price-low" name="sort" value="price-low" class="h-4 w-4 text-primary">
+            <label for="price-low" class="mr-3 text-gray-800">السعر من الأقل للأعلى</label>
+          </div>
+
+          <!-- Sort Option 4 -->
+          <div class="flex items-center py-3 border-b border-gray-100">
+            <input type="radio" id="name-az" name="sort" value="name-az" class="h-4 w-4 text-primary">
+            <label for="name-az" class="mr-3 text-gray-800">الاسم من أ إلى ي</label>
+          </div>
+
+          <!-- Sort Option 5 -->
+          <div class="flex items-center py-3 border-b border-gray-100">
+            <input type="radio" id="name-za" name="sort" value="name-za" class="h-4 w-4 text-primary">
+            <label for="name-za" class="mr-3 text-gray-800">الاسم من ي إلى أ</label>
+          </div>
+
+          <!-- Apply Button -->
+          <button type="submit" class="w-full mt-6 py-3 bg-red-600 text-white rounded-lg font-bold">تطبيق</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Overlay for Modal Background - Hidden by default -->
+    <div id="modal-overlay"
+      class="fixed inset-0 bg-black opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out z-40">
+    </div>
+  </main>
+  <script>
+    // Global options variable
+    let optionSelections = {
+      "brand": 'NOTHING',
+      "sort": 'NOTHING',
+      "search": 'NOTHING',
+      "category": 'All',
+      "page": 1,
+    };
+
+    function updateFilterStatus(optionSelections) {
+      const sortValue = optionSelections.sort;
+      const brandValue = optionSelections.brand;
+      const containerId = 'filter-status';
+      const insertAfterId = 'category-pill-container';
+
+      // 1. Remove existing filter-status if it exists
+      const existingContainer = document.getElementById(containerId);
+      if (existingContainer) {
+        existingContainer.remove();
+      }
+
+      // 2. If both sort and brand are NOTHING, we skip creating anything
+      if (sortValue === 'NOTHING' && brandValue === 'NOTHING') {
+        return;
+      }
+
+      // 3. Create new container
+      const newContainer = document.createElement('div');
+      newContainer.id = containerId;
+      newContainer.className = 'flex items-center mb-4';
+      newContainer.style.columnGap = '12px';
+
+      // 4. Create pill helper
+      function createPill(label, value) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flex items-center animate-fade-in';
+
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'text-sm text-accent';
+        labelSpan.style.color = '#4D5765';
+        labelSpan.style.fontWeight = '600';
+        labelSpan.textContent = `${label}: `;
+
+        const pillSpan = document.createElement('span');
+        pillSpan.className = 'text-sm mr-1 bg-primary text-white px-2 py-1 rounded-full flex items-center show-filter-status';
+        pillSpan.innerHTML = `${value} <i whichSort="${label}" class="fas fa-times mr-1 text-xs close-filter-option"></i>`;
+
+        wrapper.appendChild(labelSpan);
+        wrapper.appendChild(pillSpan);
+        return wrapper;
+      }
+
+      // 5. Add sort and brand pills if needed
+      if (sortValue !== 'NOTHING') {
+        newContainer.appendChild(createPill('ترتيب', sortValue));
+      }
+
+      if (brandValue !== 'NOTHING') {
+        newContainer.appendChild(createPill('العلامة التجارية', brandValue));
+      }
+
+      // 6. Insert after #category-pill-container
+      const insertAfter = document.getElementById(insertAfterId);
+      if (insertAfter && insertAfter.parentNode) {
+        insertAfter.parentNode.insertBefore(newContainer, insertAfter.nextSibling);
+      }
+    }
+
+    document.addEventListener('click', (event) => {
+      if (event.target.matches('.close-filter-option')) {
+        const filterTagElement = event.target.closest('[whichSort]');
+        const filterType = filterTagElement ? filterTagElement.getAttribute('whichSort') : null;
+
+        if (!filterType) {
+          console.log('No whichSort attribute found');
+          return;
+        }
+
+        // Update the selection state
+        switch (filterType) {
+          case 'ترتيب':
+            optionSelections.sort = 'NOTHING';
+            break;
+          case 'العلامة التجارية':
+            optionSelections.brand = 'NOTHING';
+            break;
+          default:
+            console.warn(`Unhandled filterType: ${filterType}`);
+            return;
+        }
+
+        const filterRowElement = filterTagElement.parentElement?.parentElement;
+        const filterGroupContainer = filterRowElement?.parentElement;
+
+        if (filterRowElement && filterGroupContainer) {
+          const siblings = Array.from(filterGroupContainer.children).filter(child => child !== filterRowElement);
+          const elementToRemove = (siblings.length === 0) ? filterGroupContainer : filterRowElement;
+
+          // Add fade-out class to trigger animation
+          elementToRemove.classList.add('fade-out');
+
+          // Remove after transition ends
+          elementToRemove.addEventListener('transitionend', () => {
+            elementToRemove.remove();
+          }, {
+            once: true
+          });
+          getProducts(optionSelections);
+        } else {
+          console.warn('Expected DOM structure not found.');
+        }
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (event.target.matches('.category-pill')) {
+        const clickedPill = event.target;
+
+        // Step 1: Remove 'active' class from all category pills
+        document.querySelectorAll('.category-pill.active').forEach(pill => {
+          pill.classList.remove('active');
+        });
+
+        // Step 2: Add 'active' class to the clicked element
+        clickedPill.classList.add('active');
+
+        // Step 3: Update optionSelections.brand to the clicked element's id (custom or native)
+        optionSelections.category = clickedPill.id;
+        console.log('Selected brand:', optionSelections);
+        optionSelections.page = 1
+        getProducts(optionSelections);
+      }
+    });
+
+    // Wait for DOM to load
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchInput = document.getElementById('product-search-input');
+      searchInput.value = ''; //intial value
+      if (searchInput) {
+        // Listen for real-time typing
+        searchInput.addEventListener('input', () => {
+          const value = searchInput.value.trim();
+
+          // Set to 'NOTHING' if input is empty, otherwise use the input
+          optionSelections.search = value === '' ? 'NOTHING' : value;
+
+          console.log('Live search value:', optionSelections.search);
+        });
+
+        searchInput.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter') {
+            optionSelections.page = 1
+            getProducts(optionSelections);
+          }
+        });
+
+        document.getElementById('product-search-icon').addEventListener('click', function () {
+          optionSelections.page = 1
+          getProducts(optionSelections);
+        });
+      } else {
+        console.warn('Search input not found!');
+      }
+    });
+
+    function getProducts(filterObject) {
+      const container = document.getElementById('product-skeleton-container');
+      if (!container) {
+        console.warn('Product container not found');
+        return;
+      }
+
+      // Step 1: Remove existing product cards
+      const productCards = container.querySelectorAll('.product-card');
+      productCards.forEach(card => card.remove());
+
+      // Step 2: Show skeletons
+      const skeletonHTML = generateSkeletons(6);
+      container.insertAdjacentHTML('beforeend', skeletonHTML);
+
+      // Step 3: Track when skeletons were shown
+      const skeletonShownAt = Date.now();
+
+      // Step 4: Start fetch immediately
+      fetch('/get-products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(filterObject)
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log(data)
+          const elapsed = Date.now() - skeletonShownAt;
+          const remaining = 1500 - elapsed;
+          const wait = remaining > 0 ? remaining : 0;
+
+          setTimeout(() => {
+            // Step 5: Remove skeletons
+            const skeletons = container.querySelectorAll('.skeleton-card');
+            skeletons.forEach(s => s.remove());
+
+            // Step 6: Handle empty or valid data
+            if (!data.filteredProducts || data.filteredProducts.length === 0) {
+              document.getElementById('load_more_btn').remove();
+              const noResults = document.createElement('div');
+              noResults.className = 'text-center text-gray-500';
+              noResults.innerHTML = '<p style="text-align:center;margin:auto;width:100%">لم يتم العثور على منتجات</p>';
+              container.appendChild(noResults);
+              showToast('لم يتم العثور على منتجات');
+
+              setTimeout(() => location.reload(), 3000);
+            } else {
+              console.log('before renderProducts')
+              console.log('data.filteredProducts__:\n', data.filteredProducts)
+              renderProducts(data.filteredProducts, data.wishArray);
+              console.log('after renderProducts')
+              return
+            }
+          }, wait);
+        })
+        .catch(error => {
+          const elapsed = Date.now() - skeletonShownAt;
+          const remaining = 1500 - elapsed;
+          const wait = remaining > 0 ? remaining : 0;
+          showToast('حدث خطأ أثناء تحميل المنتجات');
+          setTimeout(() => {
+            console.error('Failed to load products:', error);
+            const skeletons = container.querySelectorAll('.skeleton-card');
+            location.reload()
+          }, 3000);
+        });
+    }
+
+    function generateSkeletons(count = 6) {
+      let skeletons = '';
+      for (let i = 0; i < count; i++) {
+        skeletons += `
+      <div class="product-card skeleton-card animate-pulse bg-white rounded-lg overflow-hidden">
+        <div class="relative w-full h-48 bg-gray-200 skeleton-box"></div>
+        <div class="p-4">
+          <div class="h-3 bg-gray-200 rounded w-1/2 mb-2 skeleton-box"></div>
+          <div class="h-4 bg-gray-300 rounded w-3/4 mb-3 skeleton-box"></div>
+          <div class="flex items-center space-x-2 mb-3">
+            <div class="h-3 w-16 bg-gray-200 rounded skeleton-box"></div>
+            <div class="h-3 w-6 bg-gray-300 rounded skeleton-box"></div>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="h-4 w-10 bg-gray-300 rounded skeleton-box"></div>
+            <div class="h-8 w-8 bg-gray-200 rounded-full skeleton-box"></div>
+          </div>
+        </div>
+      </div>
+    `;
+      }
+      return skeletons;
+    }
+
+    function renderProducts(products, wishArray) {
+      console.log('Rendering products:', products);
+      console.log('Wish Array:', wishArray);
+      console.log(products)
+      const container = document.getElementById('product-skeleton-container');
+      if (!container) {
+        console.warn('Product container not found');
+        return;
+      }
+
+      // 1. Clear existing content
+      container.innerHTML = '';
+
+      // 2. Render each product
+      products.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+
+        // Generate star rating HTML
+        const stars = Array.from({
+          length: 5
+        }, (_, i) => {
+          if (i < (product.sales?.starRating || 0)) {
+            return '<i class="fas fa-star text-sm text-accent"></i>';
+          } else {
+            return '<i class="far fa-star text-sm text-accent"></i>';
+          }
+        }).join('');
+
+        // Liked heart icon
+        customer = <%- JSON.stringify(customer) %>
+          console.log("customer data :", customer)
+        customer = customer || {
+          wishlist: []
+        }
+        customer.wishlist = wishArray
+        let checkWish = customer.wishlist.some(item => item.toString() === product._id.toString());
+        let heartOneclickFunctionHtml = `onclick="add_or_remove_product_to_wishlist('${product._id}',this)" btn-product-id="${product._id}"`;
+        const heartClass = checkWish ? 'fas fa-heart text-accent' : 'far fa-heart text-gray-600';
+
+        // Get the first image if available
+        const imageUrl = product.images?.[0] || 'https://via.placeholder.com/300x200';
+
+        // Get localized name and category (fallback to Arabic or blank)
+        const productName = product.name?.ar || '';
+        const productCategory = product.category?.name || '';
+        const urlSlug = product.meta?.slug || '';
+
+        // Price and currency
+        const price = product.pricing?.price?.toFixed(2) || '0.00';
+        const currency = product.pricing?.currency || 'AED';
+
+        // Review count
+        const reviewCount = product.sales?.totalReviews || 0;
+
+        // Product card inner HTML
+        card.innerHTML = `
+      <div class="relative">
+        <img src="${imageUrl}" alt="${productName}" class="w-full h-48 object-cover">
+        <button ${heartOneclickFunctionHtml} class="wishlist-btn absolute top-3 left-3 bg-white p-2 rounded-full shadow-md">
+          <i class="${heartClass}"></i>
+        </button>
+      </div>
+      <div class="p-4">
+        <div class="text-sm text-gray-500 mb-1">${productCategory}</div>
+        <a href="/product/${urlSlug}">
+          <h3 class="font-bold mb-1">${productName}</h3>
+        </a>
+        <div class="flex items-center mb-3">
+          <div class="flex">${stars}</div>
+          <span class="text-sm text-gray-500 mr-1">(${reviewCount})</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="font-bold">${currency} ${price}</span>
+          <button onclick="AddToCart('${product._id}')" id="addToCartButton" productId="${product._id}" class="add-to-cart bg-primary text-white p-2 rounded-full">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+    `;
+        container.appendChild(card);
+      });
+    }
+  </script>
+
+  <%- include('./function/loadmoreProduct') %>
+    <%- include('./function/brandSlider') %>
+      <%- include('./function/sortSlider') %>
+        <%- include('../../partials/Footer') %>

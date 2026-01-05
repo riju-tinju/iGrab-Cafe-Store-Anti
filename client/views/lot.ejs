@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lottery Results - Colorful Modern</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+        
+        .app-header {
+            background: linear-gradient(135deg, #FF6B6B 0%, #6A82FB 50%, #45EBA5 100%);
+            background-size: 300% 300%;
+            animation: gradientShift 6s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .card-expand {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: top;
+        }
+        
+        .card-expand.expanded {
+            transform: scaleY(1);
+            opacity: 1;
+            max-height: 600px;
+        }
+        
+        .card-expand.collapsed {
+            transform: scaleY(0);
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+        }
+        
+        .lottery-card {
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            min-height: 44px;
+        }
+        
+        .lottery-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 6px;
+            height: 100%;
+            border-radius: 20px 0 0 20px;
+        }
+        
+        .lottery-card:active {
+            transform: scale(0.98);
+        }
+        
+        .lottery-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .kerala-card {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+        }
+        .kerala-card::before {
+            background: #FF4444;
+        }
+        
+        .maharashtra-card {
+            background: linear-gradient(135deg, #6A82FB 0%, #8FA8FF 100%);
+        }
+        .maharashtra-card::before {
+            background: #4263EB;
+        }
+        
+        .punjab-card {
+            background: linear-gradient(135deg, #45EBA5 0%, #6BFFB8 100%);
+        }
+        .punjab-card::before {
+            background: #20C997;
+        }
+        
+        .upcoming-card-1 {
+            background: linear-gradient(135deg, #FFC93C 0%, #FFD666 100%);
+        }
+        .upcoming-card-1::before {
+            background: #FFB020;
+        }
+        
+        .upcoming-card-2 {
+            background: linear-gradient(135deg, #A855F7 0%, #C084FC 100%);
+        }
+        .upcoming-card-2::before {
+            background: #9333EA;
+        }
+        
+        .upcoming-card-3 {
+            background: linear-gradient(135deg, #EC4899 0%, #F472B6 100%);
+        }
+        .upcoming-card-3::before {
+            background: #DB2777;
+        }
+        
+        .past-card {
+            background: linear-gradient(135deg, #64748B 0%, #94A3B8 100%);
+        }
+        .past-card::before {
+            background: #475569;
+        }
+        
+        .countdown-badge {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            min-width: 32px;
+            min-height: 32px;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .prize-badge {
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            color: #744210;
+            font-weight: 700;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+        
+        .live-badge {
+            background: linear-gradient(45deg, #10B981, #34D399);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .result-badge {
+            background: linear-gradient(45deg, #3B82F6, #60A5FA);
+            color: white;
+        }
+        
+        .upcoming-badge {
+            background: linear-gradient(45deg, #F59E0B, #FBBF24);
+            color: white;
+            animation: glow 2s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes glow {
+            0% { box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
+            100% { box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5); }
+        }
+        
+        .past-badge {
+            background: linear-gradient(45deg, #6B7280, #9CA3AF);
+            color: white;
+        }
+        
+        .result-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .winning-number {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #744210;
+            font-weight: 800;
+            letter-spacing: 3px;
+            border-radius: 12px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+        }
+        
+        .prize-row {
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .prize-row:hover {
+            background: rgba(255, 255, 255, 0.8);
+        }
+        
+        .view-results-btn {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            font-weight: 600;
+            min-height: 44px;
+        }
+        
+        .view-results-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+        
+        .load-more-btn {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            font-weight: 600;
+            min-height: 44px;
+        }
+        
+        .load-more-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+        
+        .section-title {
+            background: linear-gradient(135deg, #374151 0%, #4B5563 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+        
+        .bounce-in {
+            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3) translateY(50px); opacity: 0; }
+            50% { transform: scale(1.05) translateY(-10px); opacity: 0.8; }
+            70% { transform: scale(0.95) translateY(0px); opacity: 0.9; }
+            100% { transform: scale(1) translateY(0px); opacity: 1; }
+        }
+        
+        .card-text {
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card-text-secondary {
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        
+        .countdown-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 8px;
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="app-header text-white sticky top-0 z-50">
+        <div class="px-6 py-6">
+            <div class="flex items-center justify-center">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-dice text-3xl drop-shadow-lg"></i>
+                    <h1 class="text-2xl font-bold drop-shadow-lg tracking-wide">LottoResults</h1>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="px-4 py-6 space-y-8 max-w-md mx-auto">
+        <!-- Today's Results -->
+        <section>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold section-title flex items-center">
+                    <i class="fas fa-calendar-day text-blue-500 mr-3 text-2xl"></i>
+                    Today's Results
+                </h2>
+                <span class="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm px-3 py-1 rounded-full font-semibold">3 Results</span>
+            </div>
+            
+            <div class="space-y-5">
+                <!-- Kerala State Lottery -->
+                <div class="lottery-card kerala-card p-5 cursor-pointer" onclick="toggleResult('result1')">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="live-badge text-xs px-3 py-1 rounded-full font-bold">LIVE</span>
+                                <span class="card-text-secondary text-sm font-medium">28 June 2025</span>
+                            </div>
+                            <h3 class="font-bold text-lg card-text mb-2">Kerala State Bumper</h3>
+                            <div class="flex items-center text-sm card-text-secondary">
+                                <i class="fas fa-trophy text-yellow-300 mr-2"></i>
+                                <span class="font-semibold">1st Prize: ₹1 Crore</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <i id="arrow1" class="fas fa-chevron-down card-text text-xl transition-transform duration-300"></i>
+                        </div>
+                    </div>
+                    
+                    <div id="result1" class="card-expand collapsed mt-5">
+                        <div class="result-container p-5 space-y-4">
+                            <div class="flex justify-between items-center py-3 border-b border-gray-200">
+                                <span class="flex items-center font-semibold text-gray-700">
+                                    <i class="fas fa-medal text-yellow-500 mr-2 text-lg"></i>
+                                    1st Prize
+                                </span>
+                                <span class="font-bold text-green-600 text-lg">₹1,00,00,000</span>
+                            </div>
+                            <div class="text-center">
+                                <div class="winning-number text-2xl font-mono py-4 px-6 inline-block">AB 123456</div>
+                            </div>
+                            <div class="grid grid-cols-1 gap-2 text-sm">
+                                <div class="prize-row flex justify-between p-2">
+                                    <span class="font-medium text-gray-600">2nd Prize:</span>
+                                    <span class="font-bold text-green-600">₹10,00,000</span>
+                                </div>
+                                <div class="prize-row flex justify-between p-2">
+                                    <span class="font-medium text-gray-600">3rd Prize:</span>
+                                    <span class="font-bold text-green-600">₹1,00,000</span>
+                                </div>
+                                <div class="prize-row flex justify-between p-2">
+                                    <span class="font-medium text-gray-600">4th Prize:</span>
+                                    <span class="font-bold text-green-600">₹5,000</span>
+                                </div>
+                                <div class="prize-row flex justify-between p-2">
+                                    <span class="font-medium text-gray-600">5th Prize:</span>
+                                    <span class="font-bold text-green-600">₹1,000</span>
+                                </div>
+                            </div>
+                            <button class="view-results-btn w-full text-white py-3 font-semibold">
+                                View Full Results
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Maharashtra State Lottery -->
+                <div class="lottery-card maharashtra-card p-5 cursor-pointer" onclick="toggleResult('result2')">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="result-badge text-xs px-3 py-1 rounded-full font-bold">RESULT</span>
+                                <span class="card-text-secondary text-sm font-medium">28 June 2025</span>
+                            </div>
+                            <h3 class="font-bold text-lg card-text mb-2">Maharashtra Weekly</h3>
+                            <div class="flex items-center text-sm card-text-secondary">
+                                <i class="fas fa-trophy text-yellow-300 mr-2"></i>
+                                <span class="font-semibold">1st Prize: ₹50 Lakh</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <i id="arrow2" class="fas fa-chevron-down card-text text-xl transition-transform duration-300"></i>
+                        </div>
+                    </div>
+                    
+                    <div id="result2" class="card-expand collapsed mt-5">
+                        <div class="result-container p-5 space-y-4">
+                            <div class="flex justify-between items-center py-3 border-b border-gray-200">
+                                <span class="flex items-center font-semibold text-gray-700">
+                                    <i class="fas fa-medal text-yellow-500 mr-2 text-lg"></i>
+                                    1st Prize
+                                </span>
+                                <span class="font-bold text-green-600 text-lg">₹50,00,000</span>
+                            </div>
+                            <div class="text-center">
+                                <div class="winning-number text-2xl font-mono py-4 px-6 inline-block">MH 789012</div>
+                            </div>
+                            <div class="grid grid-cols-1 gap-2 text-sm">
+                                <div class="prize-row flex justify-between p-2">
+                                    <span class="font-medium text-gray-600">2nd Prize:</span>
+                                    <span class="font-bold text-green-600">₹5,00,000</span>
+                                </div>
+                                <div class="prize-row flex justify-between p-2">
+                                    <span class="font-medium text-gray-600">3rd Prize:</span>
+                                    <span class="font-bold text-green-600">₹50,000</span>
+                                </div>
+                                <div class="prize-row flex justify-between p-2">
+                                    <span class="font-medium text-gray-600">4th Prize:</span>
+                                    <span class="font-bold text-green-600">₹2,500</span>
+                                </div>
+                                <div class="prize-row flex justify-between p-2">
+                                    <span class="font-medium text-gray-600">5th Prize:</span>
+                                    <span class="font-bold text-green-600">₹500</span>
+                                </div>
+                            </div>
+                            <button class="view-results-btn w-full text-white py-3 font-semibold">
+                                View Full Results
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Punjab State Lottery -->
+                <div class="lottery-card punjab-card p-5 cursor-pointer" onclick="toggleResult('result3')">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="result-badge text-xs px-3 py-1 rounded-full font-bold">RESULT</span>
+                                <span class="card-text-secondary text-sm font-medium">28 June 2025</span>
+                            </div>
+                            <h3 class="font-bold text-lg card-text mb-2">Punjab Dear Daily</h3>
+                            <div class="flex items-center text-sm card-text-secondary">
+                                <i class="fas fa-trophy text-yellow-300 mr-2"></i>
+                                <span class="font-semibold">1st Prize: ₹25 Lakh</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <i id="arrow3" class="fas fa-chevron-down card-text text-xl transition-transform duration-300"></i>
+                        </div>
+                    </div>
+                    
+                    <div id="result3" class="card-expand collapsed mt-5">
+                        <div class="result-container p-5 space-y-4">
+                            <div class="flex justify-between items-center py-3 border-b border-gray-200">
+                                <span class="flex items-center font-semibold text-gray-700">
+                                    <i class="fas fa-medal text-yellow-500 mr-2 text-lg"></i>
+                                    1st Prize
+                                </span>
+                                <span class="font-bold text-green-600 text-lg">₹25,00,000</span>
+                            </div>
+                            <div class="text-center">
+                                <div class="winning-number text-2xl font-mono py-4 px-6 inline-block">PB 456789</div>
+                            </div>
+                            <div class="grid grid-cols-1 gap-2 text-sm">
+                                <div class="prize-row flex justify-between p-2">
+                                    <span class="font-medium text-gray-600">2nd Prize:</span>
+                                    <span class="font-bold text-green-600">₹2,50,000</span>
+                                </div>
+                                <div class="prize-row flex justify-between p-2">
+                                    <span class="font-medium text-gray-600">3rd Prize:</span>
+                                    <span class="font-bold text-green-600">₹25,000</span>
+                                </div>
+                                <div class="prize-row flex justify-between p-2">
+                                    <span class="font-medium text-gray-600">4th Prize:</span>
+                                    <span class="font-bold text-green-600">₹1,250</span>
+                                </div>
+                                <div class="prize-row flex justify-between p-2">
+                                    <span class="font-medium text-gray-600">5th Prize:</span>
+                                    <span class="font-bold text-green-600">₹250</span>
+                                </div>
+                            </div>
+                            <button class="view-results-btn w-full text-white py-3 font-semibold">
+                                View Full Results
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Upcoming Lotteries -->
+        <section>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold section-title flex items-center">
+                    <i class="fas fa-clock text-orange-500 mr-3 text-2xl"></i>
+                    Upcoming Lotteries
+                </h2>
+                <span class="bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm px-3 py-1 rounded-full font-semibold">5 Upcoming</span>
+            </div>
+            
+            <div class="space-y-5">
+                <!-- Upcoming Lottery 1 -->
+                <div class="lottery-card upcoming-card-1 p-5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="upcoming-badge text-xs px-3 py-1 rounded-full font-bold">NEXT</span>
+                                <span class="card-text-secondary text-sm font-medium">29 June 2025</span>
+                            </div>
+                            <h3 class="font-bold text-lg card-text mb-2">West Bengal Weekly</h3>
+                            <div class="flex items-center text-sm card-text-secondary mb-4">
+                                <i class="fas fa-trophy text-yellow-300 mr-2"></i>
+                                <span class="font-semibold">1st Prize: ₹75 Lakh</span>
+                            </div>
+                            
+                            <!-- Countdown Timer -->
+                            <div class="countdown-container">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs card-text-secondary font-medium">Draws in:</span>
+                                    <div class="flex space-x-2">
+                                        <div class="countdown-badge flex items-center justify-center px-2 py-1 text-xs" id="countdown1-hours">23</div>
+                                        <span class="card-text text-xs">:</span>
+                                        <div class="countdown-badge flex items-center justify-center px-2 py-1 text-xs" id="countdown1-minutes">45</div>
+                                        <span class="card-text text-xs">:</span>
+                                        <div class="countdown-badge flex items-center justify-center px-2 py-1 text-xs" id="countdown1-seconds">30</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Lottery 2 -->
+                <div class="lottery-card upcoming-card-2 p-5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="upcoming-badge text-xs px-3 py-1 rounded-full font-bold">UPCOMING</span>
+                                <span class="card-text-secondary text-sm font-medium">30 June 2025</span>
+                            </div>
+                            <h3 class="font-bold text-lg card-text mb-2">Rajasthan Bumper</h3>
+                            <div class="flex items-center text-sm card-text-secondary mb-4">
+                                <i class="fas fa-trophy text-yellow-300 mr-2"></i>
+                                <span class="font-semibold">1st Prize: ₹2 Crore</span>
+                            </div>
+                            
+                            <!-- Countdown Timer -->
+                            <div class="countdown-container">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs card-text-secondary font-medium">Draws in:</span>
+                                    <div class="flex space-x-2">
+                                        <div class="countdown-badge flex items-center justify-center px-2 py-1 text-xs" id="countdown2-days">1</div>
+                                        <span class="card-text text-xs">d</span>
+                                        <div class="countdown-badge flex items-center justify-center px-2 py-1 text-xs" id="countdown2-hours">23</div>
+                                        <span class="card-text text-xs">h</span>
+                                        <div class="countdown-badge flex items-center justify-center px-2 py-1 text-xs" id="countdown2-minutes">45</div>
+                                        <span class="card-text text-xs">m</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Lottery 3 -->
+                <div class="lottery-card upcoming-card-3 p-5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="upcoming-badge text-xs px-3 py-1 rounded-full font-bold">UPCOMING</span>
+                                <span class="card-text-secondary text-sm font-medium">01 July 2025</span>
+                            </div>
+                            <h3 class="font-bold text-lg card-text mb-2">Tamil Nadu Special</h3>
+                            <div class="flex items-center text-sm card-text-secondary mb-4">
+                                <i class="fas fa-trophy text-yellow-300 mr-2"></i>
+                                <span class="font-semibold">1st Prize: ₹60 Lakh</span>
+                            </div>
+                            
+                            <!-- Countdown Timer -->
+                            <div class="countdown-container">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs card-text-secondary font-medium">Draws in:</span>
+                                    <div class="flex space-x-2">
+                                        <div class="countdown-badge flex items-center justify-center px-2 py-1 text-xs" id="countdown3-days">2</div>
+                                        <span class="card-text text-xs">d</span>
+                                        <div class="countdown-badge flex items-center justify-center px-2 py-1 text-xs" id="countdown3-hours">23</div>
+                                        <span class="card-text text-xs">h</span>
+                                        <div class="countdown-badge flex items-center justify-center px-2 py-1 text-xs" id="countdown3-minutes">45</div>
+                                        <span class="card-text text-xs">m</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Past Results -->
+        <section>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold section-title flex items-center">
+                    <i class="fas fa-history text-purple-500 mr-3 text-2xl"></i>
+                    Past Results
+                </h2>
+                <button class="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm px-4 py-2 rounded-full font-semibold hover:shadow-lg transition-all">View All</button>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- Past Result 1 -->
+                <div class="lottery-card past-card p-5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="past-badge text-xs px-3 py-1 rounded-full font-bold">PAST</span>
+                                <span class="card-text-secondary text-sm font-medium">27 June 2025</span>
+                            </div>
+                            <h3 class="font-bold text-lg card-text mb-2">Goa State Weekly</h3>
+                            <div class="flex items-center text-sm card-text-secondary">
+                                <i class="fas fa-trophy text-yellow-300 mr-2"></i>
+                                <span class="font-semibold">Winner: GS 123456 - ₹40 Lakh</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <i class="fas fa-chevron-right card-text text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Past Result 2 -->
+                <div class="lottery-card past-card p-5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <span class="past-badge text-xs px-3 py-1 rounded-full font-bold">PAST</span>
+                                <span class="card-text-secondary text-sm font-medium">26 June 2025</span>
+                            </div>
+                            <h3 class="font-bold text-lg card-text mb-2">Assam Daily</h3>
+                            <div class="flex items-center text-sm card-text-secondary">
+                                <i class="fas fa-trophy text-yellow-300 mr-2"></i>
+                                <span class="font-semibold">Winner: AS 789012 - ₹15 Lakh</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <i class="fas fa-chevron-right card-text text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Load More Button -->
+                <button class="load-more-btn w-full text-white py-4 font-semibold flex items-center justify-center space-x-2">
+                    <i class="fas fa-plus"></i>
+                    <span>Load More Results</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Toggle result expansion
+        function toggleResult(resultId) {
+            const result = document.getElementById(resultId);
+            const arrow = document.getElementById('arrow' + resultId.slice(-1));
+            
+            // Close all other results
+            const allResults = document.querySelectorAll('.card-expand');
+            const allArrows = document.querySelectorAll('[id^="arrow"]');
+            
+            allResults.forEach((el, index) => {
+                if (el.id !== resultId) {
+                    el.classList.remove('expanded');
+                    el.classList.add('collapsed');
+                    allArrows[index].style.transform = 'rotate(0deg)';
+                }
+            });
+            
+            // Toggle current result
+            if (result.classList.contains('collapsed')) {
+                result.classList.remove('collapsed');
+                result.classList.add('expanded');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                result.classList.remove('expanded');
+                result.classList.add('collapsed');
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Countdown timers
+        function updateCountdown(elementPrefix, targetDate) {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+            
+            if (distance > 0) {
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                const daysEl = document.getElementById(elementPrefix + '-days');
+                const hoursEl = document.getElementById(elementPrefix + '-hours');
+                const minutesEl = document.getElementById(elementPrefix + '-minutes');
+                const secondsEl = document.getElementById(elementPrefix + '-seconds');
+                
+                if (daysEl) daysEl.textContent = days.toString().padStart(2, '0');
+                if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+                if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+                if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+            }
+        }
+
+        // Initialize countdowns
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(14, 0, 0, 0);
+
+        const dayAfter = new Date();
+        dayAfter.setDate(dayAfter.getDate() + 2);
+        dayAfter.setHours(14, 0, 0, 0);
+
+        const threeDaysLater = new Date();
+        threeDaysLater.setDate(threeDaysLater.getDate() + 3);
+        threeDaysLater.setHours(14, 0, 0, 0);
+
+        // Update countdowns every second
+        setInterval(() => {
+            updateCountdown('countdown1', tomorrow.getTime());
+            updateCountdown('countdown2', dayAfter.getTime());
+            updateCountdown('countdown3', threeDaysLater.getTime());
+        }, 1000);
+
+        // Initial countdown update
+        updateCountdown('countdown1', tomorrow.getTime());
+        updateCountdown('countdown2', dayAfter.getTime());
+        updateCountdown('countdown3', threeDaysLater.getTime());
+
+        // Add bounce effect to cards when they appear
+        window.addEventListener('load', function() {
+            const cards = document.querySelectorAll('.lottery-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('bounce-in');
+                }, index * 150);
+            });
+        });
+    </script>
+</body>
+</html>

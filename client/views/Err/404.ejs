@@ -1,0 +1,153 @@
+<!-- <h1><%= message %></h1>
+<h2><%= error.status %></h2>
+<pre><%= error.stack %></pre> -->
+<%- include('./partials/Header') %>
+
+<!-- 404 Error Page Main Content -->
+<main class="main-container mt-20 lg:mt-24 pb-20 lg:pb-10 px-4 lg:px-8">
+  <!-- 404 Error Section -->
+  <section class="min-h-[60vh] flex items-center justify-center pt-10">
+    <div class="text-center max-w-2xl mx-auto">
+      <!-- Large 404 Number -->
+      <div class="mb-8">
+        <h1 class="text-8xl lg:text-9xl font-bold text-primary opacity-20 mb-4">404</h1>
+        <div class="relative -mt-16 lg:-mt-20">
+          <i class="fas fa-coffee text-6xl lg:text-7xl text-accent"></i>
+        </div>
+      </div>
+      
+      <!-- Error Message -->
+      <div class="mb-8">
+        <h2 class="text-2xl lg:text-3xl font-bold mb-4 text-primary">Oops! Page Not Found</h2>
+        <p class="text-gray-600 text-lg mb-6 leading-relaxed">
+          Looks like this page took a coffee break! The page you're looking for doesn't exist or has been moved.
+        </p>
+        <p class="text-gray-500">
+          Don't worry, let's get you back to exploring our delicious offerings.
+        </p>
+      </div>
+      
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+        <button onclick="window.history.back()" class="btn-primary flex items-center">
+          <i class="fas fa-arrow-left mr-2"></i>
+          Go Back
+        </button>
+        <a href="/" class="btn-secondary flex items-center">
+          <i class="fas fa-home mr-2"></i>
+          Back to Home
+        </a>
+        <a href="/shop" class="btn-primary flex items-center bg-accent hover:bg-opacity-80">
+          <i class="fas fa-store mr-2"></i>
+          Browse Menu
+        </a>
+      </div>
+      
+      <!-- Helpful Links -->
+      <!-- <div class="bg-white rounded-xl p-6 shadow-sm">
+        <h3 class="text-xl font-bold mb-4 text-primary">Maybe you're looking for:</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <a href="/" class="group text-center p-4 rounded-lg hover:bg-accent hover:bg-opacity-10 transition-all duration-300">
+            <i class="fas fa-home text-2xl text-primary mb-2 group-hover:text-accent"></i>
+            <p class="font-medium">Home</p>
+          </a>
+          <a href="/shop" class="group text-center p-4 rounded-lg hover:bg-accent hover:bg-opacity-10 transition-all duration-300">
+            <i class="fas fa-store text-2xl text-primary mb-2 group-hover:text-accent"></i>
+            <p class="font-medium">Our Menu</p>
+          </a>
+          <a href="/contact" class="group text-center p-4 rounded-lg hover:bg-accent hover:bg-opacity-10 transition-all duration-300">
+            <i class="fas fa-phone text-2xl text-primary mb-2 group-hover:text-accent"></i>
+            <p class="font-medium">Contact Us</p>
+          </a>
+          <a href="/about" class="group text-center p-4 rounded-lg hover:bg-accent hover:bg-opacity-10 transition-all duration-300">
+            <i class="fas fa-info-circle text-2xl text-primary mb-2 group-hover:text-accent"></i>
+            <p class="font-medium">About Us</p>
+          </a>
+        </div>
+      </div> -->
+    </div>
+  </section>
+  
+ 
+  <!-- Contact Support Section -->
+  <section class="mt-16 bg-accent bg-opacity-20 rounded-2xl p-8 text-center">
+    <div class="max-w-md mx-auto">
+      <i class="fas fa-headset text-4xl text-primary mb-4"></i>
+      <h3 class="text-xl font-bold mb-4">Need Help?</h3>
+      <p class="text-gray-700 mb-6">
+        Can't find what you're looking for? Our friendly team is here to help you navigate our menu and services.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="/contact" class="btn-primary">Contact Support</a>
+        <a href="/faq" class="btn-secondary">View FAQ</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<style>
+/* Additional styles for 404 page animations */
+.bounce-in {
+  animation: bounceIn 0.8s ease-out;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+</style>
+
+<script>
+// Add some interactive elements
+document.addEventListener('DOMContentLoaded', function() {
+  // Add bounce animation to the main 404 content
+  const errorContent = document.querySelector('.text-center.max-w-2xl');
+  if (errorContent) {
+    errorContent.classList.add('bounce-in');
+  }
+  
+  // Add floating animation to the coffee icon
+  const coffeeIcon = document.querySelector('.fa-coffee');
+  if (coffeeIcon) {
+    coffeeIcon.classList.add('float');
+  }
+  
+  // Add click tracking for better UX
+  const actionButtons = document.querySelectorAll('.btn-primary, .btn-secondary');
+  actionButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      // Add some visual feedback
+      this.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        this.style.transform = '';
+      }, 150);
+    });
+  });
+});
+</script>
+<%- include('./partials/Footer') %>

@@ -1,0 +1,300 @@
+  <!-- Brand Modal -->
+  <style>
+    /* Brand Modal Styles */
+    .brand-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: flex-end;
+      align-items: flex-end;
+      z-index: 1000;
+    }
+
+    .brand-content {
+      background-color: white;
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      height: auto;
+      max-height: 80vh;
+      padding: 20px;
+      animation: slideUp 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 15px;
+      color: black;
+    }
+
+    .brand-options {
+      overflow-y: auto;
+      padding: 10px 0;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .brand-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .brand-option:hover {
+      background-color: #f8f8f8;
+    }
+
+    .brand-option.selected {
+      border-color: #003F2E;
+      background-color: #f2fef7;
+    }
+
+    .brand-image {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      margin-bottom: 8px;
+      border-radius: 50%;
+      background-color: #f5f5f5;
+      padding: 8px;
+    }
+
+    .brand-name {
+      font-size: 14px;
+      text-align: center;
+      color: #333;
+    }
+
+    .close-brand {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #333;
+    }
+
+    .brand-apply-btn {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      background-color: var(--primary-green);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .brand-apply-btn:hover {
+      background-color: #dc2626;
+    }
+
+    .brand-search {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .brand-search:focus {
+      outline: none;
+      border-color: var(--primary-green);
+    }
+
+    /* Desktop Styles */
+    @media (min-width: 768px) {
+      .brand-content {
+        width: 450px;
+        max-width: 90%;
+        border-radius: 20px;
+        margin: 40px;
+        height: auto;
+        max-height: 80vh;
+      }
+
+      .brand-options {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+
+  <!-- Brand Modal (Bottom Sheet) - Hidden by default -->
+  <div class="brand-modal">
+    <div class="brand-content">
+      <div class="brand-header">
+        <h2 class="text-xl font-bold">Filter by Brand</h2>
+        <button id="close-brand" class="close-brand">
+          <i class="mdi mdi-close text-xl"></i>
+        </button>
+      </div>
+
+      <input type="text" class="brand-search" placeholder="Search brands..." id="brand-search">
+
+      <div class="brand-options" id="brand-options">
+        <!-- Brand options will be populated by JavaScript -->
+      </div>
+
+      <button class="brand-apply-btn" id="apply-brand">Apply Filter</button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Get DOM elements
+      const brandBtn = document.getElementById('brand-btn');
+      const brandModal = document.querySelector('.brand-modal');
+      const closeBrandBtn = document.getElementById('close-brand');
+      const brandOptionsContainer = document.getElementById('brand-options');
+      const applyBrandBtn = document.getElementById('apply-brand');
+      const brandSearch = document.getElementById('brand-search');
+      
+     
+      //  const brands ='<%- JSON.stringify(brands) %>' 
+      const brands = <%- JSON.stringify(brands) %>;
+
+      // const brands =
+      // [
+      //   { id: 1, name: 'Nike', image: 'https://logo.clearbit.com/nike.com' },
+      //   { id: 2, name: 'Adidas', image: 'https://logo.clearbit.com/adidas.com' },
+      //   { id: 3, name: 'Apple', image: 'https://logo.clearbit.com/apple.com' },
+      //   { id: 4, name: 'Samsung', image: 'https://logo.clearbit.com/samsung.com' },
+      //   { id: 5, name: 'Sony', image: 'https://logo.clearbit.com/sony.com' },
+      //   { id: 6, name: 'LG', image: 'https://logo.clearbit.com/lg.com' },
+      //   { id: 7, name: 'Microsoft', image: 'https://logo.clearbit.com/microsoft.com' },
+      //   { id: 8, name: 'Google', image: 'https://logo.clearbit.com/google.com' },
+      //   { id: 9, name: 'Amazon', image: 'https://logo.clearbit.com/amazon.com' },
+      //   { id: 10, name: 'Dell', image: 'https://logo.clearbit.com/dell.com' },
+      //   { id: 11, name: 'HP', image: 'https://logo.clearbit.com/hp.com' },
+      //   { id: 12, name: 'Lenovo', image: 'https://logo.clearbit.com/lenovo.com' }
+      // ];
+
+      let selectedBrand = null;
+
+      // Function to open brand modal
+      function openBrandModal() {
+        brandModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        renderBrands(brands);
+      }
+
+      // Function to close brand modal
+      function closeBrandModal() {
+        brandModal.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+
+      // Render brands in the modal
+      function renderBrands(brandsToRender) {
+        brandOptionsContainer.innerHTML = '';
+
+        brandsToRender.forEach(brand => {
+          const brandElement = document.createElement('div');
+          brandElement.className = `brand-option ${selectedBrand === brand.id ? 'selected' : ''}`;
+          brandElement.innerHTML = `
+                    <img src="${brand.image}" alt="${brand.name}" class="brand-image" >
+                    <span class="brand-name">${brand.name}</span>
+                `;
+
+          brandElement.addEventListener('click', () => {
+            // Toggle selection
+            if (selectedBrand === brand.id) {
+              selectedBrand = null;
+              brandElement.classList.remove('selected');
+            } else {
+              // Remove selection from all brands first
+              document.querySelectorAll('.brand-option').forEach(el => {
+                el.classList.remove('selected');
+              });
+
+              selectedBrand = brand.id;
+              brandElement.classList.add('selected');
+            }
+          });
+
+          brandOptionsContainer.appendChild(brandElement);
+        });
+      }
+
+      // Filter brands based on search input
+      brandSearch.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        const filteredBrands = brands.filter(brand =>
+          brand.name.toLowerCase().includes(searchTerm)
+        );
+        renderBrands(filteredBrands);
+      });
+
+      // Event listeners
+      if (brandBtn) {
+        brandBtn.addEventListener('click', openBrandModal);
+      }
+
+      if (closeBrandBtn) {
+        closeBrandBtn.addEventListener('click', closeBrandModal);
+      }
+
+      // Apply brand filter
+      applyBrandBtn.addEventListener('click', () => {
+        if (selectedBrand) {
+          const selectedBrandObj = brands.find(b => b.id === selectedBrand);
+          console.log('Selected brand:', selectedBrandObj.name);
+          
+          // Update the optionSelections object
+          optionSelections.brand = selectedBrandObj.name;
+          optionSelections.page = 1; // Reset to first page when changing filters
+          updateFilterStatus(optionSelections)
+          // Here you would filter your products by the selected brand
+          // filterProductsByBrand(selectedBrand);
+        } else {
+          console.log('No brand selected - showing all products');
+          
+          // Reset brand selection in the object
+          optionSelections.brand = 'NOTHING';
+          optionSelections.page = 1; // Reset to first page when changing filters
+          
+          // Here you would show all products (remove brand filter)
+          // resetBrandFilter();
+        }
+        
+        // Log the updated selections object
+        console.log('Current selections:', optionSelections);
+        
+        closeBrandModal();
+        optionSelections.page = 1
+        getProducts(optionSelections);
+      });
+
+      // Close modal when pressing Escape key
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && brandModal.style.display === 'flex') {
+          closeBrandModal();
+        }
+      });
+    });
+
+    // Example brand filtering function (you would implement this based on your needs)
+    function filterProductsByBrand(brandId) {
+      // This is just a placeholder - implement your actual filtering logic
+      console.log(`Filtering products by brand ID: ${brandId}`);
+      // After filtering, you would typically update the product display
+      // updateProductDisplay();
+    }
+  </script>

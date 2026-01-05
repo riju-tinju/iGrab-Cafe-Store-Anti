@@ -1,0 +1,144 @@
+
+  <style>
+     /* Hamburger Menu */
+        .hamburger-menu {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100vh;
+            background-color: white;
+            z-index: 100;
+            transition: right 0.3s ease;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .hamburger-menu.active {
+            right: 0;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+   </style>
+   <div class="menu-overlay" id="menu-overlay"></div>
+    <div class="hamburger-menu" id="hamburger-menu">
+        <div class="flex justify-between items-center p-6 border-b">
+            <h2 class="text-xl font-bold">Menu</h2>
+            <button id="close-menu-btn" class="text-2xl">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="p-6">
+            <div class="mb-6">
+                <h3 class="text-sm uppercase text-gray-500 mb-3">User & Settings</h3>
+                <ul class="space-y-4">
+                    <li id="select-language-btn">
+                        <a href="#" class="flex items-center" >
+                            <i class="fas fa-language mr-3 text-lg w-6"></i>
+                            <span>Language</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a id="select-branch-btn" class="flex items-center">
+                            <i class="fas fa-store mr-3 text-lg w-6"></i>
+                            <span>Select Branch</span>
+                        </a>
+                    </li>
+                    <script>
+                        document.getElementById('select-branch-btn').addEventListener('click', function() {
+                            openstoreModal()
+                        });
+                    </script>
+                    <!-- <li>
+                        <a href="#" class="flex items-center">
+                            <i class="fas fa-cog mr-3 text-lg w-6"></i>
+                            <span>Account Settings</span>
+                        </a>
+                    </li> -->
+                </ul>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="text-sm uppercase text-gray-500 mb-3">Help & Info</h3>
+                <ul class="space-y-4">
+                    <li>
+                        <a href="/company-profile" class="flex items-center">
+                            <i class="fas fa-home mr-3 text-lg w-6"></i>
+                            <span>See Our Profile</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/contact" class="flex items-center">
+                            <i class="fas fa-envelope mr-3 text-lg w-6"></i>
+                            <span>Contact Us</span>
+                        </a>
+                    </li>
+                    <!-- <li>
+                        <a href="/faq" class="flex items-center">
+                            <i class="fas fa-question-circle mr-3 text-lg w-6"></i>
+                            <span>FAQ</span>
+                        </a>
+                    </li> -->
+                    <!-- <li>
+                        <a href="#" class="flex items-center">
+                            <i class="fas fa-info-circle mr-3 text-lg w-6"></i>
+                            <span>About Us</span>
+                        </a>
+                    </li> -->
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-sm uppercase text-gray-500 mb-3">Legal & Extras</h3>
+                <ul class="space-y-4">
+                    <li>
+                        <a href="/privacy-policy" class="flex items-center">
+                            <i class="fas fa-shield-alt mr-3 text-lg w-6"></i>
+                            <span>Privacy Policy</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/terms-and-conditions" class="flex items-center">
+                            <i class="fas fa-balance-scale mr-3 text-lg w-6"></i>
+                            <span>Terms of Service</span>
+                        </a>
+                    </li>
+                    <!-- <li>
+                        <a href="#" class="flex items-center">
+                            <i class="fas fa-comment mr-3 text-lg w-6"></i>
+                            <span>Send Feedback</span>
+                        </a>
+                    </li> -->
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('hamburger-btn').addEventListener('click', function () {
+            document.getElementById('hamburger-menu').classList.toggle('active');
+            document.getElementById('menu-overlay').classList.toggle('active');
+        });
+        document.getElementById('close-menu-btn').addEventListener('click', function () {
+            document.getElementById('hamburger-menu').classList.remove('active');
+            document.getElementById('menu-overlay').classList.remove('active');
+        });
+    </script>
+
+     <%- include('../partials/languageSlider') %>

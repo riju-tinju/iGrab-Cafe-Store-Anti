@@ -1,0 +1,409 @@
+<%- include('./partials/Header') %>
+  <!-- Main Content -->
+  <main class="main-container mt-20 lg:mt-24 pb-20 lg:pb-10 px-4 lg:px-8" dir="rtl">
+    <style>
+      /* Arabic RTL Styling */
+      [dir="rtl"] {
+        text-align: right;
+      }
+      
+      [dir="rtl"] .slide-content {
+        text-align: right;
+      }
+      
+      [dir="rtl"] .flex.justify-between {
+        flex-direction: row-reverse;
+      }
+      
+      [dir="rtl"] .flex.items-center {
+        flex-direction: row-reverse;
+      }
+      
+      [dir="rtl"] .flex.items-center .mr-1,
+      [dir="rtl"] .flex.items-center .mr-2,
+      [dir="rtl"] .flex.items-center .mr-3 {
+        margin-right: 0;
+        margin-left: 0.25rem;
+      }
+      
+      [dir="rtl"] .flex.items-center .ml-1 {
+        margin-left: 0;
+        margin-right: 0.25rem;
+      }
+      
+      [dir="rtl"] .grid {
+        direction: ltr;
+      }
+      
+      [dir="rtl"] .product-card {
+        direction: ltr;
+        text-align: right;
+      }
+      
+      [dir="rtl"] .product-card .p-4 {
+        text-align: right;
+      }
+      
+      [dir="rtl"] .wishlist-btn {
+        right: auto;
+        left: 12px;
+      }
+      
+      [dir="rtl"] .absolute.top-3.right-3 {
+        right: auto;
+        left: 12px;
+      }
+      
+      [dir="rtl"] .overflow-x-auto {
+        direction: rtl;
+      }
+      
+      [dir="rtl"] .space-x-3 > * + * {
+        margin-left: 0;
+        margin-right: 0.75rem;
+      }
+      
+      /* Arabic Font Styling */
+      [dir="rtl"] body,
+      [dir="rtl"] h1,
+      [dir="rtl"] h2,
+      [dir="rtl"] h3,
+      [dir="rtl"] h4,
+      [dir="rtl"] p,
+      [dir="rtl"] span,
+      [dir="rtl"] button,
+      [dir="rtl"] input {
+        font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.8;
+      }
+      
+      [dir="rtl"] .text-2xl,
+      [dir="rtl"] .text-3xl,
+      [dir="rtl"] .text-4xl {
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+      
+      [dir="rtl"] .hero-slider .slide-content h2 {
+        font-size: 2.5rem;
+        line-height: 1.3;
+      }
+      
+      [dir="rtl"] .hero-slider .slide-content p {
+        font-size: 1.1rem;
+        line-height: 1.7;
+      }
+      
+      /* Fix button positioning */
+      [dir="rtl"] .flex.items-center.justify-between {
+        flex-direction: row;
+      }
+      
+      [dir="rtl"] .add-to-cart {
+        margin-left: auto;
+      }
+      
+      /* Testimonials RTL fix */
+      [dir="rtl"] .testimonial-flex {
+        flex-direction: row;
+      }
+      
+      [dir="rtl"] .testimonial-avatar {
+        margin-right: 0;
+        margin-left: 12px;
+      }
+      
+      /* Newsletter form RTL */
+      [dir="rtl"] .newsletter-form {
+        flex-direction: row;
+      }
+      
+      [dir="rtl"] .newsletter-form input {
+        text-align: right;
+        border-radius: 0.375rem;
+      }
+      
+      [dir="rtl"] .newsletter-form button {
+        border-radius: 0.375rem;
+      }
+      
+      /* How it works section */
+      [dir="rtl"] .how-it-works-grid {
+        direction: ltr;
+      }
+      
+      [dir="rtl"] .how-it-works-card {
+        text-align: center;
+        direction: rtl;
+      }
+    </style>
+
+    <!-- Hero Banner Slider -->
+    <section class="hero-slider mb-8 lg:mb-12">
+      <div class="slide active" style="background: var(--primary-green)">
+        <div class="slide-content">
+          <h2 class="text-3xl lg:text-4xl font-bold mb-2">مقهى آي جراب ستوري</h2>
+          <p class="mb-4">أول علامة تجارية إماراتية تدعم الأعمال المنزلية المتخصصة في الحلويات الحرفية والقهوة المميزة</p>
+          <button class="btn-secondary" style="padding-right:40px; padding-left: 40px;">رحلتنا</button>
+        </div>
+      </div>
+      <div class="slide"
+        style="background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1453614512568-c4024d13c247?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1332&q=80');">
+        <div class="slide-content">
+          <h2 class="text-3xl lg:text-4xl font-bold mb-2">تراثنا العريق</h2>
+          <p class="mb-4">نحتفل بثقافة دولة الإمارات في الكرم والضيافة من خلال النكهات الاستثنائية</p>
+          <button class="btn-secondary">اكتشف المزيد</button>
+        </div>
+      </div>
+      <div class="slide"
+        style="background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1559305616-3f99cd43e353?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1074&q=80');">
+        <div class="slide-content">
+          <h2 class="text-3xl lg:text-4xl font-bold mb-2">الجودة والتميز</h2>
+          <p class="mb-4">نتشارك مع المنتجين المحليين المميزين لتقديم تجارب إماراتية أصيلة</p>
+          <button class="btn-secondary">قيمنا</button>
+        </div>
+      </div>
+    </section>
+
+    <% if (products.length===0) { %>
+      <% }else { %>
+        <!-- Popular Products Grid -->
+        <section class="mb-12">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl lg:text-3xl font-bold">الأكثر طلباً الآن</h2>
+            <a href="/shop" class="text-accent font-medium">عرض الكل</a>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+
+            <% products.forEach(product=> { %>
+              <% let isInWishlist=customer.wishlist.some(item=> item.toString() === product._id.toString()); %>
+                <div class="product-card">
+                  <div class="relative">
+                    <img src="<%= product.images[0] %>" alt="<%= product.name.ar %>" class="w-full h-48 object-cover">
+                    <button onclick="add_or_remove_product_to_wishlist('<%= product._id %>',this)"
+                      class="wishlist-btn absolute top-3 left-3 bg-white p-2 rounded-full shadow-md"
+                      btn-product-id="<%= product._id %>">
+
+                      <i class="<%= isInWishlist ? 'fas fa-heart text-accent' : 'far fa-heart text-gray-600' %>"></i>
+                    </button>
+                  </div>
+                  <div class="p-4">
+
+                    <% if (product.category && product.category.name && product.category.name.en) { %>
+                      <div class="text-sm text-gray-500 mb-1">
+                        <%= product.category.name.ar %>
+                      </div>
+                      <% } %>
+
+                        <a href="/product/<%= product.meta.slug %>">
+                          <h3 class="font-bold mb-1">
+                            <%= product.name.ar %>
+                          </h3>
+                        </a>
+
+                        <!-- Star Rating Section -->
+                        <div class="flex items-center mb-3" style="flex-direction: row;">
+                          <div class="flex text-accent">
+                            <% const fullStars=Math.floor(product.sales.starRating); %>
+                              <% const halfStar=product.sales.starRating % 1>= 0.5; %>
+                                <% const emptyStars=5 - fullStars - (halfStar ? 1 : 0); %>
+
+                                  <% for(let i=0; i < fullStars; i++) { %>
+                                    <i class="fas fa-star text-sm"></i>
+                                    <% } %>
+                                      <% if(halfStar) { %>
+                                        <i class="fas fa-star-half-alt text-sm"></i>
+                                        <% } %>
+                                          <% for(let i=0; i < emptyStars; i++) { %>
+                                            <i class="far fa-star text-sm"></i>
+                                            <% } %>
+                          </div>
+                          <span class="text-sm text-gray-500" style="margin-right: 4px;">(<%= product.sales.totalReviews %>)</span>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                          <span class="font-bold">
+                            <%= product.pricing.currency %>
+                              <%= product.pricing.price %>
+                          </span>
+                          <button onclick="AddToCart('<%= product._id %>')" productId="<%= product._id %>"
+                            class="add-to-cart bg-primary text-white p-2 rounded-full">
+                            <i class="fas fa-plus"></i>
+                          </button>
+                        </div>
+                  </div>
+                </div>
+                <% }); %>
+
+          </div>
+        </section>
+        <% } %>
+
+        <script>
+                function add_or_remove_product_to_wishlist(productId, wishButton) {
+                  const wishlistCount = document.getElementById('wishlist-count');
+                  let count = parseInt(wishlistCount.textContent) || 0;
+
+                  fetch('api/add-or-remove-wishlist', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      productId
+                    })
+                  })
+                    .then(response => {
+                      if (!response.ok) {
+                        return response.json().then(err => {
+                          throw new Error(err.error || 'Failed to update wishlist');
+                        });
+                      }
+                      return response.json();
+                    })
+                    .then(data => {
+                      if (data.status) {
+                        const funResult = data.status;
+                        switch (funResult) {
+                          case 'ADDED':
+                            wishButton.innerHTML = '<i class="fas fa-heart text-accent"></i>';
+                            count++;
+                            showToast('تم إضافة المنتج للمفضلة!');
+                            break;
+                          case 'REMOVED':
+                            wishButton.innerHTML = '<i class="far fa-heart text-gray-600"></i>';
+                            count--;
+                            showToast('تم إزالة المنتج من المفضلة!');
+                            break;
+                          default:
+                            window.location.href = '/login';
+                        }
+                        wishlistCount.textContent = count;
+                        animateCartBadge();
+                      } else if (data.error) {
+                        showToast(data.error);
+                      }
+                    })
+                    .catch(error => {
+                      console.error('Wishlist error:', error);
+                      showToast(error.message || 'حدث خطأ أثناء تحديث المفضلة');
+                      if (error.message.includes('login') || error.message.includes('User not found')) {
+                        window.location.href = '/login';
+                      }
+                    });
+                }
+            </script>
+
+          <!-- Loyalty Program Section -->
+          <section class="mb-12 bg-accent rounded-2xl overflow-hidden">
+            <div class="flex flex-col lg:flex-row">
+              <div class="p-6 lg:p-10 lg:w-1/2">
+                <h2 class="text-2xl lg:text-4xl font-bold mb-4 text-primary">حقائقنا المميزة</h2>
+                <ul class="mb-8 space-y-2">
+                  <li class="flex items-center"><i class="fas fa-check-circle text-primary" style="margin-left: 8px;"></i>مبني على مفهوم الأعمال المجتمعية</li>
+                  <li class="flex items-center"><i class="fas fa-check-circle text-primary" style="margin-left: 8px;"></i>فخورون بكوننا أول علامة تجارية إماراتية لهذا المفهوم</li>
+                  <li class="flex items-center"><i class="fas fa-check-circle text-primary" style="margin-left: 8px;"></i>نخدم مجتمعنا بفخر مع خطط للنمو</li>
+                  <li class="flex items-center"><i class="fas fa-check-circle text-primary" style="margin-left: 8px;"></i>ندعم 75 أسرة وأكثر</li>
+                  <li class="flex items-center"><i class="fas fa-check-circle text-primary" style="margin-left: 8px;"></i>لدينا أكثر من 15 علامة تجارية لمحلات الحلويات</li>
+                  <li class="flex items-center"><i class="fas fa-check-circle text-primary" style="margin-left: 8px;"></i>حققنا 3 مليون عملية بيع للأسر في عام ونصف</li>
+                  <li class="flex items-center"><i class="fas fa-check-circle text-primary" style="margin-left: 8px;"></i>جاهزون للمشاركة في الفعاليات</li>
+                  <li class="flex items-center"><i class="fas fa-check-circle text-primary" style="margin-left: 8px;"></i>نقدم أجود حبوب القهوة من جميع أنحاء العالم</li>
+                  <li class="flex items-center"><i class="fas fa-check-circle text-primary" style="margin-left: 8px;"></i>كل فرع جديد يفتح يدعم أسر جديدة وأكثر</li>
+                  <li class="flex items-center"><i class="fas fa-check-circle text-primary" style="margin-left: 8px;"></i>مركبات توصيل معتمدة ومرخصة متاحة</li>
+                </ul>
+                <button class="btn-primary">اطلع على منتجاتنا</button>
+              </div>
+              <div class="lg:w-1/2">
+                <img src="/assets/static-pages/home-page/fact.jpg" alt="برنامج الولاء"
+                  class="w-full h-full object-cover">
+              </div>
+            </div>
+          </section>
+
+          <!-- How It Works Section -->
+          <section class="mb-12">
+            <h2 class="text-2xl lg:text-3xl font-bold mb-8 text-center">كيف يعمل النظام</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 how-it-works-grid">
+              <!-- Step 1 -->
+              <div class="bg-white rounded-xl p-6 text-center how-it-works-card">
+                <div
+                  class="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+                  <i class="fas fa-search"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">تصفح القائمة</h3>
+                <p class="text-gray-600">استكشف مجموعتنا الواسعة من القهوة والمشروبات والطعام والهدايا.</p>
+              </div>
+
+              <!-- Step 2 -->
+              <div class="bg-white rounded-xl p-6 text-center how-it-works-card">
+                <div
+                  class="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+                  <i class="fas fa-shopping-bag"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">أضف للسلة</h3>
+                <p class="text-gray-600">اختر منتجاتك المفضلة وأضفها إلى سلة التسوق.</p>
+              </div>
+
+              <!-- Step 3 -->
+              <div class="bg-white rounded-xl p-6 text-center how-it-works-card">
+                <div
+                  class="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+                  <i class="fas fa-credit-card"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">الدفع</h3>
+                <p class="text-gray-600">ادفع بأمان واختر خيارات الاستلام أو التوصيل.</p>
+              </div>
+
+              <!-- Step 4 -->
+              <div class="bg-white rounded-xl p-6 text-center how-it-works-card">
+                <div
+                  class="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+                  <i class="fas fa-mug-hot"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">استمتع!</h3>
+                <p class="text-gray-600">استلم طلبك أو احصل عليه في عتبة بابك.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Testimonials Section -->
+          <!-- <section class="mb-12">
+            <h2 class="text-2xl lg:text-3xl font-bold mb-8">ماذا يقول عملاؤنا</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+              <div class="bg-white rounded-xl p-6 shadow-sm">
+                <div class="flex text-accent mb-4">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                </div>
+                <p class="mb-4 text-gray-700">"أفضل قهوة في المدينة! عروضهم الموسمية دائماً مبهجة والتطبيق يجعل الطلب سهلاً جداً."</p>
+                <div class="flex items-center testimonial-flex">
+                  <div class="w-10 h-10 bg-primary rounded-full testimonial-avatar"></div>
+                  <div>
+                    <h4 class="font-bold">فاطمة الزهراء</h4>
+                    <p class="text-sm text-gray-500">عميلة دائمة</p>
+                  </div>
+                </div>
+              </div>
+
+              
+
+              
+            </div>
+          </section> -->
+
+          <!-- Newsletter Section -->
+          <section class="bg-primary rounded-2xl p-8 text-white text-center">
+            <h2 class="text-2xl lg:text-3xl font-bold mb-4">ابق على تواصل</h2>
+            <p class="mb-6 max-w-lg mx-auto">اشترك في نشرتنا الإخبارية للحصول على عروض حصرية وإعلانات المنتجات الجديدة ونصائح تحضير القهوة.</p>
+            <div class="flex flex-col md:flex-row max-w-md mx-auto newsletter-form">
+              <input type="email" placeholder="عنوان بريدك الإلكتروني"
+                class="px-4 py-3 rounded md:flex-grow focus:outline-none text-black">
+              <button class="btn-secondary rounded-r-lg mt-2 md:mt-0">اشترك</button>
+            </div>
+          </section>
+  </main>
+  <%- include('./partials/Footer') %>

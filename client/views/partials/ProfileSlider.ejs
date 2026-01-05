@@ -1,0 +1,548 @@
+<style>
+    /* Profile Dashboard - Keep your existing styles */
+    .profile-dashboard {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100vh;
+        background-color: white;
+        z-index: 100;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .profile-dashboard.active {
+        transform: translateX(0);
+    }
+
+    /* Order History Styles */
+    .order-history-container {
+        height: auto;
+        max-height: 50vh;
+        width: 100%;
+        background: #f8f9fa;
+        border-radius: 12px;
+        overflow: hidden;
+        overflow-y: auto;
+        margin-top: 16px;
+        padding: 16px;
+        display: none;
+    }
+
+    .order-history-container.active {
+        display: block;
+    }
+
+    .order-card {
+        background: white;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e1e5e9;
+        transition: transform 0.2s ease;
+    }
+
+    .order-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .order-card:last-child {
+        margin-bottom: 0;
+    }
+
+    .order-status {
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-placed { background: #fff3cd; color: #856404; }
+    .status-confirmed { background: #d1ecf1; color: #0c5460; }
+    .status-preparing { background: #d4edda; color: #155724; }
+    .status-ready { background: #cce5ff; color: #004085; }
+    .status-delivered { background: #d1f2eb; color: #0f5132; }
+    .status-cancelled { background: #f8d7da; color: #721c24; }
+
+    .payment-status {
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+
+    .payment-paid { background: #d1f2eb; color: #0f5132; }
+    .payment-unpaid { background: #fff3cd; color: #856404; }
+
+    .order-items-toggle {
+        color: #007bff;
+        text-decoration: underline;
+        font-size: 12px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+        transition: color 0.2s ease;
+    }
+
+    .order-items-toggle:hover {
+        color: #0056b3;
+    }
+
+    .order-items-list {
+        display: none;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .order-items-list.show {
+        display: block;
+    }
+
+    .order-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        padding: 8px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .order-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .order-item-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    .order-item-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .order-item-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 2px;
+        line-height: 1.2;
+    }
+
+    .order-item-qty {
+        font-size: 11px;
+        color: #6c757d;
+    }
+
+    /* Skeleton Loading Styles */
+    .skeleton-container {
+        padding: 16px;
+    }
+
+    .skeleton-card {
+        background: white;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e1e5e9;
+    }
+
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 4px;
+    }
+
+    .skeleton-line {
+        height: 16px;
+        margin-bottom: 8px;
+    }
+
+    .skeleton-line.short {
+        width: 70%;
+    }
+
+    .skeleton-line.medium {
+        width: 50%;
+    }
+
+    .skeleton-line.tiny {
+        width: 30%;
+        height: 12px;
+    }
+
+    .skeleton-button {
+        height: 24px;
+        width: 80px;
+        margin-top: 8px;
+    }
+
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    .empty-orders {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6c757d;
+    }
+
+    .empty-orders-icon {
+        font-size: 48px;
+        color: #dee2e6;
+        margin-bottom: 16px;
+    }
+
+    /* Desktop Optimizations */
+    @media (min-width: 1024px) {
+        .profile-dashboard {
+            width: 400px;
+        }
+    }
+</style>
+
+<div class="profile-dashboard" id="profile-dashboard">
+    <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">Your Profile</h2>
+            <button id="close-profile-btn" class="text-2xl">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Profile Header - Keep your existing code -->
+        <% if (customer.user=='guest' ) { %>
+            <div class="flex items-center mb-8">
+                <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white text-3xl mr-4">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold">Guest User</h3>
+                    <p class="text-gray-500">Sign in to access your account</p>
+                    <div class="mt-2">
+                        <button class="btn-primary text-sm py-1 px-4" onclick="openPage('/login')">Sign In</button>
+                        <button class="ml-2 text-sm text-accent" onclick="openPage('/login')">Sign Up</button>
+                    </div>
+                </div>
+            </div>
+        <% } else { %>
+            <div class="flex items-center mb-8">
+                <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white text-3xl mr-4"
+                    style="background-image: url('<%= customer?.profilePicture || '/images/default-profile.png' %>'); background-size: cover; background-position: center;">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold"><%= customer?.name %></h3>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- Quick Links -->
+        <div class="space-y-4">
+            <% if (customer.user !== 'guest') { %>
+                <a href="#" id="order-history-btn" class="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm">
+                    <div class="flex items-center">
+                        <i class="fas fa-history text-lg text-primary mr-3"></i>
+                        <span>Order History</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                </a>
+
+                <!-- Order History Container -->
+                <div class="order-history-container" id="order-history-container">
+                    <!-- Skeleton Loading (initially hidden) -->
+                    <div class="skeleton-container" id="order-skeleton">
+                        <div class="skeleton-card">
+                            <div class="flex justify-between items-center mb-3">
+                                <div>
+                                    <div class="skeleton skeleton-line short"></div>
+                                    <div class="skeleton skeleton-line tiny"></div>
+                                </div>
+                                <div class="skeleton skeleton-line tiny"></div>
+                            </div>
+                            <div class="skeleton skeleton-button"></div>
+                            <div class="flex justify-between items-center mt-3 pt-2 border-t">
+                                <div class="skeleton skeleton-line medium"></div>
+                            </div>
+                        </div>
+                        <div class="skeleton-card">
+                            <div class="flex justify-between items-center mb-3">
+                                <div>
+                                    <div class="skeleton skeleton-line short"></div>
+                                    <div class="skeleton skeleton-line tiny"></div>
+                                </div>
+                                <div class="skeleton skeleton-line tiny"></div>
+                            </div>
+                            <div class="skeleton skeleton-button"></div>
+                            <div class="flex justify-between items-center mt-3 pt-2 border-t">
+                                <div class="skeleton skeleton-line medium"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Orders will be dynamically inserted here -->
+                    <div id="orders-list"></div>
+
+                    <!-- Empty State -->
+                    <div class="empty-orders" id="empty-orders" style="display: none;">
+                        <div class="empty-orders-icon">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold mb-2">No Orders Yet</h3>
+                        <p class="text-sm">Your order history will appear here once you place your first order.</p>
+                    </div>
+                </div>
+
+                <a id="logOut-btn" class="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm">
+                    <div class="flex items-center">
+                        <i style="color:red" class="fas fa-arrow-right-from-bracket text-lg text-primary mr-3"></i>
+                        <span style="color:red">Logout</span>
+                    </div>
+                </a>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Keep your existing profile scripts
+    document.getElementById('profile-btn').addEventListener('click', function () {
+        document.getElementById('profile-dashboard').classList.toggle('active');
+    });
+    
+    document.getElementById('close-profile-btn').addEventListener('click', function () {
+        document.getElementById('profile-dashboard').classList.remove('active');
+    });
+
+    function openPage(url) {
+        window.location.href = url;
+    }
+
+    // Keep your existing logout script
+    document.getElementById('logOut-btn').addEventListener('click', function () {
+        fetch('/api/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '/';
+            } else {
+                showToast('Logout failed. Please try again.');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
+    // Order History Implementation
+    let ordersData = [];
+    let orderHistoryLoaded = false;
+
+    // Order History Button Click Handler
+    document.getElementById('order-history-btn').addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        const container = document.getElementById('order-history-container');
+        const skeleton = document.getElementById('order-skeleton');
+        const ordersList = document.getElementById('orders-list');
+        const emptyOrders = document.getElementById('empty-orders');
+
+        // Toggle container visibility
+        if (container.classList.contains('active')) {
+            container.classList.remove('active');
+            return;
+        }
+
+        container.classList.add('active');
+
+        // If already loaded, don't fetch again
+        if (orderHistoryLoaded) {
+            return;
+        }
+
+        // Show skeleton loading
+        skeleton.style.display = 'block';
+        ordersList.innerHTML = '';
+        emptyOrders.style.display = 'none';
+
+        try {
+            // Send POST request to backend
+            const response = await fetch('/api/get-order-history', {
+                method: 'POST',
+                credentials: 'include', // Important!
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            // Hide skeleton loading
+            skeleton.style.display = 'none';
+
+            if (!response.ok) {
+                // Handle error response
+                container.classList.remove('active');
+                if (typeof showToast === 'function') {
+                    showToast('An error occurred..');
+                } else {
+                    alert('An error occurred..');
+                }
+                return;
+            }
+
+            // Success - process orders
+            ordersData = data.orders || [];
+            orderHistoryLoaded = true;
+
+            if (ordersData.length === 0) {
+                // Show empty state
+                emptyOrders.style.display = 'block';
+            } else {
+                // Render orders
+                renderOrders(ordersData);
+            }
+
+        } catch (error) {
+            console.error('Error fetching order history:', error);
+            skeleton.style.display = 'none';
+            container.classList.remove('active');
+            
+            if (typeof showToast === 'function') {
+                showToast('An error occurred..');
+            } else {
+                alert('An error occurred..');
+            }
+        }
+    });
+
+    // Function to render orders
+    function renderOrders(orders) {
+        const ordersList = document.getElementById('orders-list');
+        ordersList.innerHTML = '';
+
+        orders.forEach((order, index) => {
+            const orderCard = createOrderCard(order, index);
+            ordersList.appendChild(orderCard);
+        });
+    }
+
+    // Function to create order card
+    function createOrderCard(order, index) {
+        const card = document.createElement('div');
+        card.className = 'order-card';
+        
+        const orderDate = new Date(order.orderDate).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+
+        const statusClass = `status-${order.status.toLowerCase().replace(' ', '-')}`;
+        const paymentClass = `payment-${order.paymentStatus.toLowerCase()}`;
+
+        card.innerHTML = `
+            <!-- Order Header -->
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <p class="text-sm font-semibold text-gray-700">
+                        Order ID: <span class="text-black">${order.orderId}</span>
+                    </p>
+                    <p class="text-xs text-gray-500">Placed on: ${orderDate}</p>
+                    <span class="payment-status ${paymentClass} mt-1 inline-block">
+                        ${order.paymentStatus}
+                    </span>
+                </div>
+                <div>
+                    <span class="order-status ${statusClass}">${order.status}</span>
+                </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="mb-3">
+                <p class="text-xs text-gray-600">
+                    <i class="fas ${order.paymentMethod === 'Cash' ? 'fa-money-bill' : 'fa-credit-card'} mr-1"></i>
+                    ${order.paymentMethod}
+                </p>
+            </div>
+
+            <!-- Products Summary -->
+            <div class="mt-3">
+                <button class="order-items-toggle" onclick="toggleOrderItems(${index})">
+                    View Items (${order.orderItems.length})
+                </button>
+                
+                <!-- Order Items (Initially Hidden) -->
+                <div class="order-items-list" id="order-items-${index}">
+                    ${order.orderItems.map(item => `
+                        <div class="order-item">
+                            <img src="${item.image}" alt="${item.name}" class="order-item-image" 
+                                 onerror="this.src='/images/placeholder-food.jpg'">
+                            <div class="order-item-details">
+                                <div class="order-item-name">${item.name}</div>
+                                <div class="order-item-qty">Qty: ${item.qty} × AED ${item.unitPrice}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+
+           
+
+            <!-- Total & Action -->
+            <div class="mt-4 flex justify-between items-center border-t pt-3">
+                <p class="text-sm font-semibold">Total: AED ${order.totalAmount}</p>
+                ${order.status.toLowerCase() === 'delivered' ? `
+                    <button class="text-xs text-blue-600 underline hover:text-blue-800" 
+                            onclick="reorderItems('${order._id}')">
+                        Reorder
+                    </button>
+                ` : ''}
+            </div>
+        `;
+
+        return card;
+    }
+
+    // Function to toggle order items visibility
+    function toggleOrderItems(index) {
+        const itemsList = document.getElementById(`order-items-${index}`);
+        const toggleBtn = itemsList.previousElementSibling;
+        
+        if (itemsList.classList.contains('show')) {
+            itemsList.classList.remove('show');
+            toggleBtn.textContent = `View Items (${ordersData[index].orderItems.length})`;
+        } else {
+            itemsList.classList.add('show');
+            toggleBtn.textContent = `Hide Items (${ordersData[index].orderItems.length})`;
+        }
+    }
+
+    // Function to handle reorder (optional)
+    function reorderItems(orderId) {
+        const order = ordersData.find(o => o._id === orderId);
+        if (order) {
+            // You can implement reorder functionality here
+            console.log('Reordering items from order:', orderId);
+            if (typeof showToast === 'function') {
+                showToast('Reorder functionality coming soon!');
+            }
+        }
+    }
+</script>

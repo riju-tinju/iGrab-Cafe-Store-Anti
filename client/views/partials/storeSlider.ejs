@@ -1,0 +1,231 @@
+<!-- store Modal Styles -->
+<style>
+  /* store Modal Styles */
+  .store-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: flex-end;
+    align-items: flex-end;
+    z-index: 1000;
+  }
+
+  .store-content {
+    background-color: white;
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    padding: 20px;
+    animation: slideUp 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .store-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+    color: black;
+  }
+
+  .store-options {
+    overflow-y: auto;
+    padding: 10px 0;
+  }
+
+  .close-store {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  /* Desktop Styles */
+  @media (min-width: 768px) {
+
+    .modal-content,
+    .store-content {
+      width: 450px;
+      max-width: 90%;
+      border-radius: 20px;
+      margin: 40px;
+      height: auto;
+      max-height: 80vh;
+    }
+
+
+  }
+</style>
+<!-- store Modal (Bottom Sheet) - Hidden by default -->
+<div class="store-modal">
+  <div class="store-content">
+    <div class="store-header">
+      <h2 class="text-xl font-bold">store</h2>
+      <button id="close-store" class="close-store">
+        <i class="mdi mdi-close text-xl"></i>
+      </button>
+    </div>
+
+    <div class="store-options">
+      <form id="store-form" method="post">
+        <!-- store Option 1 -->
+        <div class="flex items-center py-3 border-b border-gray-100">
+          <input type="radio" id="new" name="store" value="new" class="h-4 w-4 text-primary">
+          <label for="new" class="ml-3 text-gray-800">What's New</label>
+        </div>
+
+        <!-- store Option 2 -->
+        <div class="flex items-center py-3 border-b border-gray-100">
+          <input type="radio" id="price-high" name="store" value="price-high" class="h-4 w-4 text-primary">
+          <label for="price-high" class="ml-3 text-gray-800">Price High to Low</label>
+        </div>
+
+        <!-- store Option 3 -->
+        <div class="flex items-center py-3 border-b border-gray-100">
+          <input type="radio" id="price-low" name="store" value="price-low" class="h-4 w-4 text-primary">
+          <label for="price-low" class="ml-3 text-gray-800">Price Low to High</label>
+        </div>
+
+        <!-- store Option 4 -->
+        <div class="flex items-center py-3 border-b border-gray-100">
+          <input type="radio" id="name-az" name="store" value="name-az" class="h-4 w-4 text-primary">
+          <label for="name-az" class="ml-3 text-gray-800">Name A to Z</label>
+        </div>
+
+        <!-- store Option 5 -->
+        <div class="flex items-center py-3 border-b border-gray-100">
+          <input type="radio" id="name-za" name="store" value="name-za" class="h-4 w-4 text-primary">
+          <label for="name-za" class="ml-3 text-gray-800">Name Z to A</label>
+        </div>
+
+        <!-- Apply Button -->
+        <button type="button" id="apply-store" class="w-full mt-6 py-3 text-white rounded-lg font-bold"
+          style="background-color: var(--primary-green);">Apply</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  document.addEventListener('DOMContentLoaded', function () {
+
+    let selectedstoreValue = optionSelections.store; // Track the selected store value
+
+    // Get DOM elements
+    const storeBtn = document.getElementById('select-branch-btn');
+    const storeModal = document.querySelector('.store-modal');
+    const closestoreBtn = document.getElementById('close-store');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const applystoreBtn = document.getElementById('apply-store');
+    const storeForm = document.getElementById('store-form');
+
+    // Function to open store modal
+    function openstoreModal() {
+      console.log('Opening modal, current store:', optionSelections.store);
+      storeModal.style.display = 'flex';
+
+      if (modalOverlay) {
+        modalOverlay.style.opacity = '0.5';
+        modalOverlay.style.pointerEvents = 'auto';
+      }
+
+      document.body.style.overflow = 'hidden';
+
+      // Pre-select current store option
+      const currentstore = optionSelections.store;
+      const storeInput = document.querySelector(`input[name="store"][value="${currentstore}"]`);
+      if (storeInput) {
+        storeInput.checked = true;
+        selectedstoreValue = currentstore;
+      } else {
+        document.querySelectorAll('input[name="store"]').forEach(input => {
+          input.checked = false;
+        });
+        selectedstoreValue = 'NOTHING';
+      }
+    }
+
+    // Function to close store modal
+    function closestoreModal() {
+      storeModal.style.display = 'none';
+      if (modalOverlay) {
+        modalOverlay.style.opacity = '0';
+        modalOverlay.style.pointerEvents = 'none';
+      }
+      document.body.style.overflow = '';
+    }
+
+    // Update selectedstoreValue on change of any store input
+    document.querySelectorAll('input[name="store"]').forEach(input => {
+      input.addEventListener('change', function () {
+        selectedstoreValue = this.value;
+        console.log('store option selected:', selectedstoreValue);
+      });
+    });
+
+    // Apply button click handler
+    applystoreBtn?.addEventListener('click', function () {
+      console.log('Applying store:', selectedstoreValue);
+
+      optionSelections.store = selectedstoreValue || 'NOTHING';
+      optionSelections.page = 1;
+
+      console.log('Updated options:', optionSelections);
+      // alert('Current store value: ' + optionSelections.store);
+      updateFilterStatus(optionSelections)
+      closestoreModal();
+      getProducts(optionSelections);
+      storeProducts(optionSelections.store);
+    });
+
+    // Prevent form submission
+    storeForm?.addEventListener('submit', function (e) {
+      e.preventDefault();
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && storeModal.style.display === 'flex') {
+        closestoreModal();
+      }
+    });
+
+    // Dummy storeing function for now
+    function storeProducts(storeBy) {
+      console.log('Executing store with:', storeBy);
+      console.log('Current optionSelections:', optionSelections);
+
+      // Example delay to show store value remains
+      setTimeout(() => {
+        console.log('Value after 1 second:', optionSelections.store);
+      }, 1000);
+
+      // You can place actual storeing or fetch logic here
+    }
+
+    // Event listeners
+    storeBtn?.addEventListener('click', openstoreModal);
+    closestoreBtn?.addEventListener('click', closestoreModal);
+    modalOverlay?.addEventListener('click', closestoreModal);
+
+  });
+</script>

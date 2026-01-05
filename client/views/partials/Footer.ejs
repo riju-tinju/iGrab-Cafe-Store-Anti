@@ -1,0 +1,95 @@
+
+
+<style>
+  .flex-col{
+    flex-direction: column !important;
+  }
+</style>
+ <% if (customer && customer.language=== 'ar') { %>
+  <nav class="bottom-nav fixed bottom-0 left-0 w-full flex justify-around items-center lg:hidden" dir="rtl">
+    <a href="/" class="flex flex-col items-center p-2 text-primary">
+      <i class="fas fa-home text-lg"></i>
+      <span class="text-xs">الرئيسية</span>
+    </a>
+    <a href="/shop" class="flex flex-col items-center p-2">
+      <i class="fas fa-store text-lg"></i>
+      <span class="text-xs">المتجر</span>
+    </a>
+
+    <div class="relative" id="cart-btn">
+      <div class="bg-primary w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg -mt-5">
+        <i class="fas fa-shopping-bag text-lg"></i>
+      </div>
+      <span class="badge" id="cart-count"><%= customer.total_cart %></span>
+    </div>
+    <a href="#" class="flex flex-col items-center p-2 relative" id="wishlist-btn">
+      <i class="fas fa-heart text-lg"></i>
+      <span class="text-xs">المفضلة</span>
+      <span class="badge" id="wishlist-count"><%= customer.wishlist.length %></span>
+    </a>
+    <a href="#" class="flex flex-col items-center p-2" id="profile-btn">
+      <i class="fas fa-user text-lg"></i>
+      <span class="text-xs">الملف الشخصي</span>
+    </a>
+  </nav>
+
+ <% } else { %>
+  <!-- Bottom Navigation (Mobile) -->
+  <nav class="bottom-nav fixed bottom-0 left-0 w-full flex justify-around items-center lg:hidden">
+    <a href="/" class="flex flex-col items-center p-2 text-primary">
+      <i class="fas fa-home text-lg"></i>
+      <span class="text-xs">Home</span>
+    </a>
+    <a href="/shop" class="flex flex-col items-center p-2">
+      <i class="fas fa-store text-lg"></i>
+      <span class="text-xs">Shop</span>
+    </a>
+
+    <div class="relative" id="cart-btn">
+      <div class="bg-primary w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg -mt-5">
+        <i class="fas fa-shopping-bag text-lg"></i>
+      </div>
+      <span class="badge" id="cart-count"><%= customer.total_cart %></span>
+    </div>
+    <a href="#" class="flex flex-col items-center p-2 relative" id="wishlist-btn">
+      <i class="fas fa-heart text-lg"></i>
+      <span class="text-xs">Wishlist</span>
+      <span class="badge" id="wishlist-count"><%= customer.wishlist.length %></span>
+    </a>
+    <a href="#" class="flex flex-col items-center p-2" id="profile-btn">
+      <i class="fas fa-user text-lg"></i>
+      <span class="text-xs">Profile</span>
+    </a>
+  </nav>
+ <% } %>
+  
+  
+  <%- include('../partials/constant-scripts') %>
+  <% if (customer && customer.language=== 'ar') { %>
+    <%- include('../partials/HamburgermenuSliderAr') %>
+    <%- include('../partials/CartSliderAr') %>
+    <%- include('../partials/WishlistSliderAr') %>
+    <%- include('../partials/ProfileSliderAr') %>
+  <% } else { %>
+    <%- include('../partials/HamburgermenuSlider') %>
+    <%- include('../partials/CartSlider') %>
+    <%- include('../partials/WishlistSlider') %>
+    <%- include('../partials/ProfileSlider') %>
+  <% } %>
+  
+ 
+  
+  <%- include('../partials/branchSlider') %>
+ 
+ 
+  
+  <script>
+    // Animate cart badge
+    
+
+
+  </script>
+
+</body>
+
+</html>

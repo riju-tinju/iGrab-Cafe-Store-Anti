@@ -1,0 +1,485 @@
+<!-- Branch Modal Styles -->
+<style>
+  /* Branch Modal Styles */
+  .branch-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: flex-end;
+    align-items: flex-end;
+    z-index: 1000;
+  }
+
+  .branch-content {
+    background-color: white;
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    padding: 20px;
+    animation: slideUpBranch 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .branch-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+    color: black;
+  }
+
+  .branch-options {
+    overflow-y: auto;
+    padding: 10px 0;
+    max-height: 400px;
+  }
+
+  .close-branch {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+    font-size: 20px;
+  }
+
+  .branch-option-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+
+  .branch-option-item:hover {
+    background-color: #f8f9fa;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .branch-option-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .branch-option-item.selected {
+    background-color: #e8f5e8;
+    border: 1px solid var(--primary-green, #003F2E);
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .branch-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background-color: var(--primary-green, #003F2E);
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .branch-details {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .branch-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #212121;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  .branch-address {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .branch-contact {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+  }
+
+  .branch-radio {
+    margin-left: 12px;
+    flex-shrink: 0;
+  }
+
+  .branch-apply-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    background-color: var(--primary-green, #003F2E);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .branch-apply-btn:hover {
+    background-color: var(--primary-green-dark, #002d1f);
+  }
+
+  .branch-apply-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .branch-loading {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .branch-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ffffff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spinBranch 1s linear infinite;
+  }
+
+  .branch-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+  }
+
+  .branch-empty-icon {
+    font-size: 48px;
+    color: #ddd;
+    margin-bottom: 16px;
+  }
+
+  @keyframes slideUpBranch {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes spinBranch {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Desktop Styles */
+  @media (min-width: 768px) {
+    .branch-content {
+      width: 500px;
+      max-width: 90%;
+      border-radius: 20px;
+      margin: 40px;
+      height: auto;
+      max-height: 85vh;
+    }
+
+    .branch-options {
+      max-height: 500px;
+    }
+  }
+</style>
+
+<!-- Branch Selection Modal (Bottom Sheet) - Hidden by default -->
+<div class="branch-modal">
+  <div class="branch-content">
+    <div class="branch-header">
+      <h2 class="text-xl font-bold">Select Branch</h2>
+      <button id="close-branch" class="close-branch">
+        <i class="mdi mdi-close"></i>
+      </button>
+    </div>
+
+    <div class="branch-options">
+      <form id="branch-form" method="post">
+        <% if (customer && customer.allBranches && customer.allBranches.length > 0) { %>
+          <% customer.allBranches.forEach((branch, index) => { %>
+            <% if (branch.isActive) { %>
+              <div class="branch-option-item" data-branch-id="<%= branch._id %>">
+                <div class="branch-icon">
+                  <i class="mdi mdi-store"></i>
+                </div>
+                <div class="branch-details">
+                  <div class="branch-name"><%= branch.name %></div>
+                  <div class="branch-address"><%= branch.address %></div>
+                  <div class="branch-contact"><%= branch.contactNumber %></div>
+                </div>
+                <input type="radio" 
+                       id="branch-<%= index %>" 
+                       name="branch" 
+                       value="<%= branch._id %>" 
+                       class="branch-radio h-4 w-4 text-primary"
+                       <% if (customer.selectedBranch && customer.selectedBranch.toString() === branch._id.toString()) { %>checked<% } %>>
+              </div>
+            <% } %>
+          <% }) %>
+        <% } else { %>
+          <div class="branch-empty">
+            <div class="branch-empty-icon">
+              <i class="mdi mdi-store-off"></i>
+            </div>
+            <p>No branches available at the moment.</p>
+          </div>
+        <% } %>
+
+        <!-- Apply Button -->
+        <% if (customer && customer.allBranches && customer.allBranches.length > 0) { %>
+          <button type="button" id="apply-branch" class="branch-apply-btn">
+            <span class="branch-apply-text">Apply</span>
+            <div class="branch-loading">
+              <div class="branch-spinner"></div>
+              <span>Applying...</span>
+            </div>
+          </button>
+        <% } %>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Branch Selection Variables (separate from other modals)
+  let selectedBranchId = '<%= customer && customer.selectedBranch ? customer.selectedBranch : "" %>';
+  let currentSelectedBranch = '<%= customer && customer.selectedBranch ? customer.selectedBranch : "" %>';
+
+  // Get Branch Modal DOM elements
+  const selectBranchBtn = document.getElementById('select-branch-btn');
+  const branchModal = document.querySelector('.branch-modal');
+  const closeBranchBtn = document.getElementById('close-branch');
+  const applyBranchBtn = document.getElementById('apply-branch');
+  const branchForm = document.getElementById('branch-form');
+  const branchApplyText = document.querySelector('.branch-apply-text');
+  const branchLoading = document.querySelector('.branch-loading');
+
+  // Function to open branch modal
+  function openBranchModal() {
+    console.log('Opening branch modal, current branch:', currentSelectedBranch);
+    branchModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Pre-select current branch option
+    if (currentSelectedBranch) {
+      const branchInput = document.querySelector(`input[name="branch"][value="${currentSelectedBranch}"]`);
+      if (branchInput) {
+        branchInput.checked = true;
+        selectedBranchId = currentSelectedBranch;
+        // Add selected class to the item
+        const branchItem = branchInput.closest('.branch-option-item');
+        if (branchItem) {
+          branchItem.classList.add('selected');
+        }
+      }
+    }
+  }
+
+  // Function to close branch modal
+  function closeBranchModal() {
+    branchModal.style.display = 'none';
+    document.body.style.overflow = '';
+    
+    // Reset loading state
+    resetBranchLoadingState();
+    
+    // Remove all selected classes
+    document.querySelectorAll('.branch-option-item').forEach(item => {
+      item.classList.remove('selected');
+    });
+  }
+
+  // Function to reset loading state
+  function resetBranchLoadingState() {
+    if (applyBranchBtn) {
+      applyBranchBtn.disabled = false;
+    }
+    if (branchApplyText) {
+      branchApplyText.style.display = 'inline';
+    }
+    if (branchLoading) {
+      branchLoading.style.display = 'none';
+    }
+  }
+
+  // Function to show loading state
+  function showBranchLoadingState() {
+    if (applyBranchBtn) {
+      applyBranchBtn.disabled = true;
+    }
+    if (branchApplyText) {
+      branchApplyText.style.display = 'none';
+    }
+    if (branchLoading) {
+      branchLoading.style.display = 'flex';
+    }
+  }
+
+  // Update selectedBranchId on change of any branch input
+  document.querySelectorAll('input[name="branch"]').forEach(input => {
+    input.addEventListener('change', function () {
+      selectedBranchId = this.value;
+      console.log('Branch option selected:', selectedBranchId);
+      
+      // Remove selected class from all items
+      document.querySelectorAll('.branch-option-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      
+      // Add selected class to current item
+      const selectedItem = this.closest('.branch-option-item');
+      if (selectedItem) {
+        selectedItem.classList.add('selected');
+      }
+    });
+  });
+
+  // Make branch option items clickable
+  document.querySelectorAll('.branch-option-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+      // Don't trigger if radio button was directly clicked
+      if (e.target.type === 'radio') return;
+      
+      const branchId = this.dataset.branchId;
+      const radioInput = this.querySelector('input[type="radio"]');
+      if (radioInput) {
+        radioInput.checked = true;
+        selectedBranchId = branchId;
+        console.log('Branch option clicked:', selectedBranchId);
+        
+        // Remove selected class from all items
+        document.querySelectorAll('.branch-option-item').forEach(otherItem => {
+          otherItem.classList.remove('selected');
+        });
+        
+        // Add selected class to current item
+        this.classList.add('selected');
+      }
+    });
+  });
+
+  // Apply button click handler
+  applyBranchBtn?.addEventListener('click', async function () {
+    console.log('Applying branch:', selectedBranchId);
+    
+    // Don't proceed if no branch selected
+    if (!selectedBranchId) {
+      if (typeof showToast === 'function') {
+        showToast('Please select a branch');
+      } else {
+        alert('Please select a branch');
+      }
+      return;
+    }
+
+    // Don't proceed if same branch is selected
+    if (selectedBranchId === currentSelectedBranch) {
+      console.log('Same branch selected, closing modal');
+      closeBranchModal();
+      return;
+    }
+
+    // Show loading state
+    showBranchLoadingState();
+
+    try {
+      // Send request to backend
+      const response = await fetch('/api/change-branch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          _id: selectedBranchId
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('Branch changed successfully:', data);
+        
+        // Update current branch
+        currentSelectedBranch = selectedBranchId;
+        
+        // Close modal
+        closeBranchModal();
+        
+        // Refresh the tab immediately
+        window.location.reload();
+        // setTimeout(() => {
+        //   window.location.reload();
+        // }, 300);
+        
+      } else {
+        // Handle error response
+        console.error('Branch change failed:', data);
+        closeBranchModal();
+        
+        if (typeof showToast === 'function') {
+          showToast('Please Try Again..');
+        } else {
+          alert('Please Try Again..');
+        }
+      }
+    } catch (error) {
+      console.error('Error changing branch:', error);
+      closeBranchModal();
+      
+      if (typeof showToast === 'function') {
+        showToast('Please Try Again..');
+      } else {
+        alert('Please Try Again..');
+      }
+    }
+  });
+
+  // Prevent form submission
+  branchForm?.addEventListener('submit', function (e) {
+    e.preventDefault();
+  });
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && branchModal.style.display === 'flex') {
+      closeBranchModal();
+    }
+  });
+
+  // Close modal when clicking outside
+  branchModal?.addEventListener('click', function(e) {
+    if (e.target === branchModal) {
+      closeBranchModal();
+    }
+  });
+
+  // Event listeners
+  selectBranchBtn?.addEventListener('click', openBranchModal);
+  closeBranchBtn?.addEventListener('click', closeBranchModal);
+</script>

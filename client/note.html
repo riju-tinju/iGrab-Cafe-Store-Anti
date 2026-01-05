@@ -1,0 +1,326 @@
+<!-- ---For index.ejs file ---------------------------------------------------------------------------- -->
+  
+<!-- 1.You can use this feature  -->
+  <script>
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+      setupEventListeners();
+    });
+
+    // Set up event listeners
+    function setupEventListeners() {
+      // Add to wishlist
+      const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+      wishlistButtons.forEach(button => {
+        button.addEventListener('click', addToWishlist);
+      });
+
+      // Add to cart
+      const addToCartButtons = document.querySelectorAll('.add-to-cart');
+      addToCartButtons.forEach(button => {
+        button.addEventListener('click', addToCart);
+      });
+
+      // Category pills
+      const categoryPills = document.querySelectorAll('.category-pill');
+      categoryPills.forEach(pill => {
+        pill.addEventListener('click', function() {
+          document.querySelector('.category-pill.active').classList.remove('active');
+          this.classList.add('active');
+        });
+      });
+    }
+
+    // Animate cart badge
+    function animateCartBadge() {
+      const badges = document.querySelectorAll('.badge');
+      badges.forEach(badge => {
+        badge.classList.add('badge-animated');
+        setTimeout(() => {
+          badge.classList.remove('badge-animated');
+        }, 300);
+      });
+    }
+  </script>
+
+  2. // Change heart icon to filled
+      this.innerHTML = '<i class="fas fa-heart text-accent"></i>';
+
+       // Change heart icon back to outline
+                this.innerHTML = '<i class="far fa-heart text-gray-600"></i>';
+
+
+ function renderrrrProducts(products) {
+    const container = document.getElementById('product-skeleton-container');
+    if (!container) {
+      console.warn('Product container not found');
+      return;
+    }
+
+    // 1. Clear existing content
+    container.innerHTML = '';
+
+    // 2. Render each product
+    products.forEach(product => {
+      const card = document.createElement('div');
+      card.className = 'product-card';
+
+      // Generate star rating HTML
+      const stars = Array.from({
+        length: 5
+      }, (_, i) => {
+        if (i < product.review) {
+          return '<i class="fas fa-star text-sm text-accent"></i>';
+        } else {
+          return '<i class="far fa-star text-sm text-accent"></i>';
+        }
+      }).join('');
+
+      // Liked heart icon
+      const heartClass = product.liked ? 'fas fa-heart text-red-500' : 'far fa-heart text-gray-600';
+
+      // Product card inner HTML
+      card.innerHTML = `
+      <div class="relative">
+        <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover">
+        <button class="wishlist-btn absolute top-3 right-3 bg-white p-2 rounded-full shadow-md">
+          <i class="${heartClass}"></i>
+        </button>
+      </div>
+      <div class="p-4">
+        <div class="text-sm text-gray-500 mb-1">${product.category}</div>
+        <h3 class="font-bold mb-1">${product.name}</h3>
+        <div class="flex items-center mb-3">
+          <div class="flex">${stars}</div>
+          <span class="text-sm text-gray-500 ml-1">(${product.review_count})</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="font-bold">$${product.price.toFixed(2)}</span>
+          <button class="add-to-cart bg-primary text-white p-2 rounded-full">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+    `;
+
+      container.appendChild(card);
+    });
+  }
+
+
+
+
+
+  here is the schemas, 1.category schema:'{
+  image:{type:String, required:false},
+  name: {
+    en: { type: String, required: true },
+    ar: { type: String, required: true }
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+}', 2.product schema:'{
+  name: {
+    en: { type: String, required: true },
+    ar: { type: String, required: true }
+  },
+  store_branch:{
+    isExists: { type: Boolean, default: false, required: true },
+    branchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'StoreBranch',
+      default: null
+    }
+  },
+  description: {
+    en: { type: String, required: true },
+    ar: { type: String, required: true }
+  },
+
+  pricing: {
+    price: { type: Number, required: true },
+    costPerItem: { type: Number, required: true },
+    currency: { type: String, default: 'AED' }
+  },
+
+  images: {
+    type: [String],
+    default: []
+  },
+
+  inStock: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+
+  meta: {
+    slug: { type: String, required: true, unique: true },
+    keywords: { type: [String], default: [] }
+  },
+
+  sales: {
+    totalUnitsSold: { type: Number, default: 0 },
+    totalRevenue: { type: Number, default: 0 },
+    totalLikes: { type: Number, default: 0 },
+    totalOrders: { type: Number, default: 0 },
+    lastSoldAt: { type: Date, default: null },
+    totalReviews: {
+      type: Number,
+      default: 0
+    },
+    starRating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5
+    },
+  },
+
+  status: {
+    isPublished: { type: Boolean, default: false },
+    isFeatured: { type: Boolean, default: false },
+    isNew: { type: Boolean, default: false },
+    isPopular: { type: Boolean, default: false } // You can also compute this from sales if needed
+  },
+
+  categoryId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+    required: true
+  },
+
+  brandId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Brand',
+    default: null
+  },
+
+  createdAt: {
+    type: Date,
+    default: () => Date.now()
+  },
+
+  updatedAt: {
+    type: Date,
+    default: () => Date.now()
+  }
+}',3.user schema:'{
+  profile_image: {
+    type: String,
+    trim: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+  },
+  firstName: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  lastName: {
+    type: String,
+    trim: true,
+  },
+  otp: {
+    otp: {
+      type: Number
+    },
+    expiresAt: {
+      type: Date
+    },
+    chances: {
+      type: Number,
+      max: 3,
+      min: 0,
+      default: 3
+    }
+  },
+  language: {
+    enum: ["en", "ar",],
+    default: "en",
+    type: String,
+    required: true,
+  },
+  dateOfBirth: {
+    type: Date,
+  },
+  status: {
+    enum: ["active", "deactive"],
+    type: String,
+    required: true,
+    default: "deactive",
+  },
+  addresses: [
+    {
+      street: {
+        type: String,
+        required: true,
+      },
+      city: {
+        type: String,
+        required: true,
+      },
+      state: {
+        type: String,
+        required: true,
+      },
+      zipCode: {
+        type: String,
+        required: true,
+      },
+      country: {
+        type: String,
+        required: true,
+      },
+      isDefault: {
+        type: Boolean,
+        default: false,
+      },
+    },
+  ],
+  orderHistory: [
+    {
+      orderId: {
+        type: Schema.Types.ObjectId,
+        ref: "Order",
+      },
+    },
+  ],
+  wishlist: [{
+    type: Schema.Types.ObjectId,
+    ref: "Product",
+  }],
+  cart: [
+    {
+      productId: {
+        type: Schema.Types.ObjectId,
+        ref: "Product", // Reference to the Product model
+      },
+      quantity: {
+        type: Number,
+        required: true,
+        min: 1,
+      },
+      addedDate: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+}'. we only have product ids in the wishlist array. and product schema have only category id, you have to find it from category collection. guest user also like same.
+  
+  

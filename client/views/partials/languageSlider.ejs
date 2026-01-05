@@ -1,0 +1,378 @@
+<!-- Language Modal Styles -->
+<style>
+  /* Language Modal Styles */
+  .language-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: flex-end;
+    align-items: flex-end;
+    z-index: 1000;
+  }
+
+  .language-content {
+    background-color: white;
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    padding: 20px;
+    animation: slideUpLanguage 0.3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .language-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+    color: black;
+  }
+
+  .language-options {
+    overflow-y: auto;
+    padding: 10px 0;
+  }
+
+  .close-language {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+  }
+
+  .language-option-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .language-option-item:hover {
+    background-color: #f8f9fa;
+  }
+
+  .language-option-item:last-child {
+    border-bottom: none;
+  }
+
+  .language-flag {
+    width: 24px;
+    height: 18px;
+    margin-right: 12px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .language-flag.en {
+    background: linear-gradient(to bottom, #012169 33%, #fff 33%, #fff 66%, #C8102E 66%);
+  }
+
+  .language-flag.ar {
+    background: linear-gradient(to bottom, #000 33%, #fff 33%, #fff 66%, #007A3D 66%);
+  }
+
+  .language-radio {
+    margin-left: auto;
+  }
+
+  .language-apply-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    background-color: var(--primary-green, #003F2E);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .language-apply-btn:hover {
+    background-color: var(--primary-green-dark, #002d1f);
+  }
+
+  .language-apply-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .language-loading {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .language-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes slideUpLanguage {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Desktop Styles */
+  @media (min-width: 768px) {
+    .language-content {
+      width: 400px;
+      max-width: 90%;
+      border-radius: 20px;
+      margin: 40px;
+      height: auto;
+      max-height: 80vh;
+    }
+  }
+</style>
+
+<!-- Language Selection Modal (Bottom Sheet) - Hidden by default -->
+<div class="language-modal">
+  <div class="language-content">
+    <div class="language-header">
+      <h2 class="text-xl font-bold">Select Language</h2>
+      <button id="close-language" class="close-language">
+        <i class="mdi mdi-close text-xl"></i>
+      </button>
+    </div>
+
+    <div class="language-options">
+      <form id="language-form" method="post">
+        <!-- English Option -->
+        <div class="language-option-item" data-language="en">
+          <!-- <div class="language-flag en"></div> -->
+          <label for="lang-en" class="flex-1 text-gray-800 cursor-pointer">English</label>
+          <input type="radio" id="lang-en" name="language" value="en" class="language-radio h-4 w-4 text-primary">
+        </div>
+
+        <!-- Arabic Option -->
+        <div class="language-option-item" data-language="ar">
+          <!-- <div class="language-flag ar"></div> -->
+          <label for="lang-ar" class="flex-1 text-gray-800 cursor-pointer">العربية</label>
+          <input type="radio" id="lang-ar" name="language" value="ar" class="language-radio h-4 w-4 text-primary">
+        </div>
+
+        <!-- Apply Button -->
+        <button type="button" id="apply-language" class="language-apply-btn">
+          <span class="language-apply-text">Apply</span>
+          <div class="language-loading">
+            <div class="language-spinner"></div>
+            <span>Applying...</span>
+          </div>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Language Selection Variables (separate from sort variables)
+  let selectedLanguageValue = 'en'; // Default language
+  let currentUserLanguage = 'en'; // Track current user language
+
+  // Get Language Modal DOM elements
+  const selectLanguageBtn = document.getElementById('select-language-btn');
+  const languageModal = document.querySelector('.language-modal');
+  const closeLanguageBtn = document.getElementById('close-language');
+  const applyLanguageBtn = document.getElementById('apply-language');
+  const languageForm = document.getElementById('language-form');
+  const languageApplyText = document.querySelector('.language-apply-text');
+  const languageLoading = document.querySelector('.language-loading');
+
+  // Initialize current language (you can get this from server-side or localStorage)
+  function initializeCurrentLanguage() {
+    // Get current language from server or localStorage
+   // const savedLanguage = localStorage.getItem('selectedLanguage') || 'en';
+    const savedLanguage = <%- JSON.stringify(customer.language) || 'en'%>;// Use server-side variable if available
+    currentUserLanguage = savedLanguage;
+    selectedLanguageValue = savedLanguage;
+  }
+
+  // Function to open language modal
+  function openLanguageModal() {
+    console.log('Opening language modal, current language:', currentUserLanguage);
+    languageModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Pre-select current language option
+    const languageInput = document.querySelector(`input[name="language"][value="${currentUserLanguage}"]`);
+    if (languageInput) {
+      languageInput.checked = true;
+      selectedLanguageValue = currentUserLanguage;
+    } else {
+      // Default to English if no current language found
+      const defaultLangInput = document.querySelector('input[name="language"][value="en"]');
+      if (defaultLangInput) {
+        defaultLangInput.checked = true;
+        selectedLanguageValue = 'en';
+      }
+    }
+  }
+
+  // Function to close language modal
+  function closeLanguageModal() {
+    languageModal.style.display = 'none';
+    document.body.style.overflow = '';
+    
+    // Reset loading state
+    resetLoadingState();
+  }
+
+  // Function to reset loading state
+  function resetLoadingState() {
+    applyLanguageBtn.disabled = false;
+    languageApplyText.style.display = 'inline';
+    languageLoading.style.display = 'none';
+  }
+
+  // Function to show loading state
+  function showLoadingState() {
+    applyLanguageBtn.disabled = true;
+    languageApplyText.style.display = 'none';
+    languageLoading.style.display = 'flex';
+  }
+
+  // Update selectedLanguageValue on change of any language input
+  document.querySelectorAll('input[name="language"]').forEach(input => {
+    input.addEventListener('change', function () {
+      selectedLanguageValue = this.value;
+      console.log('Language option selected:', selectedLanguageValue);
+    });
+  });
+
+  // Make language option items clickable
+  document.querySelectorAll('.language-option-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+      // Don't trigger if radio button was directly clicked
+      if (e.target.type === 'radio') return;
+      
+      const languageValue = this.dataset.language;
+      const radioInput = this.querySelector('input[type="radio"]');
+      if (radioInput) {
+        radioInput.checked = true;
+        selectedLanguageValue = languageValue;
+        console.log('Language option clicked:', selectedLanguageValue);
+      }
+    });
+  });
+
+  // Apply button click handler
+  applyLanguageBtn?.addEventListener('click', async function () {
+    console.log('Applying language:', selectedLanguageValue);
+    
+    // Don't proceed if no language selected
+    if (!selectedLanguageValue) {
+      alert('Please select a language');
+      return;
+    }
+
+    // Don't proceed if same language is selected
+    if (selectedLanguageValue === currentUserLanguage) {
+      console.log('Same language selected, closing modal');
+      closeLanguageModal();
+      return;
+    }
+
+    // Show loading state
+    showLoadingState();
+
+    try {
+      // Send request to backend
+      const response = await fetch('/api/change-language', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          language: selectedLanguageValue
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log('Language changed successfully:', data);
+        
+        // Update current language
+        currentUserLanguage = selectedLanguageValue;
+        
+        // Save to localStorage
+        localStorage.setItem('selectedLanguage', selectedLanguageValue);
+        
+        // Close modal
+        closeLanguageModal();
+        
+        // Optional: Reload page or update UI to reflect language change
+        // You can customize this based on your needs
+        setTimeout(() => {
+          window.location.reload(); // Reload to apply language changes
+        }, 500);
+        
+      } else {
+        // Handle error response
+        console.error('Language change failed:', data);
+        alert(data.message || 'Failed to change language. Please try again.');
+        resetLoadingState();
+      }
+    } catch (error) {
+      console.error('Error changing language:', error);
+      alert('Network error. Please check your connection and try again.');
+      resetLoadingState();
+    }
+  });
+
+  // Prevent form submission
+  languageForm?.addEventListener('submit', function (e) {
+    e.preventDefault();
+  });
+
+  // Close modal on Escape key
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && languageModal.style.display === 'flex') {
+      closeLanguageModal();
+    }
+  });
+
+  // Close modal when clicking outside
+  languageModal?.addEventListener('click', function(e) {
+    if (e.target === languageModal) {
+      closeLanguageModal();
+    }
+  });
+
+  // Event listeners
+  selectLanguageBtn?.addEventListener('click', openLanguageModal);
+  closeLanguageBtn?.addEventListener('click', closeLanguageModal);
+
+  // Initialize on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    initializeCurrentLanguage();
+  });
+</script>
