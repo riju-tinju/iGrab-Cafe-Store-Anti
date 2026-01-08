@@ -4,8 +4,8 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const session = require('express-session');
-const verifyAdmin  = require('./helper/verifyAdmin');
-const verifySuperAdmin  = require('./helper/verifySuperAdmin');
+const verifyAdmin = require('./helper/verifyAdmin');
+const verifySuperAdmin = require('./helper/verifySuperAdmin');
 
 var indexRouter = require('./routes/index');
 var adminUserRouter = require('./routes/adminUserSetting');
@@ -14,12 +14,14 @@ var productRouter = require('./routes/product');
 var orderRouter = require('./routes/order');
 var adminAuthRouter = require('./routes/adminAuth');
 var dashboardRouter = require('./routes/dashboard');
-var settingRouter=require('./routes/settings')
+var settingRouter = require('./routes/settings')
 
-const getAdmin  = require('./helper/getAdmin');
+const getAdmin = require('./helper/getAdmin');
 require("dotenv").config();// custom
 const db = require("./config/connection");// custom
 db.DBconnect();// custom
+const adminHelper = require("./helper/adminHelper");
+adminHelper.ensureInitialData(); // Seed initial data if database is empty
 
 var app = express();
 
@@ -50,7 +52,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, '../uploads')));
 
 
-app.use('/',adminAuthRouter)
+app.use('/', adminAuthRouter)
 app.use(verifyAdmin);
 app.use(getAdmin);
 
@@ -64,12 +66,12 @@ app.use(verifySuperAdmin);
 app.use('/', adminUserRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

@@ -410,6 +410,9 @@ router.get("/shop", async function (req, res, next) {
 });
 router.get("/product/:url", async function (req, res, next) {
   let product = await userFun.getProductByURL(req, res);
+  if (!product) {
+    return res.redirect('/not-found');
+  }
   product.category = await userFun.getCategoryByProductId(req, res, product.categoryId);
   product.brand = await userFun.getBrandById(req, res, product.brandId);
   product.reviews = await userFun.getProductReviews(req, res, product._id);

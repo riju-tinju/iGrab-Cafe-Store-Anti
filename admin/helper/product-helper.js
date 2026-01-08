@@ -23,6 +23,19 @@ const productFun = {
       const branchId = req.session.admin?.selectedBranch;
       console.log("Selected Branch ID:", branchId);
       if (!branchId) {
+        // Check if any branches exist at all
+        const anyBranch = await Store.findOne({});
+        if (!anyBranch) {
+          // Zero state: No branches exist yet. Return empty list.
+          return res.status(200).json({
+            success: true,
+            data: {
+              products: [],
+              pagination: { currentPage: page, totalPages: 0, totalProducts: 0, hasNext: false, hasPrev: false },
+              stats: { totalProducts: 0, publishedProducts: 0, lowStockProducts: 0, outOfStockProducts: 0 }
+            }
+          });
+        }
         return res.status(400).json({
           success: false,
           message: "Branch not selected",
@@ -262,119 +275,119 @@ const productFun = {
   },
   createProduct: async (req, res) => {
     try {
-    const productData = req.body;
-    
-    // Validate required fields
-    if (!productData.name?.en || !productData.name?.ar) {
-      return res.status(400).json({
+      const productData = req.body;
+
+      // Validate required fields
+      if (!productData.name?.en || !productData.name?.ar) {
+        return res.status(400).json({
+          success: false,
+          error: { message: 'Product name in both languages is required' }
+        });
+      }
+
+      // Create product in database
+      const product = new Product(productData);
+      let savedProduct = await product.save();
+      if (!savedProduct) {
+        return res.status(500).json({
+          success: false,
+          error: { message: 'Failed to create product' }
+        });
+      }
+      return res.json({
+        success: true,
+        data: { savedProduct },
+        message: 'Product created successfully'
+      });
+
+    } catch (error) {
+      res.status(500).json({
         success: false,
-        error: { message: 'Product name in both languages is required' }
+        error: { message: error.message }
       });
     }
-    
-    // Create product in database
-    const product = new Product(productData);
-    let savedProduct=await product.save();
-    if (!savedProduct) {
-      return res.status(500).json({
-        success: false,
-        error: { message: 'Failed to create product' }
-      });
-    }
-    return res.json({
-      success: true,
-      data: { savedProduct },
-      message: 'Product created successfully'
-    });
-    
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: { message: error.message }
-    });
-  }
   },
   createCategory: async (req, res, imageName) => {
     try {
-    console.log("Creating category with data:", req.body);
-    const categoryData = req.body;
-    categoryData.image = imageName || null; // Set image if provided
-    const category = new Category(categoryData);
-    await category.save();
-    
-    res.json({
-      success: true,
-      data: { category }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: { message: error.message }
-    });
-  }
+      console.log("Creating category with data:", req.body);
+      const categoryData = req.body;
+      categoryData.image = imageName || null; // Set image if provided
+      const category = new Category(categoryData);
+      await category.save();
+
+      res.json({
+        success: true,
+        data: { category }
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: { message: error.message }
+      });
+    }
   },
   createBrand: async (req, res, imageName) => {
     try {
-    const brandData = req.body;
-    brandData.logo = imageName || null; // Set logo if provided
-    const brand = new Brand(brandData);
-    await brand.save();
-    
-    res.json({
-      success: true,
-      data: { brand }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: { message: error.message }
-    });
-  }
+      const brandData = req.body;
+      brandData.logo = imageName || null; // Set logo if provided
+      const brand = new Brand(brandData);
+      await brand.save();
+
+      res.json({
+        success: true,
+        data: { brand }
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: { message: error.message }
+      });
+    }
   },
   getProductById: async (productId) => {
     try {
-     
-    if (!mongoose.Types.ObjectId.isValid(productId)) {
-      return null; // or throw an error
+
+      if (!mongoose.Types.ObjectId.isValid(productId)) {
+        return null; // or throw an error
+      }
+      const product = await Product.find({ _id: productId })
+      if (!product) {
+        return null;
+      }
+      return product[0];
+    } catch (error) {
+      return null
     }
-    const product = await Product.find({ _id: productId })
-    if(!product){
-      return null; 
-    }
-    return product[0];
-  } catch (error) {
-    return null
-  }
   },
-  editProduct:async(req,res)=>{
-    let {productData,productId}= req.body;
-    try{
+  editProduct: async (req, res) => {
+    let { productData, productId } = req.body;
+    try {
       // Update product data (no status fields)
-    productData.updatedAt = new Date();
-    
-    const updatedProduct = await Product.findByIdAndUpdate(
-      productId, 
-      productData, 
-      { new: true, runValidators: true }
-    );
-    if(!updatedProduct){
-      return res.status(404).json({
+      productData.updatedAt = new Date();
+
+      const updatedProduct = await Product.findByIdAndUpdate(
+        productId,
+        productData,
+        { new: true, runValidators: true }
+      );
+      if (!updatedProduct) {
+        return res.status(404).json({
+          success: false,
+          error: { message: 'Product not found' }
+        });
+      }
+      res.json({
+        success: true,
+        data: { product: updatedProduct },
+        message: 'Product updated successfully'
+      });
+    } catch (err) {
+      res.status(500).json({
         success: false,
-        error: { message: 'Product not found' }
+        error: { message: error.message }
       });
     }
-    res.json({
-      success: true,
-      data: { product: updatedProduct },
-      message: 'Product updated successfully'
-    });
-    }catch(err){
-      res.status(500).json({
-      success: false,
-      error: { message: error.message }
-    });
-    }
-    
+
 
   }
 

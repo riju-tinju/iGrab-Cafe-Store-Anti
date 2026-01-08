@@ -18,7 +18,6 @@ const getCustomer = async (req, res, next) => {
 
   try {
     // 🔒 Logged-in user
-    req.session.user={...req.session.user,id:'6853b89afca9e6b6a6fb7791' }
     if (req.session.user && req.session.user.id) {
       const userId = req.session.user.id;
 
@@ -54,39 +53,49 @@ const getCustomer = async (req, res, next) => {
         };
       }
       customer._id = userId;
-      
+
     } else {
       // 🧑 Guest user
       customer.cart = req.session.cart || [];
       customer.total_cart = customer.cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
       customer.wishlist = req.session.wishlist || [];
       customer.user = "guest";
-      customer.branch= req.session.selectedBranch || null;
-      customer.selectedBranch= req.session.selectedBranch || null;
+      customer.branch = req.session.selectedBranch || null;
+      customer.selectedBranch = req.session.selectedBranch || null;
       customer.language = req.session.lang || "en";
     }
     //get available branches
     let allBranches = await Store.find({})
-    if (allBranches.length > 0) {
+    if (allBranches && allBranches.length > 0) {
       customer.allBranches = allBranches;
     }
-   
+
     if (!customer.selectedBranch) {
-        const branch = await Store.findOne({}).sort({ _id: 1 });
-        if(branch && branch._id)
-        { 
-          customer.selectedBranch = branch._id;
-          req.session.selectedBranch = branch._id || null; // Save default branch in session
-        }
+      const branch = await Store.findOne({}).sort({ _id: 1 });
+      if (branch && branch._id) {
+        customer.selectedBranch = branch._id;
+        req.session.selectedBranch = branch._id || null; // Save default branch in session
+      }
     }
-    if(customer.selectedBranch){
-      let isExistBranch = await Store.findOne({_id: customer.selectedBranch});
-      customer.selectedBranch = isExistBranch._id || null;//This is very important
-      customer.branch = isExistBranch._id || null;// But i dont know why i need this
+
+    if (customer.selectedBranch) {
+      let isExistBranch = await Store.findOne({ _id: customer.selectedBranch });
+      if (isExistBranch) {
+        customer.selectedBranch = isExistBranch._id;
+        customer.branch = isExistBranch._id;
+      } else {
+        customer.selectedBranch = null;
+        customer.branch = null;
+      }
     }
+
+    // If still no branch selected and there are branches, pick the first one
+    if (!customer.selectedBranch && customer.allBranches.length > 0) {
+      customer.selectedBranch = customer.allBranches[0]._id;
+      customer.branch = customer.allBranches[0]._id;
+    }
+
     // ✅ Save for views or later use
-    //res.locals.customer = customer;
-    // console.log("Customer data:", customer);
     res.locals.customer = customer;
     next();
   } catch (error) {

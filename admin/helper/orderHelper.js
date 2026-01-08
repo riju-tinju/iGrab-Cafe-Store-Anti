@@ -38,6 +38,19 @@ const orderFun = {
 
       const branchId = req.session.admin?.selectedBranch;
       if (!branchId) {
+        // Check if any branches exist at all
+        const anyBranch = await Store.findOne({});
+        if (!anyBranch) {
+          // Zero state: No branches exist yet. Return empty list.
+          return res.status(200).json({
+            success: true,
+            data: {
+              orders: [],
+              pagination: { currentPage: parseInt(page), totalPages: 0, totalOrders: 0, limit: parseInt(limit), hasNext: false, hasPrev: false },
+              stats: { totalOrders: 0, pendingOrders: 0, confirmedOrders: 0, processingOrders: 0, deliveredOrders: 0, cancelledOrders: 0, unpaidOrders: 0, todayOrders: 0, totalRevenue: 0 }
+            }
+          });
+        }
         return res.status(400).json({
           success: false,
           message: "Branch not selected",
@@ -843,7 +856,7 @@ const orderFun = {
       // console.log("Updated order:", order);
       // Save the updated order
       await order.save();
-      
+
 
       // Return success response
       return res.status(200).json({

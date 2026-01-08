@@ -12,12 +12,30 @@ const Order = require("../model/orderSchema");
 const Admin = require("../model/adminSchema");
 
 const dashboardFun = {
-   getDashboardOverview: async (req, res) => {
+  getDashboardOverview: async (req, res) => {
     try {
       const branchId = req.session.admin?.selectedBranch;
       if (!branchId) {
+        // Check if any branches exist at all
+        const anyBranch = await Store.findOne({});
+        if (!anyBranch) {
+          // System zero-state: No branches exist yet. Return empty stats.
+          return res.status(200).json({
+            success: true,
+            data: {
+              stats: {
+                totalRevenue: { today: 0, yesterday: 0, thisWeek: 0, lastWeek: 0, thisMonth: 0, lastMonth: 0, percentageChange: 0 },
+                orders: { total: 0, today: 0, pending: 0, confirmed: 0, processing: 0, delivered: 0, cancelled: 0, averageOrderValue: 0 },
+                customers: { total: 0, newToday: 0, newThisWeek: 0, activeCustomers: 0, growthRate: 0 },
+                products: { total: 0, published: 0, outOfStock: 0, lowStock: 0, topSellingToday: [] },
+                branches: { total: 0, active: 0, topPerforming: "N/A", totalSalesToday: 0 }
+              }
+            }
+          });
+        }
         return res.status(400).json({ success: false, message: "Branch not selected", code: "BRANCH_REQUIRED" });
       }
+
 
       const now = new Date();
       const startOfToday = new Date(now.setHours(0, 0, 0, 0));
@@ -182,6 +200,16 @@ const dashboardFun = {
       const { period = "7days" } = req.query;
       const branchId = req.session.admin?.selectedBranch;
       if (!branchId) {
+        const anyBranch = await Store.findOne({});
+        if (!anyBranch) {
+          return res.status(200).json({
+            success: true,
+            data: {
+              revenueData: [],
+              summary: { totalRevenue: 0, totalOrders: 0, averageDaily: 0, growthRate: 0 }
+            }
+          });
+        }
         return res.status(400).json({ success: false, message: "Branch not selected", code: "BRANCH_REQUIRED" });
       }
 
@@ -282,6 +310,13 @@ const dashboardFun = {
     try {
       const branchId = req.session.admin?.selectedBranch;
       if (!branchId) {
+        const anyBranch = await Store.findOne({});
+        if (!anyBranch) {
+          return res.status(200).json({
+            success: true,
+            data: { statusDistribution: [] }
+          });
+        }
         return res.status(400).json({ success: false, message: "Branch not selected" });
       }
 
@@ -310,7 +345,13 @@ const dashboardFun = {
     try {
       const { limit = 5 } = req.query;
       const branchId = req.session.admin?.selectedBranch;
-      if (!branchId) return res.status(400).json({ success: false, message: "Branch not selected" });
+      if (!branchId) {
+        const anyBranch = await Store.findOne({});
+        if (!anyBranch) {
+          return res.status(200).json({ success: true, data: { topProducts: [] } });
+        }
+        return res.status(400).json({ success: false, message: "Branch not selected" });
+      }
 
       const result = await Order.aggregate([
         { $match: { storeId: branchId, paymentStatus: "Paid" } },

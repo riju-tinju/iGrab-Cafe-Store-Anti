@@ -40,6 +40,8 @@ const getAdmin = async (req, res, next) => {
         admin.selectedBranch = firstStore._id;
         await admin.save();
         adminData.branchName = firstStore.name;
+      } else {
+        adminData.branchName = "No Branch Available";
       }
     } else {
       // Set branch name from selectedBranch

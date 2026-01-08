@@ -4,8 +4,8 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const session = require('express-session');
-const getCustomer  = require('./helper/getCustomer');
-const verifyCustomer  = require('./helper/verifyCustomer');
+const getCustomer = require('./helper/getCustomer');
+const verifyCustomer = require('./helper/verifyCustomer');
 
 var startingRouter = require('./routes/startingRouter');
 var indexRouter = require('./routes/index');
@@ -53,18 +53,18 @@ app.use('/', startingRouter);
 app.use(getCustomer);
 app.use('/', indexRouter);
 app.use('/', userAuthRouter);
-app.use('/api',apiRouter)
+app.use('/api', apiRouter)
 app.use(verifyCustomer);
 app.use('/checkout', checkoutRouter);
 
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

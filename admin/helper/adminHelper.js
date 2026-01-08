@@ -17,7 +17,7 @@ let transporter = nodemailer.createTransport({
 });
 
 const customerFun = {
- createSuperAdmin: async (req, res) => {
+  createSuperAdmin: async (req, res) => {
     try {
       const { name, email } = req.params;
 
@@ -68,7 +68,7 @@ const customerFun = {
       const otpExpiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
 
       let user = await Admin.findOne({ email });
-      
+
       if (user) {
         // User exists – update OTP
         user.otp.otp = otp;
@@ -174,14 +174,14 @@ const customerFun = {
       }
 
       // Successful verification - update user
-      
+
       user.otp = {
         otp: null,
         chances: 3,
         expiresAt: null
       };
 
-     
+
       await user.save();
 
       // Set session
@@ -198,6 +198,53 @@ const customerFun = {
       return res.status(500).json({
         error: "Internal server error"
       });
+    }
+  },
+
+  /**
+   * Ensures initial data (Super Admin and Main Branch) exists.
+   */
+  ensureInitialData: async () => {
+    try {
+      const StoreBranch = require("../model/storeBranchSchema");
+
+      // 1. Ensure at least one branch exists
+      let branch = await StoreBranch.findOne();
+      if (!branch) {
+        console.log("No branches found. Creating default branch...");
+        branch = new StoreBranch({
+          name: "Main Branch",
+          address: "Default Address, Dubai",
+          email: "mainbranch@example.com",
+          contactNumber: "0000000000",
+          location: {
+            type: "Point",
+            coordinates: [55.2708, 25.2048] // Dubai Burj Khalifa approx
+          }
+        });
+        await branch.save();
+        console.log("Default branch created:", branch.name);
+      }
+
+      // 2. Ensure at least one Super Admin exists
+      let admin = await Admin.findOne({ role: 'superadmin' });
+      if (!admin) {
+        console.log("No super admin found. Creating default super admin...");
+        admin = new Admin({
+          name: "System Admin",
+          email: "jadhugd@gmail.com", // Using the email from nodemailer config
+          role: 'superadmin',
+          isActive: true,
+          branches: [branch._id],
+          selectedBranch: branch._id
+        });
+        await admin.save();
+        console.log("Default super admin created:", admin.email);
+      }
+
+      return { branch, admin };
+    } catch (err) {
+      console.error("Error seeding initial data:", err);
     }
   },
 }
