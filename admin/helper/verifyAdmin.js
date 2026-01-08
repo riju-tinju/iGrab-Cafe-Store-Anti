@@ -5,9 +5,9 @@ const verifyCustomer = async (req, res, next) => {
   try {
     console.log(req.session.admin);
     req.session.admin = {
-      id: '685f7a1453d719661a6fe1df',
+      id: '695c8f151a5379a5e7cd4088',
       role: 'superadmin',
-      selectedBranch: '685f7a1453d719661a6fe1df'
+      selectedBranch: null
     }
     // req.session.admin={id:'685dbdec92ae3669fbfb7b01'}// For testing purposes, remove this line in production
     if (req.session.admin && req.session.admin.id) {

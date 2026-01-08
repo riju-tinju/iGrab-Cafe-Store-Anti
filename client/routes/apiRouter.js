@@ -183,15 +183,12 @@ router.post("/get-order-history", async (req, res) => {
 })
 
 
-
-
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 router.post('/create-payment-intent', async (req, res) => {
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: 2000, // Amount in cents
       currency: 'usd',
-
     });
 
     res.json({ clientSecret: paymentIntent.client_secret });

@@ -470,18 +470,18 @@ router.get("/faq", async (req, res) => {
   res.render("pages/FAQ/FAQ")
 })
 router.get("/company-profile", async (req, res) => {
-  let brands=[]
+  let brands = []
   brands = await userFun.getAllBrands(req, res);
   console.log("\nBrands: \n", brands);
-  resRender(req, res, "pages/profile/profile", "pages/profile/profile_AR", {brands})
-  
+  resRender(req, res, "pages/profile/profile", "pages/profile/profile_AR", { brands })
+
 })
 router.get("/privacy-policy", async (req, res) => {
   resRender(req, res, "privacy-policy", "privacy-policy_AR", {})
   // res.render("privacy-policy")
 })
 router.get("/terms-and-conditions", async (req, res) => {
-  resRender(req, res, "terms-and-conditions", "terms-and-conditions_AR", { })
+  resRender(req, res, "terms-and-conditions", "terms-and-conditions_AR", {})
   // res.render("terms-and-conditions")
 })
 router.get("/template", async (req, res) => {
@@ -497,6 +497,10 @@ router.get("/add-dummy-data", async (req, res) => {
 
 router.get("/add-dummy-charges", async (req, res) => {
   await startingHelper.createDummyCharges(req, res);
+})
+
+router.get("/add-dummy-order", async (req, res) => {
+  await startingHelper.createDummyOrder(req, res);
 })
 
 router.get("/map", async (req, res) => {
