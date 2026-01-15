@@ -267,36 +267,50 @@
                     </h2>
 
                     <div class="space-y-4">
-                        <div class="payment-option p-4 selected" onclick="selectPayment(this)">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="text-2xl mr-3">💵</div>
-                                    <div>
-                                        <h3 class="font-dm-sans font-semibold" payment-name="COD">Cash on Delivery</h3>
-                                        <p class="text-sm text-gray-600">Pay when your order arrives</p>
+                        <% if (paymentSettings && paymentSettings.cod && paymentSettings.cod.isEnabled) { %>
+                            <div class="payment-option p-4 selected" onclick="selectPayment(this)">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="text-2xl mr-3">💵</div>
+                                        <div>
+                                            <h3 class="font-dm-sans font-semibold" payment-name="COD">Cash on Delivery
+                                            </h3>
+                                            <p class="text-sm text-gray-600">Pay when your order arrives</p>
+                                        </div>
+                                    </div>
+                                    <div class="radio-btn">
+                                        <i class="fas fa-check-circle text-primary-green"></i>
                                     </div>
                                 </div>
-                                <div class="radio-btn">
-                                    <i class="fas fa-check-circle text-primary-green"></i>
-                                </div>
                             </div>
-                        </div>
+                            <% } %>
 
-                        <div class="payment-option p-4" onclick="selectPayment(this)">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <div class="text-2xl mr-3">💳</div>
-                                    <div>
-                                        <h3 class="font-dm-sans font-semibold" payment-name="Online-payment">Online
-                                            Payment</h3>
-                                        <p class="text-sm text-gray-600">Pay securely online</p>
+                                <% if (paymentSettings && paymentSettings.stripe && paymentSettings.stripe.isEnabled) {
+                                    %>
+                                    <div class="payment-option p-4" onclick="selectPayment(this)">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center">
+                                                <div class="text-2xl mr-3">💳</div>
+                                                <div>
+                                                    <h3 class="font-dm-sans font-semibold"
+                                                        payment-name="Online-payment">Online
+                                                        Payment</h3>
+                                                    <p class="text-sm text-gray-600">Pay securely online</p>
+                                                </div>
+                                            </div>
+                                            <div class="radio-btn">
+                                                <i class="far fa-circle text-gray-400"></i>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="radio-btn">
-                                    <i class="far fa-circle text-gray-400"></i>
-                                </div>
-                            </div>
-                        </div>
+                                    <% } %>
+
+                                        <% if ((!paymentSettings?.cod?.isEnabled) &&
+                                            (!paymentSettings?.stripe?.isEnabled)) { %>
+                                            <div class="p-4 text-center text-red-500 bg-red-50 rounded-lg">
+                                                <p>No payment methods available currently.</p>
+                                            </div>
+                                            <% } %>
                     </div>
                 </section>
             </div>
@@ -734,17 +748,16 @@
          */
         function showOrderConfirmation(orderData) {
             const overlay = createFullScreenOverlay();
-            
+
             console.log('Order Data:', orderData);
             console.log('Order Data Metadata:', orderData?.metadata);
-            let paymentMethodName = orderData?.paymentMethod ==='Cash'? 'Cash on Delivery' : 'Online Payment';
-            let orderIdforDisplay= orderData.orderId ||  null;
+            let paymentMethodName = orderData?.paymentMethod === 'Cash' ? 'Cash on Delivery' : 'Online Payment';
+            let orderIdforDisplay = orderData.orderId || null;
             let orderIdElement
-            if(orderIdforDisplay)
-              {
-                 orderIdElement=`<p class="order-id">Order ID: #${orderIdforDisplay}</p>`
-              }           
-               // Play celebration sound (safe for autoplay policies)
+            if (orderIdforDisplay) {
+                orderIdElement = `<p class="order-id">Order ID: #${orderIdforDisplay}</p>`
+            }
+            // Play celebration sound (safe for autoplay policies)
             playNotificationSound();
 
             overlay.innerHTML = `
@@ -854,7 +867,7 @@
                 </div>
                 
                 <div class="payment-summary">
-                    <p>Total Amount: <strong>AED ${paymentData?.amount/100 || '0.00'}</strong></p>
+                    <p>Total Amount: <strong>AED ${paymentData?.amount / 100 || '0.00'}</strong></p>
                 </div>
                 
                 <button id="stripe-pay-btn" class="btn-primary w-full py-4 mt-4">
@@ -934,7 +947,7 @@
                 const { error, paymentIntent } = await stripe.confirmCardPayment(paymentData.client_secret, {
                     payment_method: {
                         card: cardElement
-                    },                    
+                    },
                 });
 
                 if (error) {

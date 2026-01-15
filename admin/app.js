@@ -15,6 +15,7 @@ var orderRouter = require('./routes/order');
 var adminAuthRouter = require('./routes/adminAuth');
 var dashboardRouter = require('./routes/dashboard');
 var settingRouter = require('./routes/settings')
+var contactRouter = require('./routes/contacts');
 
 const getAdmin = require('./helper/getAdmin');
 require("dotenv").config();// custom
@@ -62,6 +63,7 @@ app.use('/', productRouter);
 app.use('/', orderRouter);
 app.use('/', settingRouter);
 app.use('/', deliveryExecutiveRouter);
+app.use('/', contactRouter);
 app.use(verifySuperAdmin);
 app.use('/', adminUserRouter);
 

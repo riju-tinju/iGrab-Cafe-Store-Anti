@@ -172,7 +172,14 @@
                   <script>
                     function add_or_remove_product_to_wishlist(productId, wishButton) {
                       const wishlistCount = document.getElementById('wishlist-count');
-                      let count = parseInt(wishlistCount.textContent) || 0;
+                      const desktopWishlistCount = document.getElementById('desktop-wishlist-count');
+                      let count = 0;
+
+                      if (wishlistCount) {
+                        count = parseInt(wishlistCount.textContent) || 0;
+                      } else if (desktopWishlistCount) {
+                        count = parseInt(desktopWishlistCount.textContent) || 0;
+                      }
 
                       fetch('api/add-or-remove-wishlist', {
                         method: 'POST',
@@ -209,7 +216,13 @@
                               default:
                                 window.location.href = '/login';
                             }
-                            wishlistCount.textContent = count;
+                            // Update both mobile and desktop counters
+                            const wishCountEl = document.getElementById('wishlist-count');
+                            const desktopWishCountEl = document.getElementById('desktop-wishlist-count');
+
+                            if (wishCountEl) wishCountEl.textContent = count;
+                            if (desktopWishCountEl) desktopWishCountEl.textContent = count;
+
                             animateCartBadge();
                           } else if (data.error) {
                             showToast(data.error);

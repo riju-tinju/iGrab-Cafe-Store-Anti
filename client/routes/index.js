@@ -469,6 +469,14 @@ router.get("/contact", async (req, res) => {
   })
 
 })
+
+// Contact form submission API
+router.post("/api/submit-contact", async (req, res) => {
+  const contactHelper = require("../helper/contactHelper");
+  const result = await contactHelper.submitContact(req, res);
+  res.json(result);
+});
+
 router.get("/faq", async (req, res) => {
   res.render("pages/FAQ/FAQ")
 })

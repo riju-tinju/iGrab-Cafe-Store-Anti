@@ -39,12 +39,13 @@ const customerFun = {
         await user.save();
 
         console.log("OTP regenerated for existing user:", otp);
-        await customerFun.sendOtpEmail(name, email, otp, "login").catch(err => {
+        try {
+          await customerFun.sendOtpEmail(name, email, otp, "login");
+          return res.status(200).json({ success: true });
+        } catch (err) {
           console.error("Failed to send OTP email:", err);
           return res.status(500).json({ error: "Failed to send OTP email" });
-        });
-
-        return res.status(200).json({ success: true, });
+        }
       }
 
       // User doesn't exist – create new user
@@ -60,13 +61,14 @@ const customerFun = {
 
       await newUser.save();
       console.log("New user created with OTP:", otp);
-      await customerFun.sendOtpEmail(name, email, otp, "register").catch(err => {
+
+      try {
+        await customerFun.sendOtpEmail(name, email, otp, "register");
+        return res.status(200).json({ success: true });
+      } catch (err) {
         console.error("Failed to send OTP email:", err);
         return res.status(500).json({ error: "Failed to send OTP email" });
-      });
-
-      res.status(200).json({ success: true })
-      return
+      }
     } catch (err) {
       console.error("Error in checkAndGenerateOTPUser:", err);
       return res.status(500).json({ error: "Internal server error" });

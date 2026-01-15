@@ -1,7 +1,15 @@
 {
-    "watch": ["views", "public", "routes","model","helper","*"],
-    "ext": "js,json,ejs,*",
-    "ignore": ["node_modules"],
+    "watch": [
+        "views",
+        "public",
+        "routes",
+        "model",
+        "helper",
+        "*"
+    ],
+    "ext": "js,json,ejs,env,*",
+    "ignore": [
+        "node_modules"
+    ],
     "exec": "node ./bin/www"
 }
-  

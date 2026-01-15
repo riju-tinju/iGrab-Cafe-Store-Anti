@@ -128,14 +128,57 @@
 
         // Form submission
         const contactForm = document.getElementById('contact-form');
-        contactForm.addEventListener('submit', function (e) {
+        const submitBtn = contactForm.querySelector('button[type="submit"]');
+
+        contactForm.addEventListener('submit', async function (e) {
           e.preventDefault();
-          // In a real scenario, you'd send the form data to your server
-          // For now, just show a success message
-          showToast('تم إرسال رسالتك بنجاح!');
-          contactForm.reset();
-          // Uncheck inquiry options
-          inquiryOptions.forEach(o => o.classList.remove('active'));
+
+          // Disable submit button
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>جاري الإرسال...';
+
+          try {
+            // Get form data
+            const formData = {
+              name: document.getElementById('name').value,
+              email: document.getElementById('email').value,
+              phone: document.getElementById('phone')?.value || '',
+              inquiryType: document.querySelector('input[name="inquiry-type"]:checked').value,
+              message: document.getElementById('message').value
+            };
+
+            // Send to backend
+            const response = await fetch('/api/submit-contact', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              showToast('تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.');
+              contactForm.reset();
+              // Uncheck inquiry options
+              inquiryOptions.forEach(o => o.classList.remove('active'));
+              // Set first option as active
+              if (inquiryOptions.length > 0) {
+                inquiryOptions[0].classList.add('active');
+                inquiryOptions[0].querySelector('input[type="radio"]').checked = true;
+              }
+            } else {
+              showToast(result.error || 'فشل إرسال الرسالة. يرجى المحاولة مرة أخرى.');
+            }
+          } catch (error) {
+            console.error('Contact form error:', error);
+            showToast('حدث خطأ. يرجى المحاولة مرة أخرى لاحقاً.');
+          } finally {
+            // Re-enable submit button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'إرسال الرسالة';
+          }
         });
 
         // Copy address to clipboard
@@ -204,7 +247,8 @@
               <i class="fas fa-envelope text-xl"></i>
             </div>
             <div>
-              <p class="mb-1"><a href="mailto:hello@iGrab Story.com" class="hover:text-accent">hello@iGrab Story.com</a></p>
+              <p class="mb-1"><a href="mailto:hello@iGrab Story.com" class="hover:text-accent">hello@iGrab Story.com</a>
+              </p>
               <p class="text-sm text-gray-500">نهدف للرد خلال 24 ساعة</p>
             </div>
           </div>
@@ -250,7 +294,8 @@
             </div>
             <div class="mb-4">
               <label for="email" class="form-label">بريدك الإلكتروني</label>
-              <input type="email" id="email" name="email" class="form-input" placeholder="أدخل بريدك الإلكتروني" required>
+              <input type="email" id="email" name="email" class="form-input" placeholder="أدخل بريدك الإلكتروني"
+                required>
             </div>
             <div class="mb-6">
               <label class="form-label">نوع الاستفسار</label>
@@ -275,8 +320,8 @@
             </div>
             <div class="mb-6">
               <label for="message" class="form-label">الرسالة</label>
-              <textarea id="message" name="message" rows="5" class="form-input"
-                placeholder="أخبرنا كيف يمكننا مساعدتك" required></textarea>
+              <textarea id="message" name="message" rows="5" class="form-input" placeholder="أخبرنا كيف يمكننا مساعدتك"
+                required></textarea>
             </div>
             <button type="submit" class="btn-primary w-full">إرسال الرسالة</button>
           </form>

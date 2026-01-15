@@ -128,14 +128,57 @@
 
         // Form submission
         const contactForm = document.getElementById('contact-form');
-        contactForm.addEventListener('submit', function (e) {
+        const submitBtn = contactForm.querySelector('button[type="submit"]');
+
+        contactForm.addEventListener('submit', async function (e) {
           e.preventDefault();
-          // In a real scenario, you'd send the form data to your server
-          // For now, just show a success message
-          showToast('Your message has been sent successfully!');
-          contactForm.reset();
-          // Uncheck inquiry options
-          inquiryOptions.forEach(o => o.classList.remove('active'));
+
+          // Disable submit button
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+
+          try {
+            // Get form data
+            const formData = {
+              name: document.getElementById('name').value,
+              email: document.getElementById('email').value,
+              phone: document.getElementById('phone')?.value || '',
+              inquiryType: document.querySelector('input[name="inquiry-type"]:checked').value,
+              message: document.getElementById('message').value
+            };
+
+            // Send to backend
+            const response = await fetch('/api/submit-contact', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              showToast(result.message || 'Your message has been sent successfully!');
+              contactForm.reset();
+              // Uncheck inquiry options
+              inquiryOptions.forEach(o => o.classList.remove('active'));
+              // Set first option as active
+              if (inquiryOptions.length > 0) {
+                inquiryOptions[0].classList.add('active');
+                inquiryOptions[0].querySelector('input[type="radio"]').checked = true;
+              }
+            } else {
+              showToast(result.error || 'Failed to send message. Please try again.');
+            }
+          } catch (error) {
+            console.error('Contact form error:', error);
+            showToast('An error occurred. Please try again later.');
+          } finally {
+            // Re-enable submit button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Send Message';
+          }
         });
 
         // Copy address to clipboard
@@ -212,7 +255,8 @@
               <i class="fas fa-envelope text-xl"></i>
             </div>
             <div>
-              <p class="mb-1"><a href="mailto:hello@iGrab Story.com" class="hover:text-accent">hello@iGrab Story.com</a></p>
+              <p class="mb-1"><a href="mailto:hello@iGrab Story.com" class="hover:text-accent">hello@iGrab Story.com</a>
+              </p>
               <p class="text-sm text-gray-500">We aim to respond within 24 hours</p>
             </div>
           </div>

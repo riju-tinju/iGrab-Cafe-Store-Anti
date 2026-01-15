@@ -201,9 +201,20 @@ const apiFun = {
             if (!productExists) {
                 return res.status(404).json({ error: "Product not found" });
             }
-            let product = await Product.findById(productId)
-            console.log("available products", product.inStock)
-            if (!product.inStock > 0) {
+            let product = await Product.findById(productId);
+
+            // Branch-based stock check
+            const branchId = res.locals.customer.selectedBranch;
+            if (!branchId) {
+                return res.status(400).json({ error: "Branch not selected" });
+            }
+
+            const inventory = await Inventory.findOne({ productId, branchId });
+            const availableStock = inventory ? inventory.stock : 0;
+
+            console.log(`Checking stock for Product: ${productId}, Branch: ${branchId}, Stock: ${availableStock}`);
+
+            if (availableStock <= 0) {
                 return res.status(404).json({ ToastMessage: "Product Not Available Now" });
             }
 
@@ -215,6 +226,11 @@ const apiFun = {
                 }
 
                 const existingCartItem = user.cart.find(item => item.productId.toString() === productId);
+                const currentQty = existingCartItem ? existingCartItem.quantity : 0;
+
+                if (currentQty + 1 > availableStock) {
+                    return res.status(404).json({ ToastMessage: "No more stock available" });
+                }
 
                 if (existingCartItem) {
                     // If item already in cart, increase quantity by 1
@@ -239,6 +255,11 @@ const apiFun = {
                 }
 
                 const index = req.session.cart.findIndex(item => item.productId === productId);
+                const currentQty = index !== -1 ? req.session.cart[index].quantity : 0;
+
+                if (currentQty + 1 > availableStock) {
+                    return res.status(404).json({ ToastMessage: "No more stock available" });
+                }
 
                 if (index !== -1) {
                     // Product exists in guest cart, increment quantity
@@ -1088,7 +1109,7 @@ const apiFun = {
                 return res.status(401).json({ message: "User not authenticated" });
             }
             const userId = req.session.user.id || '';
-            
+
             console.log("User ID from session:", userId);
             if (!userId) {
                 return res.status(401).json({ message: "User not authenticated" });
@@ -1111,11 +1132,11 @@ const apiFun = {
             let isValid = ObjectId.isValid(queryUserId); // returns true or false
             if (!isValid) {
                 console.log("\n\nInvalid userId format:", queryUserId);
-            }else{
+            } else {
                 console.log("\n\nValid userId format:", queryUserId);
             }
             // queryUserId= queryUserId.toString()
-          
+
             const orders = await Order.find({ 'userId': queryUserId });
             console.log("\n\n\nOrders found:", orders)
             return res.status(200).json({ orders });
