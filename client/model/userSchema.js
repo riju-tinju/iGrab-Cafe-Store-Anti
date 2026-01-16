@@ -8,9 +8,21 @@ const UserSchema = new Schema({
   },
   email: {
     type: String,
+    required: false,
+    trim: true,
+    unique: true, // Keep unique if provided
+    sparse: true // Allow multiple nulls/undefined
+  },
+  phone: {
+    type: String,
     required: true,
     unique: true,
-    trim: true,
+    trim: true
+  },
+  countryCode: {
+    type: String,
+    required: true,
+    trim: true
   },
   firstName: {
     type: String,

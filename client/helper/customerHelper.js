@@ -5,31 +5,31 @@ const Brand = require("../model/brandSchema");
 const Reviews = require("../model/reviewSchema");
 const User = require("../model/userSchema");
 
-const nodemailer = require('nodemailer');
-
-// Create a transporter object using SMTP transport
-let transporter = nodemailer.createTransport({
-  service: 'Gmail',
-  auth: {
-    user: 'jadhugd@gmail.com',
-    pass: 'vocx eblx dvou rxyu'
-  }
-});
+// Twilio Client Initialization
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = require('twilio')(accountSid, authToken);
 
 const customerFun = {
+  /**
+   * Check user and generate/send OTP via SMS
+   */
   checkAndGenerateOTPUser: async (req, res) => {
     try {
-      const { email, name } = req.body;
+      const { name, countryCode, phone } = req.body;
 
       // Basic validations
-      if (!email) return res.status(400).json({ error: "Email is required" });
+      if (!countryCode) return res.status(400).json({ error: "Country code is required" });
+      if (!phone) return res.status(400).json({ error: "Phone number is required" });
       if (!name) return res.status(400).json({ error: "Name is required" });
+
+      const fullPhoneNumber = `${countryCode}${phone}`;
 
       // Generate OTP and expiry
       const otp = customerFun.generateOTP();
       const otpExpiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
 
-      let user = await User.findOne({ email });
+      let user = await User.findOne({ phone: phone, countryCode: countryCode });
 
       if (user) {
         // User exists – update OTP
@@ -38,20 +38,23 @@ const customerFun = {
         user.otp.chances = 3; // Reset chances
         await user.save();
 
-        console.log("OTP regenerated for existing user:", otp);
+        console.log("OTP regenerated for existing user:", fullPhoneNumber, otp);
+
         try {
-          await customerFun.sendOtpEmail(name, email, otp, "login");
-          return res.status(200).json({ success: true });
+          await customerFun.sendOtpSMS(fullPhoneNumber, otp, "login");
+          return res.status(200).json({ success: true, message: "OTP sent successfully" });
         } catch (err) {
-          console.error("Failed to send OTP email:", err);
-          return res.status(500).json({ error: "Failed to send OTP email" });
+          console.error("Failed to send SMS:", err);
+          return res.status(500).json({ error: "Failed to send OTP SMS. Please try again." });
         }
       }
 
       // User doesn't exist – create new user
       const newUser = new User({
         firstName: name,
-        email,
+        email: null, // Email is now optional
+        countryCode,
+        phone,
         otp: {
           otp,
           expiresAt: otpExpiresAt
@@ -60,54 +63,50 @@ const customerFun = {
       });
 
       await newUser.save();
-      console.log("New user created with OTP:", otp);
+      console.log("New user created with OTP:", fullPhoneNumber, otp);
 
       try {
-        await customerFun.sendOtpEmail(name, email, otp, "register");
-        return res.status(200).json({ success: true });
+        await customerFun.sendOtpSMS(fullPhoneNumber, otp, "register");
+        return res.status(200).json({ success: true, message: "OTP sent successfully" });
       } catch (err) {
-        console.error("Failed to send OTP email:", err);
-        return res.status(500).json({ error: "Failed to send OTP email" });
+        console.error("Failed to send SMS:", err);
+        return res.status(500).json({ error: "Failed to send OTP SMS. Please try again." });
       }
+
     } catch (err) {
       console.error("Error in checkAndGenerateOTPUser:", err);
+      // Handle MongoDB duplicate key error cleanly if sparse index fails
+      if (err.code === 11000) {
+        return res.status(400).json({ error: "User with this phone number already exists." });
+      }
       return res.status(500).json({ error: "Internal server error" });
     }
   },
 
   /**
-   * Sends an OTP email to the user.
+   * Sends an OTP SMS to the user via Twilio.
    */
-  sendOtpEmail: async (name, email, otp, type = "login") => {
+  sendOtpSMS: async (to, otp, type = "login") => {
     try {
-      const subject =
-        type === "register"
-          ? "Your OTP for Registration"
-          : "Your OTP for Login";
+      const body = `Your iGrab Story Cafe OTP is ${otp}. Valid for 5 minutes.`;
 
-      const text = `Your One Time Password (OTP) to ${type} is: ${otp}. This OTP is valid for 5 minutes.`;
+      if (!process.env.TWILIO_PHONE_NUMBER) {
+        console.warn("TWILIO_PHONE_NUMBER not set in .env");
+        // In dev mode/without creds, we might just log it and succeed
+        return true;
+      }
 
-      const html = `
-      <p>Hi <b>${name}</b>,</p>
-      <p>Your One Time Password (OTP) to ${type} is: 
-      <strong>${otp}</strong>. This OTP is valid for 5 minutes.</p>
-    `;
+      await client.messages.create({
+        body: body,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: to
+      });
 
-      const mailOptions = {
-        from: `"${process.env.BRAND_NAME}" <${process.env.EMAIL}>`,
-        to: email,
-        subject,
-        text,
-        html
-      };
-
-
-      await transporter.sendMail(mailOptions);
-      console.log(`OTP email sent to ${email}`);
+      console.log(`OTP SMS sent to ${to}`);
       return true;
     } catch (err) {
-      console.error("Failed to send OTP email:", err);
-      throw new Error("Email sending failed");
+      console.error("Failed to send OTP SMS:", err);
+      throw new Error("SMS sending failed");
     }
   },
 
@@ -117,19 +116,21 @@ const customerFun = {
   generateOTP: () => {
     return Math.floor(100000 + Math.random() * 900000);
   },
+
   verifyOTPUser: async (req, res) => {
     try {
-      const { email, otp } = req.body;
+      const { countryCode, phone, otp } = req.body;
 
       // Validate input
-      if (!email || !otp) {
+      if (!countryCode || !phone || !otp) {
         return res.status(400).json({
-          error: "Both email and OTP are required"
+          error: "Country code, phone, and OTP are required"
         });
       }
 
-      // Find user by email
-      const user = await User.findOne({ email });
+      // Find user by phone
+      const user = await User.findOne({ phone: phone, countryCode: countryCode });
+
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
