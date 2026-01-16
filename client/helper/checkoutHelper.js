@@ -20,7 +20,7 @@ const checkoutFun = {
         charges: [],
       }
       const storeId = res.locals.customer.selectedBranch;
-      // req.session.user._id= '68446dbccfb2bcb333737e7a'
+      // req.session.user._id reference removed
       if (!storeId) { return res.status(400).json({ error: "Store ID is required" }); }
 
       // Ensure user is logged in
@@ -154,7 +154,7 @@ const checkoutFun = {
         charges: [],
       }
       const storeId = res.locals.customer.selectedBranch;
-      // req.session.user._id= '68446dbccfb2bcb333737e7a'
+      // req.session.user._id reference removed
       if (!storeId) { return res.status(400).json({ error: "Store ID is required" }); }
 
       // Ensure user is logged in
@@ -262,7 +262,7 @@ const checkoutFun = {
       if (!checkoutData.items || checkoutData.items.length === 0) {
         return res.status(400).json({ error: "No items available for checkout" });
       }
-      checkoutData.userId = '68446dbccfb2bcb333737e7a';
+      checkoutData.userId = req.session.user.id;
       checkoutData.storeId = storeId;
       return checkoutData;
     } catch (err) {
@@ -319,6 +319,10 @@ const checkoutFun = {
           city: addressInputs.city,
           landmark: "", // optional
           address: addressInputs.address || "",
+          coordinates: {
+            type: 'Point',
+            coordinates: [0, 0]
+          }
         },
         createdBy: null,
         assignedTo: null,
