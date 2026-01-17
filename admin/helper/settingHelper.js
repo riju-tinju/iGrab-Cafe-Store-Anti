@@ -13,6 +13,7 @@ const Admin = require("../model/adminSchema");
 const Setting = require("../model/settingSchema");
 const PaymentConfiguration = require("../model/paymentSchema")
 const Seo = require("../model/metaSchema")
+const DeliveryCharge = require("../model/deliveryChargeSchema");
 
 const settingHelper = {
     getBusinessInfo: async (req, res) => {
@@ -20,9 +21,10 @@ const settingHelper = {
             const setting = await Setting.findOne();
 
             if (!setting) {
-                return res.status(404).json({
-                    success: false,
-                    message: "Business settings not found",
+                return res.status(200).json({
+                    success: true,
+                    data: null,
+                    message: "No business settings found, please configure them.",
                 });
             }
 
@@ -70,7 +72,14 @@ const settingHelper = {
             if (!businessName || !phone || !email || !address) {
                 return res.status(400).json({
                     success: false,
-                    message: "Missing required fields",
+                    message: "Missing required business information fields",
+                });
+            }
+
+            if (!address.street || !address.city || !address.country) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Missing required address fields (street, city, or country)",
                 });
             }
 
@@ -126,6 +135,7 @@ const settingHelper = {
                 phone: branch.contactNumber || "",
                 email: branch.email || "",
                 isActive: branch.isActive,
+                location: branch.location,
                 createdAt: branch.createdAt
             }));
 
@@ -145,7 +155,7 @@ const settingHelper = {
     },
     createBranch: async (req, res) => {
         try {
-            const { name, email, address, contactNumber } = req.body;
+            const { name, email, address, contactNumber, latitude, longitude } = req.body;
 
             // Basic validation
             if (!name || !address) {
@@ -160,6 +170,10 @@ const settingHelper = {
                 email: email || "",
                 address,
                 contactNumber: contactNumber || "",
+                location: (latitude && longitude) ? {
+                    type: "Point",
+                    coordinates: [parseFloat(longitude), parseFloat(latitude)]
+                } : undefined,
                 isActive: true
             });
 
@@ -175,6 +189,7 @@ const settingHelper = {
                     phone: savedBranch.contactNumber || "",
                     email: savedBranch.email || "",
                     isActive: savedBranch.isActive,
+                    location: savedBranch.location,
                     createdAt: savedBranch.createdAt
                 }
             });
@@ -189,7 +204,7 @@ const settingHelper = {
     editBranch: async (req, res) => {
         try {
             const branchId = req.params.id;
-            const { name, email, address, contactNumber, isActive } = req.body;
+            const { name, email, address, contactNumber, isActive, latitude, longitude } = req.body;
 
             const updatedData = {};
 
@@ -198,6 +213,13 @@ const settingHelper = {
             if (address !== undefined) updatedData.address = address;
             if (contactNumber !== undefined) updatedData.contactNumber = contactNumber;
             if (isActive !== undefined) updatedData.isActive = isActive;
+
+            if (latitude !== undefined && longitude !== undefined) {
+                updatedData.location = {
+                    type: "Point",
+                    coordinates: [parseFloat(longitude), parseFloat(latitude)]
+                };
+            }
 
             const updatedBranch = await Store.findByIdAndUpdate(
                 branchId,
@@ -222,6 +244,7 @@ const settingHelper = {
                     phone: updatedBranch.contactNumber || "",
                     email: updatedBranch.email || "",
                     isActive: updatedBranch.isActive,
+                    location: updatedBranch.location,
                     createdAt: updatedBranch.createdAt
                 }
             });
@@ -266,7 +289,7 @@ const settingHelper = {
     getPayment: async (req, res) => {
         try {
             const config = await PaymentConfiguration.findOne();
-            console.log('payment configure:\n\n',config)
+            console.log('payment configure:\n\n', config)
             //   if (!config) {
             //     return res.status(404).json({
             //       success: false,
@@ -537,7 +560,142 @@ const settingHelper = {
             });
         }
     },
-    
+
+    getDeliveryCharges: async (req, res) => {
+        try {
+            const charges = await DeliveryCharge.find({});
+            return res.status(200).json({
+                success: true,
+                data: {
+                    charges
+                }
+            });
+        } catch (err) {
+            console.error("Error in getDeliveryCharges:", err);
+            return res.status(500).json({
+                success: false,
+                message: "An error occurred while fetching delivery charges"
+            });
+        }
+    },
+
+    createDeliveryCharge: async (req, res) => {
+        try {
+            const { emirate, chargeType, fixedCharge, distanceCharge } = req.body;
+
+            // Validation
+            if (!emirate || !chargeType) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Emirate and Charge Type are required."
+                });
+            }
+
+            // Check for existing charge for this Emirate
+            const existing = await DeliveryCharge.findOne({ emirate });
+            if (existing) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Delivery charge configuration already exists for ${emirate}. Please edit the existing one.`
+                });
+            }
+
+            const newCharge = new DeliveryCharge({
+                emirate,
+                chargeType,
+                fixedCharge: chargeType === 'fixed' ? fixedCharge : 0,
+                distanceCharge: chargeType === 'distance' ? distanceCharge : {}
+            });
+
+            await newCharge.save();
+
+            return res.status(201).json({
+                success: true,
+                message: "Delivery charge created successfully",
+                data: newCharge
+            });
+
+        } catch (err) {
+            console.error("Error in createDeliveryCharge:", err);
+            return res.status(500).json({
+                success: false,
+                message: "An error occurred while creating delivery charge"
+            });
+        }
+    },
+
+    editDeliveryCharge: async (req, res) => {
+        try {
+            const chargeId = req.params.id;
+            const { emirate, chargeType, fixedCharge, distanceCharge, isActive } = req.body;
+
+            const updateData = {
+                emirate,
+                chargeType,
+                isActive
+            };
+
+            if (chargeType === 'fixed') {
+                updateData.fixedCharge = fixedCharge;
+                // Optional: reset distanceCharge or keep it
+            } else if (chargeType === 'distance') {
+                updateData.distanceCharge = distanceCharge;
+                // Optional: reset fixedCharge
+            }
+
+            const updatedCharge = await DeliveryCharge.findByIdAndUpdate(
+                chargeId,
+                { $set: updateData },
+                { new: true }
+            );
+
+            if (!updatedCharge) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Delivery charge not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Delivery charge updated successfully",
+                data: updatedCharge
+            });
+
+        } catch (err) {
+            console.error("Error in editDeliveryCharge:", err);
+            return res.status(500).json({
+                success: false,
+                message: "An error occurred while updating delivery charge"
+            });
+        }
+    },
+
+    deleteDeliveryCharge: async (req, res) => {
+        try {
+            const chargeId = req.params.id;
+            const deleted = await DeliveryCharge.findByIdAndDelete(chargeId);
+
+            if (!deleted) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Delivery charge not found"
+                });
+            }
+
+            return res.status(200).json({
+                success: true,
+                message: "Delivery charge deleted successfully"
+            });
+
+        } catch (err) {
+            console.error("Error in deleteDeliveryCharge:", err);
+            return res.status(500).json({
+                success: false,
+                message: "An error occurred while deleting delivery charge"
+            });
+        }
+    }
 }
 
 module.exports = settingHelper

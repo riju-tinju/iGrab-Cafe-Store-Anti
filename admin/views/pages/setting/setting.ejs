@@ -324,6 +324,10 @@
                         <button class="tab-button px-6 py-4 font-medium text-sm" onclick="switchTab('charges')">
                             <i class="fas fa-money-bill mr-2"></i>Charges
                         </button>
+                        <button class="tab-button px-6 py-4 font-medium text-sm"
+                            onclick="switchTab('delivery-charges')">
+                            <i class="fas fa-truck mr-2"></i>Delivery Charges
+                        </button>
                         <!-- <button class="tab-button px-6 py-4 font-medium text-sm" onclick="switchTab('system')">
                         <i class="fas fa-info-circle mr-2"></i>System
                     </button> -->
@@ -337,8 +341,13 @@
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-xl font-bold text-gray-900">Business Information</h2>
                         <button id="saveBusinessBtn"
-                            class="brand-teal hover:brand-teal-light text-white px-4 py-2 rounded-lg font-medium">
-                            <i class="fas fa-save mr-2"></i>Save Changes
+                            class="brand-teal hover:brand-teal-light text-white px-4 py-2 rounded-lg font-medium flex items-center">
+                            <span class="btn-text">
+                                <i class="fas fa-save mr-2"></i>Save Changes
+                            </span>
+                            <span class="btn-loading hidden">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>Saving...
+                            </span>
                         </button>
                     </div>
 
@@ -618,6 +627,7 @@
             </div>
 
             <!-- Charges Tab -->
+            <!-- Charges Tab -->
             <div id="charges" class="tab-content">
                 <div class="bg-white rounded-lg shadow-sm border">
                     <div class="flex items-center justify-between p-6 border-b">
@@ -630,6 +640,23 @@
 
                     <div id="chargesContainer" class="p-6">
                         <!-- Charges will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Charges Tab -->
+            <div id="delivery-charges" class="tab-content">
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="flex items-center justify-between p-6 border-b">
+                        <h2 class="text-xl font-bold text-gray-900">Delivery Charges (UAE)</h2>
+                        <button onclick="openDeliveryChargeModal()"
+                            class="brand-teal hover:brand-teal-light text-white px-4 py-2 rounded-lg font-medium">
+                            <i class="fas fa-plus mr-2"></i>Add Delivery Charge
+                        </button>
+                    </div>
+
+                    <div id="deliveryChargesContainer" class="p-6">
+                        <!-- Delivery Charges will be loaded here -->
                     </div>
                 </div>
             </div>
@@ -681,6 +708,27 @@
                             <input type="tel" id="branchContactNumber"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                                 placeholder="+971 50 123 4567">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Latitude</label>
+                                <input type="number" id="branchLat" step="any" readonly
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
+                                    placeholder="0.000000">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Longitude</label>
+                                <input type="number" id="branchLng" step="any" readonly
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 cursor-not-allowed"
+                                    placeholder="0.000000">
+                            </div>
+                        </div>
+                        <div>
+                            <button type="button" onclick="openBranchMapModal()"
+                                class="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-teal-500 text-teal-600 rounded-lg hover:bg-teal-50 transition-colors font-medium">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Set Location on Map
+                            </button>
                         </div>
                         <div class="flex justify-end space-x-3 pt-4">
                             <button type="button" onclick="closeModal('branchModal')"
@@ -751,6 +799,111 @@
             </div>
         </div>
 
+        <!-- Delivery Charge Modal -->
+        <div id="deliveryChargeModal" class="modal">
+            <div class="modal-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-900" id="deliveryChargeModalTitle">Add Delivery Charge (UAE)
+                    </h3>
+                    <button type="button" class="text-gray-500 hover:text-gray-700 p-2"
+                        onclick="closeModal('deliveryChargeModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="deliveryChargeForm">
+                    <div class="space-y-4">
+                        <!-- Emirate Selection -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Select Emirate *</label>
+                            <select id="dcEmirate" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                                <option value="">Select Emirate</option>
+                                <option value="Abu Dhabi">Abu Dhabi</option>
+                                <option value="Dubai">Dubai</option>
+                                <option value="Sharjah">Sharjah</option>
+                                <option value="Ajman">Ajman</option>
+                                <option value="Umm Al Quwain">Umm Al Quwain</option>
+                                <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+                                <option value="Fujairah">Fujairah</option>
+                            </select>
+                        </div>
+
+                        <!-- Charge Type Selection -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Charge Type *</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                                    <input type="radio" name="chargeType" value="fixed"
+                                        class="form-radio text-teal-600 h-5 w-5" checked
+                                        onchange="toggleDeliveryChargeInputs()">
+                                    <span class="ml-2 font-medium">Fixed Rate</span>
+                                </label>
+                                <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                                    <input type="radio" name="chargeType" value="distance"
+                                        class="form-radio text-teal-600 h-5 w-5"
+                                        onchange="toggleDeliveryChargeInputs()">
+                                    <span class="ml-2 font-medium">Distance Based</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Fixed Rate Input -->
+                        <div id="fixedChargeInput">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Fixed Rate (AED) *</label>
+                            <input type="number" id="dcFixedRate" step="0.01" min="0"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                                placeholder="e.g. 15.00">
+                        </div>
+
+                        <!-- Distance Based Inputs -->
+                        <div id="distanceChargeInput" class="hidden space-y-4">
+                            <div class="p-3 bg-blue-50 text-blue-800 rounded-lg text-sm">
+                                <i class="fas fa-info-circle mr-1"></i> Calculation: Base Cost + ((Total Km - Base
+                                Distance) * Extra Cost)
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Base Distance
+                                        (Km)</label>
+                                    <input type="number" id="dcBaseDistance" step="0.1" min="0" value="10"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Base Cost
+                                        (AED)</label>
+                                    <input type="number" id="dcBaseCost" step="0.01" min="0"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                                        placeholder="e.g. 15.00">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Extra Cost per Km
+                                        (AED)</label>
+                                    <input type="number" id="dcExtraCost" step="0.01" min="0"
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                                        placeholder="e.g. 2.00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex justify-end space-x-3 pt-4">
+                            <button type="button" onclick="closeModal('deliveryChargeModal')"
+                                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit"
+                                class="px-4 py-2 brand-teal text-white rounded-lg hover:brand-teal-light transition-colors">
+                                <span class="btn-text">Save Configuration</span>
+                                <span class="btn-loading hidden">
+                                    <div class="loading-spinner"></div>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Delete Confirmation Modal -->
         <div id="deleteModal" class="modal">
             <div class="modal-content max-w-md">
@@ -786,6 +939,35 @@
             </div>
         </div>
 
+        <!-- Branch Map Modal (Location Picker) -->
+        <div id="branchMapModal" class="modal">
+            <div class="modal-content max-w-4xl" style="height: 80vh; display: flex; flex-direction: column;">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-900">Select Branch Location</h3>
+                    <button type="button" class="text-gray-500 hover:text-gray-700 p-2"
+                        onclick="closeModal('branchMapModal')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="mb-4">
+                    <input id="branchMapSearch" type="text" placeholder="Search for location..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
+                </div>
+                <div id="branchGoogleMap" class="flex-grow rounded-lg border border-gray-200"
+                    style="min-height: 400px;"></div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal('branchMapModal')"
+                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="button" onclick="confirmBranchLocation()"
+                        class="brand-teal text-white px-6 py-2 rounded-lg font-medium">
+                        Confirm Location
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Toast Container -->
         <div id="toastContainer"></div>
 
@@ -794,8 +976,102 @@
             const API_BASE_URL = '/api';
             let currentEditingBranch = null;
             let currentEditingCharge = null;
+            let currentEditingDeliveryCharge = null;
             let currentDeleteItem = null;
             let currentDeleteType = null;
+
+            // Branch Map Variables
+            let branchMap;
+            let branchMarker;
+            let branchGeocoder;
+            let branchSearchBox;
+            let selectedBranchLocation = null;
+
+            function initBranchMap() {
+                const defaultLoc = { lat: 25.3463, lng: 55.4209 }; // Sharjah
+
+                branchMap = new google.maps.Map(document.getElementById("branchGoogleMap"), {
+                    zoom: 13,
+                    center: defaultLoc,
+                    mapTypeControl: false,
+                    fullscreenControl: false,
+                    streetViewControl: false
+                });
+
+                branchGeocoder = new google.maps.Geocoder();
+
+                // Search Box
+                const input = document.getElementById("branchMapSearch");
+                branchSearchBox = new google.maps.places.SearchBox(input);
+
+                branchMap.addListener("bounds_changed", () => {
+                    branchSearchBox.setBounds(branchMap.getBounds());
+                });
+
+                branchSearchBox.addListener("places_changed", () => {
+                    const places = branchSearchBox.getPlaces();
+                    if (places.length === 0) return;
+
+                    const place = places[0];
+                    if (!place.geometry || !place.geometry.location) return;
+
+                    setBranchMarker(place.geometry.location);
+                    branchMap.setCenter(place.geometry.location);
+                    branchMap.setZoom(17);
+                });
+
+                branchMap.addListener("click", (e) => {
+                    setBranchMarker(e.latLng);
+                });
+            }
+
+            function setBranchMarker(latLng) {
+                if (branchMarker) {
+                    branchMarker.setPosition(latLng);
+                } else {
+                    branchMarker = new google.maps.Marker({
+                        position: latLng,
+                        map: branchMap,
+                        animation: google.maps.Animation.DROP
+                    });
+                }
+                selectedBranchLocation = {
+                    lat: latLng.lat(),
+                    lng: latLng.lng()
+                };
+            }
+
+            function openBranchMapModal() {
+                openModal('branchMapModal');
+                // Fix map rendering when shown
+                setTimeout(() => {
+                    if (branchMap) {
+                        google.maps.event.trigger(branchMap, "resize");
+                        if (selectedBranchLocation) {
+                            branchMap.setCenter(selectedBranchLocation);
+                        } else {
+                            // Default or existing branch location
+                            const lat = parseFloat(document.getElementById('branchLat').value);
+                            const lng = parseFloat(document.getElementById('branchLng').value);
+                            if (!isNaN(lat) && !isNaN(lng)) {
+                                const loc = { lat, lng };
+                                branchMap.setCenter(loc);
+                                setBranchMarker(new google.maps.LatLng(lat, lng));
+                            }
+                        }
+                    }
+                }, 300);
+            }
+
+            function confirmBranchLocation() {
+                if (selectedBranchLocation) {
+                    document.getElementById('branchLat').value = selectedBranchLocation.lat.toFixed(6);
+                    document.getElementById('branchLng').value = selectedBranchLocation.lng.toFixed(6);
+                    closeModal('branchMapModal');
+                } else {
+                    ToastManager.show('Please select a location on the map', 'warning');
+                }
+            }
 
             // Toast Manager
             class ToastManager {
@@ -849,17 +1125,22 @@
                     //     }
                     // };
 
-                    // Populate form fields
-                    document.getElementById('businessName').value = data.data.businessName || '';
-                    document.getElementById('businessPhone').value = data.data.phone || '';
-                    document.getElementById('businessEmail').value = data.data.email || '';
-                    document.getElementById('businessAbout').value = data.data.aboutUs || '';
-                    document.getElementById('businessStreet').value = data.data.address?.street || '';
-                    document.getElementById('businessCity').value = data.data.address?.city || '';
-                    document.getElementById('businessCountry').value = data.data.address?.country || '';
+                    if (data.data) {
+                        // Populate form fields
+                        document.getElementById('businessName').value = data.data.businessName || '';
+                        document.getElementById('businessPhone').value = data.data.phone || '';
+                        document.getElementById('businessEmail').value = data.data.email || '';
+                        document.getElementById('businessAbout').value = data.data.aboutUs || '';
+                        document.getElementById('businessStreet').value = data.data.address?.street || '';
+                        document.getElementById('businessCity').value = data.data.address?.city || '';
+                        document.getElementById('businessCountry').value = data.data.address?.country || '';
 
-                    if (data.data.logo) {
-                        showLogoPreview(data.data.logo);
+                        if (data.data.logo) {
+                            showLogoPreview(data.data.logo);
+                        }
+                    } else {
+                        // Just show an info message if it's the first time
+                        console.log('No business info found, ready for initial configuration.');
                     }
                 } catch (error) {
                     console.error('Load Business Info Error:', error);
@@ -877,29 +1158,38 @@
                         address: {
                             street: document.getElementById('businessStreet').value.trim(),
                             city: document.getElementById('businessCity').value.trim(),
-                            country: document.getElementById('businessCountry').value.trim()
+                            country: document.getElementById('businessCountry').value.trim(),
                         }
                     };
 
-                    // ACTUAL API CALL (currently commented out - using mock data)
+                    // Basic frontend validation
+                    if (!businessData.businessName || !businessData.phone || !businessData.email ||
+                        !businessData.address.street || !businessData.address.city || !businessData.address.country) {
+                        ToastManager.show('Please fill in all required fields (Name, Phone, Email, Address)', 'warning');
+                        return;
+                    }
+
+                    const btn = document.getElementById('saveBusinessBtn');
+                    const text = btn.querySelector('.btn-text');
+                    const loading = btn.querySelector('.btn-loading');
+
+                    text.classList.add('hidden');
+                    loading.classList.remove('hidden');
+                    btn.disabled = true;
+
                     const response = await fetch(`${API_BASE_URL}/settings/business`, {
                         method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(businessData)
                     });
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
-                    }
+
                     const data = await response.json();
 
-                    // MOCK DATA - Replace with actual API call above
-                    // await new Promise(resolve => setTimeout(resolve, 1000));
-                    // const data = { success: true, message: 'Business information updated successfully' };
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Failed to save business info');
+                    }
 
-                    ToastManager.show(data.message, 'success');
+                    ToastManager.show('Business information updated successfully', 'success');
                 } catch (error) {
                     console.error('Save Business Info Error:', error);
                     ToastManager.show('Failed to save business information: ' + error.message, 'error');
@@ -1353,6 +1643,20 @@
                 }
             }
 
+            async function deleteDeliveryCharge(id) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/delivery-charges/${id}`, { method: 'DELETE' });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.message);
+
+                    ToastManager.show(data.message, 'success');
+                    closeModal('deleteModal');
+                    loadDeliveryCharges();
+                } catch (error) {
+                    ToastManager.show(error.message, 'error');
+                }
+            }
+
             async function loadSystemInfo() {
                 try {
                     // ACTUAL API CALL (currently commented out - using mock data)
@@ -1541,8 +1845,12 @@
                     case 'seo':
                         loadSeoSettings();
                         break;
+                        break;
                     case 'charges':
                         loadCharges();
+                        break;
+                    case 'delivery-charges':
+                        loadDeliveryCharges();
                         break;
                     case 'system':
                         // loadSystemInfo();
@@ -1563,9 +1871,12 @@
                 if (modalId === 'branchModal') {
                     document.getElementById('branchForm').reset();
                     currentEditingBranch = null;
-                } else if (modalId === 'chargeModal') {
                     document.getElementById('chargeForm').reset();
                     currentEditingCharge = null;
+                } else if (modalId === 'deliveryChargeModal') {
+                    document.getElementById('deliveryChargeForm').reset();
+                    currentEditingDeliveryCharge = null;
+                    toggleDeliveryChargeInputs(); // Reset UI state
                 }
             }
 
@@ -1590,6 +1901,19 @@
                             document.getElementById('branchEmail').value = branch.email || '';
                             document.getElementById('branchAddress').value = branch.address || '';
                             document.getElementById('branchContactNumber').value = branch.phone || ''; // Matches 'phone' from formatted output
+
+                            if (branch.location && branch.location.coordinates) {
+                                document.getElementById('branchLat').value = branch.location.coordinates[1];
+                                document.getElementById('branchLng').value = branch.location.coordinates[0];
+                                selectedBranchLocation = {
+                                    lat: branch.location.coordinates[1],
+                                    lng: branch.location.coordinates[0]
+                                };
+                            } else {
+                                document.getElementById('branchLat').value = '';
+                                document.getElementById('branchLng').value = '';
+                                selectedBranchLocation = null;
+                            }
                             openModal('branchModal');
                         }
                     }
@@ -1712,6 +2036,163 @@
                 document.getElementById('ogImageImage').src = '';
             }
 
+            function toggleDeliveryChargeInputs() {
+                const chargeType = document.querySelector('input[name="chargeType"]:checked').value;
+                const fixedInput = document.getElementById('fixedChargeInput');
+                const distanceInput = document.getElementById('distanceChargeInput');
+
+                if (chargeType === 'fixed') {
+                    fixedInput.classList.remove('hidden');
+                    distanceInput.classList.add('hidden');
+                    document.getElementById('dcFixedRate').required = true;
+                    document.getElementById('dcBaseDistance').required = false;
+                    document.getElementById('dcBaseCost').required = false;
+                    document.getElementById('dcExtraCost').required = false;
+                } else {
+                    fixedInput.classList.add('hidden');
+                    distanceInput.classList.remove('hidden');
+                    document.getElementById('dcFixedRate').required = false;
+                    document.getElementById('dcBaseDistance').required = true;
+                    document.getElementById('dcBaseCost').required = true;
+                    document.getElementById('dcExtraCost').required = true;
+                }
+            }
+
+            function openDeliveryChargeModal() {
+                currentEditingDeliveryCharge = null;
+                document.getElementById('deliveryChargeModalTitle').textContent = 'Add Delivery Charge (UAE)';
+                document.getElementById('deliveryChargeForm').reset();
+                toggleDeliveryChargeInputs();
+                openModal('deliveryChargeModal');
+            }
+
+            async function loadDeliveryCharges() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/delivery-charges`);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        renderDeliveryCharges(data.data.charges);
+                    }
+                } catch (error) {
+                    console.error('Load Delivery Charges Error:', error);
+                    ToastManager.show('Failed to load delivery charges', 'error');
+                }
+            }
+
+            function renderDeliveryCharges(charges) {
+                const container = document.getElementById('deliveryChargesContainer');
+
+                if (!charges || charges.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8">
+                            <i class="fas fa-truck text-4xl text-gray-400 mb-4"></i>
+                            <h3 class="text-lg font-semibold text-gray-700 mb-2">No delivery charges configured</h3>
+                            <button onclick="openDeliveryChargeModal()" class="brand-teal hover:brand-teal-light text-white px-4 py-2 rounded-lg font-medium">
+                                <i class="fas fa-plus mr-2"></i>Add First Charge
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = charges.map(charge => `
+                    <div class="charge-card bg-white border rounded-lg p-4 mb-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-900 mr-3">${charge.emirate}</h3>
+                                    <span class="px-2 py-1 text-xs rounded-full ${charge.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                        ${charge.isActive ? 'Active' : 'Inactive'}
+                                    </span>
+                                </div>
+                                <div class="flex items-center space-x-2 text-sm text-gray-600">
+                                    <span class="font-medium bg-gray-100 px-2 py-1 rounded">
+                                        ${charge.chargeType === 'fixed' ? 'Fixed Rate' : 'Distance Based'}
+                                    </span>
+                                    ${charge.chargeType === 'fixed'
+                        ? `<span class="font-bold text-gray-900">${charge.fixedCharge} AED</span>`
+                        : `<span>Base: ${charge.distanceCharge.baseCost} AED (${charge.distanceCharge.baseDistance}km) + ${charge.distanceCharge.extraCostPerKm} AED/km</span>`
+                    }
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="editDeliveryCharge('${charge._id}')" class="text-blue-600 hover:text-blue-800 p-2" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="confirmDelete('${charge._id}', 'delivery-charge', '${charge.emirate}')" class="text-red-600 hover:text-red-800 p-2" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            async function saveDeliveryCharge(chargeData) {
+                try {
+                    const isEditing = currentEditingDeliveryCharge !== null;
+                    const url = isEditing ?
+                        `${API_BASE_URL}/delivery-charges/${currentEditingDeliveryCharge}` :
+                        `${API_BASE_URL}/delivery-charges`;
+
+                    const method = isEditing ? 'PUT' : 'POST';
+
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(chargeData)
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) throw new Error(data.message || 'Failed to save');
+
+                    ToastManager.show(data.message, 'success');
+                    closeModal('deliveryChargeModal');
+                    loadDeliveryCharges();
+                } catch (error) {
+                    console.error('Save Delivery Charge Error:', error);
+                    ToastManager.show(error.message, 'error');
+                }
+            }
+
+            async function editDeliveryCharge(id) {
+                currentEditingDeliveryCharge = id;
+                document.getElementById('deliveryChargeModalTitle').textContent = 'Edit Delivery Charge';
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/delivery-charges`);
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const charge = data.data.charges.find(c => c._id === id);
+                        if (charge) {
+                            document.getElementById('dcEmirate').value = charge.emirate;
+
+                            // Set radio button
+                            const radio = document.querySelector(`input[name="chargeType"][value="${charge.chargeType}"]`);
+                            if (radio) radio.checked = true;
+
+                            toggleDeliveryChargeInputs();
+
+                            if (charge.chargeType === 'fixed') {
+                                document.getElementById('dcFixedRate').value = charge.fixedCharge;
+                            } else {
+                                document.getElementById('dcBaseDistance').value = charge.distanceCharge.baseDistance;
+                                document.getElementById('dcBaseCost').value = charge.distanceCharge.baseCost;
+                                document.getElementById('dcExtraCost').value = charge.distanceCharge.extraCostPerKm;
+                            }
+
+                            openModal('deliveryChargeModal');
+                        }
+                    }
+                } catch (error) {
+                    ToastManager.show('Failed to fetch details', 'error');
+                }
+            }
+
             // Initialize page
             document.addEventListener('DOMContentLoaded', function () {
                 // Load initial data
@@ -1751,7 +2232,9 @@
                         name: document.getElementById('branchName').value.trim(),
                         email: document.getElementById('branchEmail').value.trim(),
                         address: document.getElementById('branchAddress').value.trim(),
-                        contactNumber: document.getElementById('branchContactNumber').value.trim()
+                        contactNumber: document.getElementById('branchContactNumber').value.trim(),
+                        latitude: document.getElementById('branchLat').value,
+                        longitude: document.getElementById('branchLng').value
                     };
                     saveBranch(branchData);
                 });
@@ -1770,13 +2253,39 @@
 
                 // Delete confirmation
                 document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-                    if (currentDeleteType === 'branch') {
-                        deleteBranch(currentDeleteItem);
-                    } else if (currentDeleteType === 'charge') {
-                        deleteCharge(currentDeleteItem);
+                    if (currentDeleteItem && currentDeleteType) {
+                        if (currentDeleteType === 'branch') {
+                            deleteBranch(currentDeleteItem);
+                        } else if (currentDeleteType === 'charge') {
+                            deleteCharge(currentDeleteItem);
+                        } else if (currentDeleteType === 'delivery-charge') {
+                            deleteDeliveryCharge(currentDeleteItem);
+                        }
                     }
                 });
 
+                document.getElementById('deliveryChargeForm').addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    const chargeType = document.querySelector('input[name="chargeType"]:checked').value;
+                    const data = {
+                        emirate: document.getElementById('dcEmirate').value,
+                        chargeType: chargeType,
+                        isActive: true
+                    };
+
+                    if (chargeType === 'fixed') {
+                        data.fixedCharge = parseFloat(document.getElementById('dcFixedRate').value);
+                    } else {
+                        data.distanceCharge = {
+                            baseDistance: parseFloat(document.getElementById('dcBaseDistance').value),
+                            baseCost: parseFloat(document.getElementById('dcBaseCost').value),
+                            extraCostPerKm: parseFloat(document.getElementById('dcExtraCost').value)
+                        };
+                    }
+
+                    saveDeliveryCharge(data);
+                });
                 // Modal close on backdrop click
                 document.querySelectorAll('.modal').forEach(modal => {
                     modal.addEventListener('click', function (e) {
@@ -1809,4 +2318,7 @@
             window.removeFavicon = removeFavicon;
             window.removeOgImage = removeOgImage;
         </script>
+        <script
+            src="https://maps.googleapis.com/maps/api/js?key=<%= googleMapsApiKey %>&libraries=places&callback=initBranchMap"
+            async defer></script>
         <%- include('../../partials/Footer') %>

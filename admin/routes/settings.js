@@ -5,9 +5,9 @@ const settingHelper = require("../helper/settingHelper");
 
 const upload = require("../helper/upload");
 
-/* GET home page. */
+// GET home page.
 router.get('/setting/', function (req, res, next) {
-  res.render('pages/setting/setting',);
+  res.render('pages/setting/setting', { googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY });
 });
 
 router.get('/api/settings/business', async function (req, res, next) {
@@ -101,5 +101,24 @@ router.put('/api/charges/:id', async (req, res) => {
 router.delete('/api/charges/:id', async (req, res) => {
   await settingHelper.deleteCharge(req, res)
 })
+
+// Delivery Charges Routes
+router.get('/api/delivery-charges', async (req, res) => {
+  await settingHelper.getDeliveryCharges(req, res);
+});
+
+router.post('/api/delivery-charges', async (req, res) => {
+  // console.log(req.body);
+  await settingHelper.createDeliveryCharge(req, res);
+});
+
+router.put('/api/delivery-charges/:id', async (req, res) => {
+  // console.log(req.body);
+  await settingHelper.editDeliveryCharge(req, res);
+});
+
+router.delete('/api/delivery-charges/:id', async (req, res) => {
+  await settingHelper.deleteDeliveryCharge(req, res);
+});
 
 module.exports = router;

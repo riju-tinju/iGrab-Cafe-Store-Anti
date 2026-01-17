@@ -16,6 +16,20 @@ const path = require("path");
 const fs = require("fs");
 const ExcelJS = require("exceljs");
 
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  if (!lat1 || !lon1 || !lat2 || !lon2) return 0;
+  const R = 6371; // Radius of the earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c; // Distance in km
+  return Math.round(d * 100) / 100; // Round to 2 decimal places
+};
+
 const orderFun = {
   getOrderByFilter: async (req, res) => {
     try {
@@ -381,7 +395,7 @@ const orderFun = {
         { header: "Order Date", key: "orderDate", width: 20 },
         { header: "Customer Name", key: "customerName", width: 20 },
         { header: "Phone", key: "phone", width: 15 },
-        { header: "Email", key: "email", width: 25 },
+        { header: "Distance (KM)", key: "distance", width: 15 },
         { header: "Status", key: "status", width: 15 },
         { header: "Payment Status", key: "paymentStatus", width: 15 },
         { header: "Total Amount", key: "totalAmount", width: 15 },
@@ -392,6 +406,16 @@ const orderFun = {
       // Apply bold formatting to header row
       worksheet.getRow(1).eachCell(cell => {
         cell.font = { bold: true };
+      });
+
+      // Fetch branch coordinates for distance calculation
+      const branchIds = [...new Set(orders.map(o => o.storeId))];
+      const branches = await Store.find({ _id: { $in: branchIds } }).select("location");
+      const branchMap = {};
+      branches.forEach(b => {
+        if (b.location && b.location.coordinates) {
+          branchMap[b._id.toString()] = b.location.coordinates;
+        }
       });
 
       // Add data rows
@@ -415,13 +439,26 @@ const orderFun = {
           .map(i => `${i.name} (x${i.qty})`)
           .join("; ");
 
+        // Calculate distance
+        let distance = 0;
+        if (order.address?.distance) {
+          distance = order.address.distance;
+        } else if (branchMap[order.storeId] && order.address?.coordinates?.coordinates) {
+          const bLoc = branchMap[order.storeId];
+          const oLoc = order.address.coordinates.coordinates;
+          distance = calculateDistance(
+            bLoc[1], bLoc[0], // [lng, lat] -> (lat, lng)
+            oLoc[1], oLoc[0]
+          );
+        }
+
         worksheet.addRow({
           sno: index + 1,
           orderId: order.orderId,
           orderDate: order.orderDate.toLocaleString(),
-          customerName: order.userId?.name || "",
-          phone: order.userId?.phone || "",
-          email: order.userId?.email || "",
+          customerName: order.address?.fullName || order.userId?.name || "",
+          phone: order.address?.phone || order.userId?.phone || "",
+          distance: distance || "0",
           status: order.status,
           paymentStatus: order.paymentStatus,
           totalAmount: order.totalAmount,

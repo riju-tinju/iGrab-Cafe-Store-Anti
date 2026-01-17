@@ -9,7 +9,21 @@ const Inventory = require("../model/inventorySchema");
 const Charging = require("../model/chargingSchema");
 const Order = require("../model/orderSchema")
 const Payment = require("../model/paymentSchema")
+const DeliveryCharge = require("../model/deliveryChargeSchema");
 
+
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // Radius of the earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c; // Distance in km
+  return d;
+};
 
 const checkoutFun = {
   getCheckoutData: async (req, res) => {
@@ -140,7 +154,8 @@ const checkoutFun = {
       }
       res.locals.paymentSettings = paymentSettings;
       console.log(paymentSettings)
-      return res.status(200).render("pages/checkout/checkout", { checkoutData });
+      checkoutData.storeId = storeId;
+      return res.status(200).render("pages/checkout/checkout", { checkoutData, googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY });
     } catch (err) {
       console.error("Error in getCheckoutData:", err);
       return res.status(500).json({ error: "Internal server error" });
@@ -283,6 +298,23 @@ const checkoutFun = {
         addressInputs,
       } = checkoutData;
 
+      // 1. Final Stock Check
+      for (const item of items) {
+        const inventory = await Inventory.findOne({
+          productId: item.productId,
+          branchId: storeId
+        });
+
+        if (!inventory || inventory.stock < item.qty) {
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient stock for ${item.productName}. Please adjust your cart.`
+          });
+        }
+      }
+
+      const deliveryCharge = parseFloat(addressInputs.deliveryCharge) || 0;
+
       // Generate a unique order ID (example logic)
       const generateOrderId = () => `ORD${Date.now().toString().slice(-6)}UAE`;
 
@@ -297,8 +329,11 @@ const checkoutFun = {
         paymentMethod:
           addressInputs.paymentMethod === "COD" ? "Cash" : "Online",
         subTotal: subTotal,
-        charges: charges.map((c) => ({ name: c.chargingName, amount: c.price })),
-        totalAmount: totalAmount,
+        charges: [
+          ...charges.map((c) => ({ name: c.chargingName, amount: c.price })),
+          { name: "Delivery Charge", amount: deliveryCharge }
+        ],
+        totalAmount: totalAmount + deliveryCharge,
         discount: 0, // If applicable
         couponCode: null, // If applicable
         orderItems: items.map((item) => ({
@@ -321,8 +356,15 @@ const checkoutFun = {
           address: addressInputs.address || "",
           coordinates: {
             type: 'Point',
-            coordinates: [0, 0]
+            coordinates: [
+              parseFloat(addressInputs.longitude) || 0,
+              parseFloat(addressInputs.latitude) || 0
+            ]
           }
+        },
+        deliveryExecutive: {
+          assigned: false,
+          deliveryCharge: deliveryCharge,
         },
         createdBy: null,
         assignedTo: null,
@@ -330,11 +372,22 @@ const checkoutFun = {
       };
 
       const savedOrder = await Order.create(orderData);
-      console.log("Order Created:", savedOrder);
 
       if (!savedOrder) {
-        return res.status(500).json({ error: "Failed to create order" });
+        throw new Error("Failed to create order record in database");
       }
+
+      console.log("Order Created:", savedOrder.orderId);
+
+      // 3. Deduct Stock Immediately (Optimistic)
+      // In a real production environment, you'd use a MongoDB session/transaction here
+      for (const item of items) {
+        await Inventory.findOneAndUpdate(
+          { productId: item.productId, branchId: storeId },
+          { $inc: { stock: -item.qty } }
+        );
+      }
+
       if (savedOrder.paymentMethod === "Cash") {
         return res.status(200).json({ status: "COD", data: savedOrder });
       }
@@ -369,7 +422,10 @@ const checkoutFun = {
       res.status(200).json({ status: "COO", data: paymentIntent });
     } catch (err) {
       console.error("Error in makeOrder:", err);
-      return res.status(500).json({ error: "Internal server error" });
+      return res.status(500).json({
+        success: false,
+        message: err.message || "An unexpected error occurred while processing your order. Please try again."
+      });
     }
 
   },
@@ -430,6 +486,114 @@ const checkoutFun = {
       console.error("❌ Error updating order after payment:", err);
     }
   },
+
+  getDeliveryCharge: async (req, res) => {
+    try {
+      const { latitude, longitude, emirate, branchId } = req.query;
+
+      // 1. Strict Parameter Validation
+      if (!latitude || !longitude || !branchId) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing required parameters (latitude, longitude, branchId)"
+        });
+      }
+
+      const lat = parseFloat(latitude);
+      const lng = parseFloat(longitude);
+
+      if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid coordinates provided"
+        });
+      }
+
+      // 2. Branch Existence and Location Check
+      let branch;
+      try {
+        branch = await Store.findById(branchId);
+      } catch (e) {
+        return res.status(400).json({ success: false, message: "Invalid Branch ID" });
+      }
+
+      if (!branch) {
+        return res.status(404).json({ success: false, message: "Branch not found" });
+      }
+
+      if (!branch.location || !branch.location.coordinates || branch.location.coordinates.length < 2) {
+        return res.status(400).json({
+          success: false,
+          message: "Store branch does not have valid location coordinates set. Please contact support."
+        });
+      }
+
+      const distance = calculateDistance(
+        lat,
+        lng,
+        branch.location.coordinates[1],
+        branch.location.coordinates[0]
+      );
+
+      // 3. Delivery Charge Configuration Lookup
+      // Use case-insensitive search or exact match depending on how emirates are saved
+      const chargeConfig = await DeliveryCharge.findOne({
+        emirate: { $regex: new RegExp(`^${emirate}$`, 'i') },
+        isActive: true
+      });
+
+      if (!chargeConfig) {
+        return res.status(400).json({
+          success: false,
+          message: `Delivery is not currently available in ${emirate || 'your area'}. Please select a location within an approved Emirate.`
+        });
+      }
+
+      // 4. Calculation based on Config
+      let chargeAmount = 0;
+      if (chargeConfig.chargeType === 'fixed') {
+        chargeAmount = chargeConfig.fixedCharge;
+      } else {
+        const { baseDistance, baseCost, extraCostPerKm } = chargeConfig.distanceCharge;
+        if (distance <= baseDistance) {
+          chargeAmount = baseCost;
+        } else {
+          // Linear calculation for extra distance
+          chargeAmount = baseCost + ((distance - baseDistance) * extraCostPerKm);
+        }
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: {
+          deliveryCharge: Math.round(chargeAmount * 100) / 100,
+          distance: distance.toFixed(2),
+          emirate: chargeConfig.emirate,
+          chargeType: chargeConfig.chargeType
+        }
+      });
+
+    } catch (err) {
+      console.error("Error in getDeliveryCharge:", err);
+      return res.status(500).json({
+        success: false,
+        message: "Internal server error calculating delivery charge"
+      });
+    }
+  },
+
+  getAllowedEmirates: async (req, res) => {
+    try {
+      const allowedEmirates = await DeliveryCharge.find({ isActive: true }).distinct('emirate');
+      return res.status(200).json({
+        success: true,
+        data: allowedEmirates
+      });
+    } catch (err) {
+      console.error("Error in getAllowedEmirates:", err);
+      return res.status(500).json({ success: false, message: "Internal server error fetching allowed Emirates" });
+    }
+  }
 
 }
 module.exports = checkoutFun;
