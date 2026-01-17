@@ -33,3 +33,6 @@ yarn-error.log*
 *.sw?
 .idx/
 .VSCodeCounter/
+
+# Exports
+admin/public/exports/
