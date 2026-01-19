@@ -396,7 +396,7 @@ const checkoutFun = {
       let paymentDataForSetting = await Payment.findOne({})
       const stripe = require('stripe')(paymentDataForSetting.stripe.secretKey);
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: savedOrder.totalAmount * 100,  // 5 AED × 100 (converts to cents/fils), // in cents
+        amount: Math.round(savedOrder.totalAmount * 100),  // Convert to fils and ensure integer
         currency: 'aed',
         automatic_payment_methods: {
           enabled: true,
