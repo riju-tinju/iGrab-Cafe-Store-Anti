@@ -466,10 +466,23 @@ const checkoutFun = {
         }
 
         // 2a. Update Product stock & sales
-        product.inStock = Math.max(product.inStock - item.qty, 0);
-        product.sales.totalUnitsSold += item.qty;
-        product.sales.totalRevenue += item.total;
-        product.sales.totalOrders += 1;
+        // Ensure inStock is a valid number (handle undefined/null cases)
+        const currentStock = typeof product.inStock === 'number' ? product.inStock : 0;
+        product.inStock = Math.max(currentStock - item.qty, 0);
+
+        // Ensure sales object exists
+        if (!product.sales) {
+          product.sales = {
+            totalUnitsSold: 0,
+            totalRevenue: 0,
+            totalOrders: 0,
+            lastSoldAt: null
+          };
+        }
+
+        product.sales.totalUnitsSold = (product.sales.totalUnitsSold || 0) + item.qty;
+        product.sales.totalRevenue = (product.sales.totalRevenue || 0) + item.total;
+        product.sales.totalOrders = (product.sales.totalOrders || 0) + 1;
         product.sales.lastSoldAt = new Date();
         await product.save();
 
@@ -480,7 +493,8 @@ const checkoutFun = {
         });
 
         if (inventory) {
-          inventory.stock = Math.max(inventory.stock - item.qty, 0);
+          const currentInventoryStock = typeof inventory.stock === 'number' ? inventory.stock : 0;
+          inventory.stock = Math.max(currentInventoryStock - item.qty, 0);
           inventory.updatedAt = new Date();
           await inventory.save();
         } else {
