@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const User = require("../model/userSchema");
 const Store = require("../model/storeBranchSchema");
+const SiteContent = require("../model/metaSchema");
 
 const getCustomer = async (req, res, next) => {
   let customer = {
@@ -94,6 +95,14 @@ const getCustomer = async (req, res, next) => {
       customer.selectedBranch = customer.allBranches[0]._id;
       customer.branch = customer.allBranches[0]._id;
     }
+
+    // Fetch Site Content for SEO
+    const siteContent = await SiteContent.findOne({});
+    res.locals.siteContent = siteContent || {
+      homeTitle: { en: "iGrab Story", ar: "آي جراب ستوري" },
+      metaDescription: { en: "Premium Café & Store", ar: "مقهى ومتجر مميز" },
+      metaKeywords: { en: ["coffee", "cafe", "store"], ar: ["قهوة", "مقهى", "متجر"] }
+    };
 
     // ✅ Save for views or later use
     res.locals.customer = customer;

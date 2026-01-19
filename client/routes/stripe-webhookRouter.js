@@ -7,18 +7,30 @@ let Product = require("../model/productSchema");
 const gaetCustomer = require("../helper/getCustomer");
 const startingHelper = require("../helper/startingHelper");
 const checkoutHelper = require("../helper/checkoutHelper");
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const Payment = require("../model/paymentSchema");
 
 // Match the raw body to content type application/json
-router.post('/', bodyParser.raw({ type: 'application/json' }), (request, response) => {
+router.post('/', bodyParser.raw({ type: 'application/json' }), async (request, response) => {
   const sig = request.headers['stripe-signature'];
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(
+    // Fetch secret key and webhook secret from DB or Env
+    let paymentSettings = await Payment.findOne({});
+    const secretKey = paymentSettings?.stripe?.secretKey || process.env.STRIPE_SECRET_KEY;
+    const webhookSecret = paymentSettings?.stripe?.webhookSecret || process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!secretKey) {
+      console.error("Stripe Secret Key not found");
+      return response.status(500).send("Stripe Secret Key not configured");
+    }
+
+    const stripeInstance = require('stripe')(secretKey);
+
+    event = stripeInstance.webhooks.constructEvent(
       request.body,
       sig,
-      process.env.STRIPE_WEBHOOK_SECRET // Replace with your actual webhook secret
+      webhookSecret
     );
   } catch (err) {
     console.error(`Webhook Error: ${err.message}`);

@@ -303,6 +303,7 @@ const settingHelper = {
                     stripe: {
                         publishableKey: '',
                         secretKey: '',
+                        webhookSecret: '',
                         isEnabled: false
                     },
                     wallet: {
@@ -340,6 +341,7 @@ const settingHelper = {
                 stripe: {
                     publishableKey: stripe.publishableKey || "",
                     secretKey: stripe.secretKey || "",
+                    webhookSecret: stripe.webhookSecret || "",
                     isEnabled: stripe.isEnabled
                 },
                 cod: {

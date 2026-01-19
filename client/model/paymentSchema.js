@@ -13,6 +13,11 @@ const paymentConfigurationSchema = new Schema({
       required: true,
       default: ""
     },
+    webhookSecret: {
+      type: String,
+      required: true,
+      default: ""
+    },
     isEnabled: {
       type: Boolean,
       required: true,

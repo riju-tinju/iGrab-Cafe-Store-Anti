@@ -405,6 +405,13 @@ router.get("/shop", async function (req, res, next) {
     categories,
     products: productArray,
     brands: brandsArray,
+    meta: {
+      title: res.locals.customer.language === 'en' ? "Explore Our Premium Menu | iGrab Story" : "استكشف قائمتنا المميزة | آي جراب ستوري",
+      description: res.locals.customer.language === 'en'
+        ? "Browse our exclusive selection of home-made sweets and specialty coffee. Support local Emirati home businesses."
+        : "تصفح تشكيلتنا الحصرية من الحلويات المنزلية والقهوة المختصة. ادعم المشاريع المنزلية الإماراتية.",
+      keywords: ["shop", "menu", "coffee", "sweets", "bakery"]
+    }
   })
 
 });
@@ -423,7 +430,13 @@ router.get("/product/:url", async function (req, res, next) {
   console.log(product);
   // 
   resRender(req, res, "pages/product/product", "pages/product/product_AR", {
-    product
+    product,
+    meta: {
+      title: `${product.name[res.locals.customer.language]} | iGrab Story`,
+      description: product.description[res.locals.customer.language],
+      image: product.images[0],
+      keywords: product.meta.keywords
+    }
   })
   // res.json(product);
   // res.render("pages/product/product_AR", { product });
@@ -466,6 +479,13 @@ router.post("/get-products", async (req, res) => {
 
 router.get("/contact", async (req, res) => {
   resRender(req, res, "pages/contact/contact", "pages/contact/contact_AR", {
+    meta: {
+      title: res.locals.customer.language === 'en' ? "Contact Us | iGrab Story" : "اتصل بنا | آي جراب ستوري",
+      description: res.locals.customer.language === 'en'
+        ? "Have questions? Get in touch with iGrab Story Cafe for inquiries, catering, or feedback."
+        : "لديك أسئلة؟ تواصل مع مقهى آي جراب ستوري للاستفسارات أو طلبات الضيافة أو الملاحظات.",
+      keywords: ["contact", "support", "location", "catering"]
+    }
   })
 
 })
@@ -478,7 +498,13 @@ router.post("/api/submit-contact", async (req, res) => {
 });
 
 router.get("/faq", async (req, res) => {
-  res.render("pages/FAQ/FAQ")
+  res.render("pages/FAQ/FAQ", {
+    meta: {
+      title: res.locals.customer.language === 'en' ? "Frequently Asked Questions | iGrab Story" : "الأسئلة الشائعة | آي جراب ستوري",
+      description: "Find answers to common questions about iGrab Story Cafe, ordering, and delivery.",
+      keywords: ["faq", "help", "questions"]
+    }
+  })
 })
 router.get("/company-profile", async (req, res) => {
   let brands = []
@@ -488,12 +514,22 @@ router.get("/company-profile", async (req, res) => {
 
 })
 router.get("/privacy-policy", async (req, res) => {
-  resRender(req, res, "privacy-policy", "privacy-policy_AR", {})
-  // res.render("privacy-policy")
+  resRender(req, res, "privacy-policy", "privacy-policy_AR", {
+    meta: {
+      title: "Privacy Policy | iGrab Story",
+      description: "Read our privacy policy to understand how we handle your personal data.",
+      keywords: ["privacy", "data", "policy"]
+    }
+  })
 })
 router.get("/terms-and-conditions", async (req, res) => {
-  resRender(req, res, "terms-and-conditions", "terms-and-conditions_AR", {})
-  // res.render("terms-and-conditions")
+  resRender(req, res, "terms-and-conditions", "terms-and-conditions_AR", {
+    meta: {
+      title: "Terms and Conditions | iGrab Story",
+      description: "Please read our terms and conditions before using our services.",
+      keywords: ["terms", "conditions", "legal"]
+    }
+  })
 })
 router.get("/template", async (req, res) => {
   res.render("template")

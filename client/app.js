@@ -51,6 +51,10 @@ app.use(express.static(path.join(__dirname, '../uploads')));
 // Apply to all frontend routes
 app.use('/', startingRouter);
 app.use(getCustomer);
+app.use((req, res, next) => {
+  res.locals.fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+  next();
+});
 app.use('/', indexRouter);
 app.use('/', userAuthRouter);
 app.use('/api', apiRouter)

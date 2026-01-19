@@ -379,13 +379,15 @@ const checkoutFun = {
 
       console.log("Order Created:", savedOrder.orderId);
 
-      // 3. Deduct Stock Immediately (Optimistic)
-      // In a real production environment, you'd use a MongoDB session/transaction here
-      for (const item of items) {
-        await Inventory.findOneAndUpdate(
-          { productId: item.productId, branchId: storeId },
-          { $inc: { stock: -item.qty } }
-        );
+      // 3. Deduct Stock (ONLY FOR COD)
+      // For Online payment, stock is deducted after successful payment confirmation (webhook)
+      if (savedOrder.paymentMethod === "Cash") {
+        for (const item of items) {
+          await Inventory.findOneAndUpdate(
+            { productId: item.productId, branchId: storeId },
+            { $inc: { stock: -item.qty } }
+          );
+        }
       }
 
       if (savedOrder.paymentMethod === "Cash") {
@@ -440,6 +442,12 @@ const checkoutFun = {
       const order = await Order.findOne({ orderId: orderId });
       if (!order) {
         console.warn(`⚠️ Order with ID ${orderId} not found`);
+        return;
+      }
+
+      // 0. Check if order is already paid (idempotency)
+      if (order.paymentStatus === "Paid") {
+        console.log(`ℹ️ Order ${orderId} is already marked as Paid. Skipping update.`);
         return;
       }
 

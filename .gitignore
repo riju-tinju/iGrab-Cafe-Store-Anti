@@ -36,3 +36,14 @@ yarn-error.log*
 
 # Exports
 admin/public/exports/
+
+# Uploads (user-uploaded files)
+# Ignore all files in uploads directories but keep the folder structure
+uploads/*
+!uploads/.gitkeep
+
+admin/public/uploads/*
+!admin/public/uploads/.gitkeep
+
+client/public/uploads/*
+!client/public/uploads/.gitkeep

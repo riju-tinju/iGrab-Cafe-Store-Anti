@@ -1088,8 +1088,8 @@
             // Add celebration animations
             addCelebrationAnimations(overlay);
 
-            // Start countdown
-            startCountdown(16, () => {
+            // Start countdown (matches the visual number)
+            startCountdown(5, () => {
                 window.location.href = '/';
             });
         }
@@ -1127,8 +1127,8 @@
 
                 document.body.appendChild(overlay);
 
-                // Start countdown
-                startCountdown(8, () => {
+                // Start countdown (matches the visual number)
+                startCountdown(3, () => {
                     window.location.href = '/checkout';
                 });
 
@@ -1183,8 +1183,7 @@
          * Initialize Stripe payment processing
          * @param {Object} paymentData - Payment data
          */
-        function initializeStripe(paymentData) {
-            // Note: This assumes Stripe.js is loaded
+        async function initializeStripe(paymentData) {
             if (typeof Stripe === 'undefined') {
                 console.error('Stripe.js not loaded');
                 showErrorMessage('Payment system not available. Please try Cash on Delivery.');
@@ -1192,64 +1191,76 @@
                 return;
             }
 
-            // Initialize Stripe with your publishable key
-            // const stripe = Stripe('pk_test_51NpNxqSAiSUmmD0cJCOM67vp3pEldTmjhrFVoGxK6tLO1m1A9CnZPdvCpke6wL568yMAQFhsG9z3HTeQmfJZslrs00YrpEaEst');
             const stripe = Stripe('<%= paymentSettings.stripe.publishableKey %>');
-            alert('<%= paymentSettings.stripe.publishableKey %>')
-            // This is a placeholder - implement actual Stripe integration
-            console.log('Stripe integration needed:', paymentData);
-
-            // For demo purposes, show a message
-            //         document.getElementById('stripe-element').innerHTML = `
-            //     <div class="p-4 bg-blue-50 rounded-lg">
-            //         <p class="text-blue-800">
-            //             <i class="fas fa-info-circle mr-2"></i>
-            //             Stripe integration placeholder. 
-            //             Please implement with your Stripe publishable key.
-            //         </p>
-            //     </div>
-            // `;
-
-            // Add this actual Stripe implementation:
             const elements = stripe.elements();
             const cardElement = elements.create('card', {
                 style: {
                     base: {
                         fontSize: '16px',
                         color: '#32325d',
-                        fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                        fontFamily: '"Inter", sans-serif',
                         '::placeholder': {
                             color: '#aab7c4'
                         }
                     },
                     invalid: {
-                        color: '#fa755a',
-                        iconColor: '#fa755a'
+                        color: '#ef4444',
+                        iconColor: '#ef4444'
                     }
                 }
             });
 
             cardElement.mount('#stripe-element');
 
-            // Handle form submission
-            document.getElementById('stripe-pay-btn').addEventListener('click', async (e) => {
+            const payButton = document.getElementById('stripe-pay-btn');
+
+            payButton.addEventListener('click', async (e) => {
                 e.preventDefault();
 
-                const { error, paymentIntent } = await stripe.confirmCardPayment(paymentData.client_secret, {
-                    payment_method: {
-                        card: cardElement
-                    },
-                });
+                // Disable button and show loading
+                payButton.disabled = true;
+                const originalText = payButton.innerHTML;
+                payButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
 
-                if (error) {
-                    showErrorMessage(error.message);
-                } else if (paymentIntent.status === 'succeeded') {
-                    closeStripeCheckout();
-                    showOrderConfirmation(paymentIntent);
+                try {
+                    const { error, paymentIntent } = await stripe.confirmCardPayment(paymentData.client_secret, {
+                        payment_method: {
+                            card: cardElement,
+                            billing_details: {
+                                name: document.querySelector('input[name="fullName"]')?.value || 'Customer'
+                            }
+                        },
+                    });
+
+                    if (error) {
+                        showErrorMessage(error.message);
+                        payButton.disabled = false;
+                        payButton.innerHTML = originalText;
+                    } else {
+                        if (paymentIntent.status === 'succeeded') {
+                            closeStripeCheckout();
+                            showOrderConfirmation({
+                                ...paymentIntent,
+                                paymentMethod: 'Online',
+                                orderId: paymentData.metadata?.orderId
+                            });
+                        } else if (paymentIntent.status === 'processing') {
+                            showErrorMessage('Your payment is processing. We will notify you once confirmed.');
+                            closeStripeCheckout();
+                            window.location.href = '/';
+                        } else {
+                            showErrorMessage('Payment failed. Please try again or use another method.');
+                            payButton.disabled = false;
+                            payButton.innerHTML = originalText;
+                        }
+                    }
+                } catch (err) {
+                    console.error('Stripe confirmation error:', err);
+                    showErrorMessage('An error occurred during payment. Please try again.');
+                    payButton.disabled = false;
+                    payButton.innerHTML = originalText;
                 }
             });
-
-
         }
 
         /**
