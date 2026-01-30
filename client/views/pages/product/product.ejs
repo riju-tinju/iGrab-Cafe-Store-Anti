@@ -389,22 +389,23 @@
     <!-- Product Image Section -->
     <section class="image-slider">
       <div class="slider-container" id="image-slider">
-        <div class="slide">
-          <img
-            src="https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1037&q=80"
-            alt="Double Espresso" class="w-full h-auto object-cover">
-        </div>
-        <div class="slide">
-          <img
-            src="https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1037&q=80"
-            alt="Double Espresso" class="w-full h-auto object-cover">
-        </div>
-        <div class="slide">
-          <img
-            src="https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1037&q=80"
-            alt="Double Espresso" class="w-full h-auto object-cover">
-        </div>
-        <!-- <div class="slide">
+        <% product.images.forEach(function(url) { %>
+          <div class="slide">
+            <img src="/<%= url %>" alt="Double Espresso" class="w-full h-auto object-cover">
+          </div>
+          <% }); %>
+            <!-- <div class="slide">
+              <img
+                src="https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1037&q=80"
+                alt="Double Espresso" class="w-full h-auto object-cover">
+            </div>
+            <div class="slide">
+              <img
+                src="https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1037&q=80"
+                alt="Double Espresso" class="w-full h-auto object-cover">
+            </div> -->
+
+            <!-- <div class="slide">
           <img src="https://images.unsplash.com/photo-1485808191679-5f86510681a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1173&q=80" alt="Espresso being prepared" class="w-full h-auto object-cover">
         </div>
         <div class="slide">
@@ -434,49 +435,53 @@
           <%= product.name.en %>
         </h1>
 
-        <div class="flex items-center mb-3">
-          <div class="flex text-accent">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star-half-alt"></i>
+        <% if (product.sales && product.sales.totalReviews> 0) { %>
+          <div class="flex items-center mb-3">
+            <div class="flex text-accent">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star-half-alt"></i>
+            </div>
+            <span class="text-sm text-gray-500 ml-1">(<%= product.sales.totalReviews %> reviews)</span>
           </div>
-          <span class="text-sm text-gray-500 ml-1">(<%= product.sales.totalReviews %> reviews)</span>
-        </div>
+          <% } %>
 
-        <div class="flex justify-between items-center mb-4">
-          <div>
-            <span class="text-2xl font-bold text-accent">
-              <%= product?.pricing.currency %>
-                <%= product.pricing.price %>
-            </span>
-            <!-- <span class="text-sm text-gray-500 line-through ml-2">$4.25</span> -->
-          </div>
-          <!-- <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-md">18% OFF</span> -->
-        </div>
-
-        <div class="brand-info flex items-center p-3 bg-white rounded-lg shadow-sm mb-6">
-          <div class="h-10 bg-primary rounded-full flex items-center justify-center text-white mr-3">
-            <!-- <i class="fas fa-mug-hot"></i> -->
-            <img style="height:56px;width:auto;" src="/assets/brands/1.png">
-          </div>
-          <div>
-            <h4 class="font-bold">
-              <%= product?.brand?.name.en %>
-            </h4>
-            <p class="text-sm text-gray-500"><%= product?.brand?.tagline?.en %></p>
-          </div>
-        </div>
-
-        <!-- Product Description -->
-        <div class="mb-6">
-          <h3 class="text-lg font-bold mb-2">Description</h3>
-          <p id="description-text" class="text-gray-700 description-truncated">
-            <%= product?.description?.en %>
-          </p>
-          <button id="read-more-btn" class="text-primary font-medium mt-2">Read More</button>
-        </div>
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <span class="text-2xl font-bold text-accent">
+                  <%= product?.pricing.currency %>
+                    <%= product.pricing.price %>
+                </span>
+                <!-- <span class="text-sm text-gray-500 line-through ml-2">$4.25</span> -->
+              </div>
+              <!-- <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-md">18% OFF</span> -->
+            </div>
+            <% if (product.brand && product.brand.name && product.brand.name.en) { %>
+              <div class="brand-info flex items-center p-3 bg-white rounded-lg shadow-sm mb-6">
+                <div class="h-10 bg-primary rounded-full flex items-center justify-center text-white mr-3">
+                  <!-- <i class="fas fa-mug-hot"></i> -->
+                  <img style="height:56px;width:auto;" src="/<%= product?.brand?.logo %>">
+                </div>
+                <div>
+                  <h4 class="font-bold">
+                    <%= product?.brand?.name.en %>
+                  </h4>
+                  <p class="text-sm text-gray-500">
+                    <%= product?.brand?.tagline?.en %>
+                  </p>
+                </div>
+              </div>
+              <% } %>
+                <!-- Product Description -->
+                <div class="mb-6">
+                  <h3 class="text-lg font-bold mb-2">Description</h3>
+                  <p id="description-text" class="text-gray-700 description-truncated">
+                    <%= product?.description?.en %>
+                  </p>
+                  <button id="read-more-btn" class="text-primary font-medium mt-2">Read More</button>
+                </div>
       </section>
       <% if (product.reviews && product.reviews.length> 0) { %>
         <!-- Customer Reviews Preview -->
@@ -726,13 +731,13 @@
           });
 
           if (!response.ok) {
-            let resData=await response.json()
+            let resData = await response.json()
             console.log(response)
             console.log("resData __:", resData.errorCode)
-           if( resData.errorCode==='OUT_OF_STOCK'){
+            if (resData.errorCode === 'OUT_OF_STOCK') {
               showToast("Sorry, this item is temporarily out of stock.");
               return false
-           }
+            }
             showToast("Failed to update item quantity in cart");
             throw new Error("Failed to update item from cart");
             return false;
@@ -747,8 +752,8 @@
             document.getElementById('quantity-selector-container').classList.remove('hidden');
           }
 
-          
-          if(data.success == false) {
+
+          if (data.success == false) {
             return showToast("Failed to update the cart item");
           }
 

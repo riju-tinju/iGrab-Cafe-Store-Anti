@@ -166,8 +166,9 @@ router.patch('/api/products/:id/stock', async function (req, res, next) {
 // creta product
 router.get('/product/create', async function (req, res, next) {
   let { brands, stores, categories } = await productHelper.getDataForCreateProduct(req, res);
-
-  res.render('pages/products/create-product', { brands, stores, categories });
+  const imageLimit = parseInt(process.env.IMAGE_LIMIT) || 10;
+  const imageSizeLimit = parseFloat(process.env.IMAGE_SIZE_LIMIT) || 5;
+  res.render('pages/products/create-product', { brands, stores, categories, imageLimit, imageSizeLimit });
 });
 router.post('/product/create', async function (req, res, next) {
   await productHelper.createProduct(req, res);
@@ -213,14 +214,14 @@ router.post('/upload/images', upload.array('images', 10), async function (req, r
   }
 });
 
-router.post('/categories',upload.array('image', 10), async function (req, res) {
+router.post('/categories', upload.array('image', 10), async function (req, res) {
   console.log("Creating category", req.body);
-  await productHelper.createCategory(req, res,req.files[0]?.filename || null);
+  await productHelper.createCategory(req, res, req.files[0]?.filename || null);
 
 });
-router.post('/brands',upload.array('logo', 10), async function (req, res) {
+router.post('/brands', upload.array('logo', 10), async function (req, res) {
   console.log("Creating category", req.body);
-  await productHelper.createBrand(req, res,req.files[0]?.filename || null);
+  await productHelper.createBrand(req, res, req.files[0]?.filename || null);
 
 });
 
@@ -232,8 +233,10 @@ router.get('/product/edit/:id', async function (req, res, next) {
   if (!product) {
     return res.status(404).send('Product not found');
   }
-  console.log("\n",product, "\n", brands,"\n", stores, "\n", categories);
-  res.render('pages/products/edit-product', { brands, stores, categories,product  });
+  const imageLimit = parseInt(process.env.IMAGE_LIMIT) || 10;
+  const imageSizeLimit = parseFloat(process.env.IMAGE_SIZE_LIMIT) || 5;
+  console.log("\n", product, "\n", brands, "\n", stores, "\n", categories);
+  res.render('pages/products/edit-product', { brands, stores, categories, product, imageLimit, imageSizeLimit });
 });
 
 router.post('/product/edit', async function (req, res, next) {
