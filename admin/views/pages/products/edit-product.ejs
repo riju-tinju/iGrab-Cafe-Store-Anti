@@ -965,21 +965,23 @@
 
             // Initialize with EJS data
             try {
-                productData = JSON.parse('<%- JSON.stringify(product || {}) %>');
+                const safeParse = (str) => JSON.parse(decodeURIComponent(str));
+
+                productData = safeParse('<%- encodeURIComponent(JSON.stringify(product || {})) %>');
                 IMAGE_LIMIT = Number("<%= imageLimit %>") || 10;
                 IMAGE_SIZE_LIMIT = Number("<%= imageSizeLimit %>") || 5;
                 originalProductData = JSON.parse(JSON.stringify(productData));
-                categories = JSON.parse('<%- JSON.stringify(categories || []) %>');
-                brands = JSON.parse('<%- JSON.stringify(brands || []) %>');
-                stores = JSON.parse('<%- JSON.stringify(stores || []) %>');
+                categories = safeParse('<%- encodeURIComponent(JSON.stringify(categories || [])) %>');
+                brands = safeParse('<%- encodeURIComponent(JSON.stringify(brands || [])) %>');
+                stores = safeParse('<%- encodeURIComponent(JSON.stringify(stores || [])) %>');
 
                 if (!productData || !productData._id) {
-                    console.error('Critical Error: Product data is missing or invalid.');
+                    console.error('Critical Error: Product data ID is missing.');
                 }
             } catch (e) {
                 console.error('Error parsing EJS data:', e);
                 window.onload = () => {
-                    showNotification('Critical Error: Failed to load product data from server.', 'error');
+                    showNotification('Critical Error: Failed to load product data from server. Trace: ' + e.message, 'error');
                 };
             }
 

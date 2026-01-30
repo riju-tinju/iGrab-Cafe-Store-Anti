@@ -346,17 +346,13 @@ const productFun = {
   },
   getProductById: async (productId) => {
     try {
-
       if (!mongoose.Types.ObjectId.isValid(productId)) {
-        return null; // or throw an error
-      }
-      const product = await Product.find({ _id: productId })
-      if (!product) {
         return null;
       }
-      return product[0];
+      return await Product.findById(productId).lean();
     } catch (error) {
-      return null
+      console.error('Error in getProductById:', error);
+      return null;
     }
   },
   editProduct: async (req, res) => {
