@@ -963,52 +963,25 @@
             let IMAGE_LIMIT = 10; // Default limit
             let IMAGE_SIZE_LIMIT = 5; // Default in MB
 
-            // Mock data for demo (replace with actual EJS data)
-            const mockProductData = {
-                _id: "507f1f77bcf86cd799439011",
-                name: { en: 'Classic Espresso', ar: 'إسبرسو كلاسيكي' },
-                description: {
-                    en: 'Rich and bold espresso shot with perfect crema',
-                    ar: 'إسبرسو غني وقوي مع رغوة مثالية'
-                },
-                pricing: { price: 18, costPerItem: 7, currency: 'AED' },
-                meta: {
-                    slug: 'classic-espresso',
-                    keywords: ['espresso', 'coffee', 'strong', 'italian']
-                },
-                branchIds: ['684fc147f412d43c6835b056', '684fc147f412d43c6835b054'],
-                images: ['https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400'],
-                categoryId: '684fc147f412d43c6835b04d',
-                brandId: '684fc146f412d43c6835b028',
-                createdAt: '2025-06-16T07:01:27.084Z',
-                updatedAt: '2025-06-16T07:01:27.145Z'
-            };
+            // Initialize with EJS data
+            try {
+                productData = JSON.parse('<%- JSON.stringify(product || {}) %>');
+                IMAGE_LIMIT = Number("<%= imageLimit %>") || 10;
+                IMAGE_SIZE_LIMIT = Number("<%= imageSizeLimit %>") || 5;
+                originalProductData = JSON.parse(JSON.stringify(productData));
+                categories = JSON.parse('<%- JSON.stringify(categories || []) %>');
+                brands = JSON.parse('<%- JSON.stringify(brands || []) %>');
+                stores = JSON.parse('<%- JSON.stringify(stores || []) %>');
 
-            const mockCategories = [
-                { _id: '684fc147f412d43c6835b04d', name: { en: 'Hot Beverages', ar: 'المشروبات الساخنة' } },
-                { _id: '684fc147f412d43c6835b04e', name: { en: 'Cold Beverages', ar: 'المشروبات الباردة' } },
-                { _id: '684fc147f412d43c6835b04f', name: { en: 'Pastries', ar: 'المعجنات' } }
-            ];
-
-            const mockBrands = [
-                { _id: '684fc146f412d43c6835b028', name: { en: 'iGrab Premium', ar: 'آي جراب بريميوم' } },
-                { _id: '684fc146f412d43c6835b029', name: { en: 'Heritage Coffee', ar: 'قهوة التراث' } }
-            ];
-
-            const mockStores = [
-                { _id: '684fc147f412d43c6835b056', name: 'Downtown Dubai Branch', address: 'Sheikh Zayed Road, Downtown Dubai' },
-                { _id: '684fc147f412d43c6835b054', name: 'Marina Mall Branch', address: 'Dubai Marina Mall, Dubai Marina' },
-                { _id: '684fc147f412d43c6835b053', name: 'JBR Beach Branch', address: 'Jumeirah Beach Residence, Dubai' }
-            ];
-
-            // Initialize with mock data (replace with EJS data loading)
-            productData = JSON.parse('<%- JSON.stringify(product || {}) %>');
-            IMAGE_LIMIT = Number("<%= imageLimit %>") || 10;
-            IMAGE_SIZE_LIMIT = Number("<%= imageSizeLimit %>") || 5;
-            originalProductData = JSON.parse(JSON.stringify(productData));
-            categories = JSON.parse('<%- JSON.stringify(categories || []) %>');
-            brands = JSON.parse('<%- JSON.stringify(brands || []) %>');
-            stores = JSON.parse('<%- JSON.stringify(stores || []) %>');
+                if (!productData || !productData._id) {
+                    console.error('Critical Error: Product data is missing or invalid.');
+                }
+            } catch (e) {
+                console.error('Error parsing EJS data:', e);
+                window.onload = () => {
+                    showNotification('Critical Error: Failed to load product data from server.', 'error');
+                };
+            }
 
 
 
@@ -1196,28 +1169,40 @@
 
             function populateProductData() {
                 if (!productData || !productData._id) {
-                    showNotification('Product data not found', 'error');
+                    showNotification('Product data not found or invalid', 'error');
+                    // Set meaningful defaults for breadcrumbs and title
+                    const nameBreadcrumb = document.getElementById('productNameBreadcrumb');
+                    if (nameBreadcrumb) nameBreadcrumb.textContent = 'Error: Product Not Found';
+                    const productTitle = document.getElementById('productTitle');
+                    if (productTitle) productTitle.textContent = 'Product Not Found';
                     return;
                 }
 
                 try {
+                    console.log('Populating product data for ID:', productData._id);
+
                     // Basic Information
-                    document.getElementById('nameEn').value = productData.name?.en || '';
-                    document.getElementById('nameAr').value = productData.name?.ar || '';
-                    document.getElementById('descriptionEn').value = productData.description?.en || '';
-                    document.getElementById('descriptionAr').value = productData.description?.ar || '';
-                    document.getElementById('slug').value = productData.meta?.slug || '';
+                    const setVal = (id, val) => {
+                        const el = document.getElementById(id);
+                        if (el) el.value = val || '';
+                    };
+
+                    setVal('nameEn', productData.name?.en);
+                    setVal('nameAr', productData.name?.ar);
+                    setVal('descriptionEn', productData.description?.en);
+                    setVal('descriptionAr', productData.description?.ar);
+                    setVal('slug', productData.meta?.slug);
 
                     // Pricing
-                    document.getElementById('price').value = productData.pricing?.price || '';
-                    document.getElementById('costPerItem').value = productData.pricing?.costPerItem || '';
+                    setVal('price', productData.pricing?.price);
+                    setVal('costPerItem', productData.pricing?.costPerItem);
 
                     // Category and Brand
-                    document.getElementById('categoryId').value = productData.categoryId || '';
-                    document.getElementById('brandId').value = productData.brandId || '';
+                    setVal('categoryId', productData.categoryId);
+                    setVal('brandId', productData.brandId);
 
                     // Branch Selection
-                    selectedBranches = (productData.branchIds || []).map(id => id.toString());
+                    selectedBranches = (productData.branchIds || []).map(id => id ? id.toString() : '');
 
                     // Tags/Keywords
                     tags = productData.meta?.keywords || [];
@@ -1226,19 +1211,30 @@
                     existingImages = productData.images || [];
 
                     // Header Information
-                    document.getElementById('productNameBreadcrumb').textContent = productData.name?.en || 'Unnamed Product';
-                    document.getElementById('productTitle').textContent = productData.name?.en || 'Unnamed Product';
-                    document.getElementById('productMeta').textContent = `Category: ${getCategoryName(productData.categoryId)} | Brand: ${getBrandName(productData.brandId)}`;
+                    const nameDisp = productData.name?.en || 'Unnamed Product';
+                    const breadcrumb = document.getElementById('productNameBreadcrumb');
+                    if (breadcrumb) breadcrumb.textContent = nameDisp;
+                    const title = document.getElementById('productTitle');
+                    if (title) title.textContent = nameDisp;
+
+                    const metaEl = document.getElementById('productMeta');
+                    if (metaEl) {
+                        metaEl.textContent = `Category: ${getCategoryName(productData.categoryId)} | Brand: ${getBrandName(productData.brandId)}`;
+                    }
 
                     // Product image in header
                     const headerImg = document.querySelector('#productImage img');
-                    if (existingImages.length > 0) {
-                        headerImg.src = (existingImages[0].startsWith('/') || existingImages[0].startsWith('http')) ? existingImages[0] : '/' + existingImages[0];
+                    if (headerImg && existingImages.length > 0) {
+                        const imgPath = existingImages[0];
+                        headerImg.src = (imgPath.startsWith('/') || imgPath.startsWith('http')) ? imgPath : '/' + imgPath;
                         headerImg.classList.remove('hidden');
                     }
 
                     // Update last modified
-                    document.getElementById('lastUpdated').textContent = `Last updated: ${formatDate(productData.updatedAt)}`;
+                    const lastUpdatedEl = document.getElementById('lastUpdated');
+                    if (lastUpdatedEl) {
+                        lastUpdatedEl.textContent = `Last updated: ${formatDate(productData.updatedAt)}`;
+                    }
 
                     // Update profit calculation
                     updateProfitCalculation();
@@ -1251,8 +1247,8 @@
                     updateImageCount();
 
                 } catch (error) {
-                    console.error('Error populating product data:', error);
-                    showNotification('Error loading product data', 'error');
+                    console.error('Error in populateProductData:', error);
+                    showNotification('Occurred an error while populating the form: ' + error.message, 'error');
                 }
             }
 
@@ -1494,8 +1490,10 @@
                     previewDiv.className = 'image-preview existing-image relative';
                     previewDiv.dataset.url = imageUrl;
 
+                    const displayUrl = (imageUrl.startsWith('/') || imageUrl.startsWith('http')) ? imageUrl : '/' + imageUrl;
+
                     previewDiv.innerHTML = `
-                    <img src="${(imageUrl.startsWith('/') || imageUrl.startsWith('http')) ? imageUrl : '/' + imageUrl}" alt="Product Image" class="w-full h-32 object-cover rounded-lg">
+                    <img src="${displayUrl}" alt="Product Image" class="w-full h-32 object-cover rounded-lg" onerror="this.src='/static-files/placeholder.png'; this.parentElement.classList.add('image-error');">
                     <div class="remove-btn transition-all rounded-lg">
                         <button type="button" class="bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center text-sm hover:bg-red-600 transition-all shadow-lg"
                                 onclick="removeExistingImage('${imageUrl}')">

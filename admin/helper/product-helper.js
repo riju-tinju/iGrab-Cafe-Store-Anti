@@ -381,7 +381,7 @@ const productFun = {
         data: { product: updatedProduct },
         message: 'Product updated successfully'
       });
-    } catch (err) {
+    } catch (error) {
       res.status(500).json({
         success: false,
         error: { message: error.message }
