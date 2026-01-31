@@ -52,7 +52,8 @@ app.use(express.static(path.join(__dirname, '../uploads')));
 app.use('/', startingRouter);
 app.use(getCustomer);
 app.use((req, res, next) => {
-  res.locals.fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+  res.locals.homeUrl = `${req.protocol}://${req.get('host')}`;
+  res.locals.fullUrl = `${res.locals.homeUrl}${req.originalUrl}`;
   next();
 });
 app.use('/', indexRouter);
