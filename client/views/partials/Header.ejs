@@ -99,15 +99,16 @@
     transition: all 0.3s ease; cursor: pointer; white-space: nowrap; } .category-pill:hover, .category-pill.active {
     background-color: var(--primary-green); color: white; } /* Toast Notification */ .toast { position: fixed; top:
     20px; left: 50%; transform: translateX(-50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 1rem
-    1.5rem; border-radius: 30px; z-index: 9999; opacity: 0; transition: opacity 0.3s ease; } .toast.show { opacity: 1; }
-    /* Desktop Optimizations */ @media (min-width: 1024px) { .top-nav { height: 80px; padding: 0 2rem; }
-    .search-container { width: 400px; } .bottom-nav { display: none; /* Hide bottom nav on desktop */ } .desktop-nav {
-    display: flex; /* Show desktop navigation */ } .mobile-only { display: none; } .desktop-only { display: flex; /*
-    Customized code */ } .hero-slider { height: 500px; } .product-grid { grid-template-columns: repeat(4, 1fr); }
-    .main-container { margin-top: 80px; padding: 0 2rem; } .product-details { display: grid; grid-template-columns: 1fr
-    1fr; gap: 2rem; } .category-section { display: grid; grid-template-columns: 250px 1fr; gap: 2rem; }
-    .profile-dashboard { width: 400px; } } /* Hide desktop elements on mobile */ @media (max-width: 1023px) {
-    .desktop-only { display: none; } .desktop-nav { display: none; } } </style>
+    1.5rem; border-radius: 30px; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+    .toast.show { opacity: 1; pointer-events: auto; } /* Desktop Optimizations */ @media (min-width: 1024px) { .top-nav
+    { height: 80px; padding: 0 2rem; } .search-container { width: 400px; } .bottom-nav { display: none; /* Hide bottom
+    nav on desktop */ } .desktop-nav { display: flex; /* Show desktop navigation */ } .mobile-only { display: none; }
+    .desktop-only { display: flex; /* Customized code */ } .hero-slider { height: 500px; } .product-grid {
+    grid-template-columns: repeat(4, 1fr); } .main-container { margin-top: 80px; padding: 0 2rem; } .product-details {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; } .category-section { display: grid;
+    grid-template-columns: 250px 1fr; gap: 2rem; } .profile-dashboard { width: 400px; } } /* Hide desktop elements on
+    mobile */ @media (max-width: 1023px) { .desktop-only { display: none; } .desktop-nav { display: none; } }
+    .review-rating-section { display: none !important; } </style>
     <script>
       // Show toast notification
       function showToast(message) {

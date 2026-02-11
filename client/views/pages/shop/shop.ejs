@@ -125,7 +125,7 @@
                     </a>
 
                     <!-- Star Rating Section -->
-                    <div class="flex items-center mb-3">
+                    <div class="flex items-center mb-3 review-rating-section">
                       <div class="flex text-accent">
                         <% const fullStars=Math.floor(product.sales.starRating); %>
                           <% const halfStar=product.sales.starRating % 1>= 0.5; %>
@@ -686,7 +686,7 @@
         <a href="/product/${urlSlug}">
           <h3 class="font-bold mb-1">${productName}</h3>
         </a>
-        <div class="flex items-center mb-3">
+        <div class="flex items-center mb-3 review-rating-section">
           <div class="flex">${stars}</div>
           <span class="text-sm text-gray-500 ml-1">(${reviewCount})</span>
         </div>

@@ -1,8 +1,8 @@
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const loadMoreBtn = document.getElementById('load_more_btn');
     if (loadMoreBtn) {
-      loadMoreBtn.addEventListener('click', function() {
+      loadMoreBtn.addEventListener('click', function () {
         optionSelections.page = optionSelections.page + 1
         loadMoreProducts(optionSelections);
       });
@@ -31,12 +31,12 @@
 
     // Step 4: Fetch more products
     fetch('/get-products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(filterObject)
-      })
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(filterObject)
+    })
       .then(response => {
         if (!response.ok) throw new Error('Network response was not ok');
         return response.json();
@@ -54,7 +54,7 @@
           productCards.forEach(card => card.classList.remove('hide'));
 
           // Step 7: Render new products
-          renderLoadProducts(data.filteredProducts,data.wishArray, {
+          renderLoadProducts(data.filteredProducts, data.wishArray, {
             append: true
           }); // ✅ Assuming renderProducts supports append
 
@@ -79,46 +79,46 @@
   }
 
 
-function renderLoadProducts(products,wishArray, options = {}) {
-  const container = document.getElementById('product-skeleton-container');
-  if (!container) {
-    console.warn('Product container not found');
-    return;
-  }
+  function renderLoadProducts(products, wishArray, options = {}) {
+    const container = document.getElementById('product-skeleton-container');
+    if (!container) {
+      console.warn('Product container not found');
+      return;
+    }
 
-  // Step 1: If not appending, clear existing products
-  if (!options.append) {
-    container.innerHTML = '';
-  }
+    // Step 1: If not appending, clear existing products
+    if (!options.append) {
+      container.innerHTML = '';
+    }
 
-  // Step 2: Create product HTML
-  products.forEach(product => {
+    // Step 2: Create product HTML
+    products.forEach(product => {
 
-    // Liked heart icon
-    const customer = <%- JSON.stringify(customer) %>
-    customer.wishlist = wishArray
-    let checkWish = customer.wishlist.some(item => item.toString() === product._id.toString());
-    let heartOneclickFunctionHtml=`onclick="add_or_remove_product_to_wishlist('${product._id}',this)" btn-product-id="${product._id}"`
-    const liked = checkWish ? 'fas fa-heart text-accent' : 'far fa-heart text-gray-600';
+      // Liked heart icon
+      const customer = <% - JSON.stringify(customer) %>
+        customer.wishlist = wishArray
+      let checkWish = customer.wishlist.some(item => item.toString() === product._id.toString());
+      let heartOneclickFunctionHtml = `onclick="add_or_remove_product_to_wishlist('${product._id}',this)" btn-product-id="${product._id}"`
+      const liked = checkWish ? 'fas fa-heart text-accent' : 'far fa-heart text-gray-600';
 
 
-    const name = product.name?.en || 'Unnamed Product';
-    const urlSlug = product.meta?.slug || '';
-    const categoryName = product.category.name || '';
-    const imageUrl = product.images?.[0] || 'https://via.placeholder.com/300x200';
-    const price = product.pricing?.price?.toFixed(2) || '0.00';
-    const currency = product.pricing?.currency || 'AED';
-    const review = product.sales?.starRating || 0;
-    const reviewCount = product.sales?.totalReviews || 0;
-    // const liked = product.liked ? 'fas fa-heart text-red-500' : 'far fa-heart text-gray-600';
+      const name = product.name?.en || 'Unnamed Product';
+      const urlSlug = product.meta?.slug || '';
+      const categoryName = product.category.name || '';
+      const imageUrl = product.images?.[0] || 'https://via.placeholder.com/300x200';
+      const price = product.pricing?.price?.toFixed(2) || '0.00';
+      const currency = product.pricing?.currency || 'AED';
+      const review = product.sales?.starRating || 0;
+      const reviewCount = product.sales?.totalReviews || 0;
+      // const liked = product.liked ? 'fas fa-heart text-red-500' : 'far fa-heart text-gray-600';
 
-    const starsHTML = Array.from({ length: 5 }, (_, i) =>
-      i < review
-        ? '<i class="fas fa-star text-sm text-accent"></i>'
-        : '<i class="far fa-star text-sm text-accent"></i>'
-    ).join('');
-    var productId = toString(product._id);
-    const productHTML = `
+      const starsHTML = Array.from({ length: 5 }, (_, i) =>
+        i < review
+          ? '<i class="fas fa-star text-sm text-accent"></i>'
+          : '<i class="far fa-star text-sm text-accent"></i>'
+      ).join('');
+      var productId = toString(product._id);
+      const productHTML = `
       <div class="product-card">
         <div class="relative">
           <img src="${imageUrl}" alt="${name}" class="w-full h-48 object-cover">
@@ -131,7 +131,7 @@ function renderLoadProducts(products,wishArray, options = {}) {
           <a href="/product/${urlSlug}">
            <h3 class="font-bold mb-1">${name}</h3>
           </a>         
-          <div class="flex items-center mb-3">
+          <div class="flex items-center mb-3 review-rating-section">
             <div class="flex text-accent">
               ${starsHTML}
             </div>
@@ -147,9 +147,9 @@ function renderLoadProducts(products,wishArray, options = {}) {
       </div>
     `;
 
-    container.insertAdjacentHTML('beforeend', productHTML);
-  });
-}
+      container.insertAdjacentHTML('beforeend', productHTML);
+    });
+  }
 
 
 
