@@ -83,6 +83,11 @@ const apiFun = {
     getWishlist: async (req, res) => {
         try {
             console.log("Fetching wishlist");
+            const branchId = res.locals.customer.selectedBranch;
+
+            if (!branchId) {
+                return res.status(400).json({ error: "Branch not selected" });
+            }
 
             // ====== LOGGED-IN USER ======
             if (res.locals.customer.user === 'user') {
@@ -101,6 +106,18 @@ const apiFun = {
                     return res.status(200).json([]);
                 }
 
+                // Fetch inventories for the wishlist products in this branch
+                const productIds = user.wishlist.map(p => p._id);
+                const inventories = await Inventory.find({
+                    productId: { $in: productIds },
+                    branchId: branchId
+                });
+
+                const inventoryMap = inventories.reduce((map, inv) => {
+                    map[inv.productId.toString()] = inv.stock;
+                    return map;
+                }, {});
+
                 // Format the response
                 const formattedWishlist = user.wishlist.map(product => ({
                     id: product._id,
@@ -109,7 +126,7 @@ const apiFun = {
                     category: product.categoryId?.name.en || "Uncategorized",
                     categoryAr: product.categoryId?.name.ar || "غير مصنف",
                     price: product.pricing.price,
-                    isAvailable: product.inStock > 0,
+                    isAvailable: (inventoryMap[product._id.toString()] || 0) > 0,
                     image: product.images[0] || "default-product-image-url" // Fallback if no image
                 }));
 
@@ -127,6 +144,17 @@ const apiFun = {
             }).select('name.en pricing.price images inStock status.isAvailable categoryId')
                 .populate('categoryId', 'name.en -_id');
 
+            // Fetch inventories for guest wishlist products in this branch
+            const inventories = await Inventory.find({
+                productId: { $in: res.locals.customer.wishlist },
+                branchId: branchId
+            });
+
+            const inventoryMap = inventories.reduce((map, inv) => {
+                map[inv.productId.toString()] = inv.stock;
+                return map;
+            }, {});
+
             // Format guest wishlist
             const formattedGuestWishlist = guestWishlistProducts.map(product => ({
                 id: product._id,
@@ -135,7 +163,7 @@ const apiFun = {
                 category: product.categoryId?.name.en || "Uncategorized",
                 categoryAr: product.categoryId?.name.ar || "غير مصنف",
                 price: product.pricing.price,
-                isAvailable: product.inStock > 0,
+                isAvailable: (inventoryMap[product._id.toString()] || 0) > 0,
                 image: product.images[0] || "default-product-image-url"
             }));
             console.log(formattedGuestWishlist)
@@ -421,12 +449,25 @@ const apiFun = {
             }
 
             // Check stock
-            if (product.inStock <= 0) {
+            const branchId = res.locals.customer.selectedBranch;
+            if (!branchId) {
+                return res.status(400).json({
+                    success: false,
+                    errorCode: "BRANCH_NOT_SELECTED",
+                    userMessage: "Please select a branch first",
+                    debug: "Branch ID not found in res.locals"
+                });
+            }
+
+            const inventory = await Inventory.findOne({ productId, branchId });
+            const availableStock = inventory ? inventory.stock : 0;
+
+            if (availableStock <= 0) {
                 return res.status(409).json({
                     success: false,
                     errorCode: "STOCK_LOW",
                     userMessage: "This item is currently out of stock",
-                    debug: `Inventory level: ${product.inStock} units`
+                    debug: `Inventory level: ${availableStock} units at branch ${branchId}`
                 });
             }
 
@@ -981,13 +1022,24 @@ const apiFun = {
                     });
                 }
 
-                // Prepare filtered wishlist
-                const validProducts = [];
-                const updatedWishlist = [];
+                // Get inventories for the selected branch
+                const branchId = res.locals.customer.selectedBranch;
+                const productIds = user.wishlist.map(p => p._id);
+                const inventories = await Inventory.find({
+                    productId: { $in: productIds },
+                    branchId: branchId
+                });
+
+                const inventoryMap = inventories.reduce((map, inv) => {
+                    map[inv.productId.toString()] = inv.stock;
+                    return map;
+                }, {});
 
                 for (let product of user.wishlist) {
                     const alreadyInCart = user.cart.find(item => item.productId.toString() === product._id.toString());
-                    if (alreadyInCart || product.inStock <= 0) {
+                    const availableStock = inventoryMap[product._id.toString()] || 0;
+
+                    if (alreadyInCart || availableStock <= 0) {
                         // Keep in wishlist if already in cart or out of stock
                         updatedWishlist.push(product._id);
                         continue;
@@ -1017,15 +1069,25 @@ const apiFun = {
                 req.session.cart = req.session.cart || [];
                 req.session.wishlist = req.session.wishlist || [];
 
-                const validProductIds = [];
-                const updatedWishlist = [];
+                const branchId = res.locals.customer.selectedBranch;
+                const inventories = await Inventory.find({
+                    productId: { $in: req.session.wishlist },
+                    branchId: branchId
+                });
+
+                const inventoryMap = inventories.reduce((map, inv) => {
+                    map[inv.productId.toString()] = inv.stock;
+                    return map;
+                }, {});
 
                 for (let productId of req.session.wishlist) {
                     const product = await Product.findById(productId);
                     if (!product) continue;
 
                     const alreadyInCart = req.session.cart.find(item => item.productId === productId);
-                    if (alreadyInCart || product.inStock <= 0) {
+                    const availableStock = inventoryMap[productId.toString()] || 0;
+
+                    if (alreadyInCart || availableStock <= 0) {
                         updatedWishlist.push(productId);
                         continue;
                     }
