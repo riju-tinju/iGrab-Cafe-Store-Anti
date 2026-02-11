@@ -182,6 +182,10 @@ router.post("/get-order-history", async (req, res) => {
   }
 })
 
+router.post("/subscribe-newsletter", async (req, res) => {
+  await apiFun.subscribeNewsletter(req, res);
+});
+
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 router.post('/create-payment-intent', async (req, res) => {

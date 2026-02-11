@@ -33,7 +33,9 @@
           <h2 class="text-3xl lg:text-4xl font-bold mb-2">iGrab Story Cafe</h2>
           <p class="mb-4">First Emirati brand supporting home businesses specializing in artisanal sweets and premium
             specialty coffee</p>
-          <button class="btn-secondary" style="padding-right:40px; padding-left: 40px;">Our Journey</button>
+          <a href="/company-profile" class="btn-secondary"
+            style="padding-right:40px; padding-left: 40px; display: inline-flex; align-items: center; justify-content: center;">Discover
+            Our Story</a>
         </div>
       </div>
       <div class="slide"
@@ -41,7 +43,8 @@
         <div class="slide-content">
           <h2 class="text-3xl lg:text-4xl font-bold mb-2">Our Heritage</h2>
           <p class="mb-4">Celebrating UAE's culture of generosity and hospitality through exceptional flavors</p>
-          <button class="btn-secondary">Discover More</button>
+          <a href="/company-profile" class="btn-secondary"
+            style="display: inline-flex; align-items: center; justify-content: center;">Learn About Us</a>
         </div>
       </div>
       <div class="slide"
@@ -49,7 +52,8 @@
         <div class="slide-content">
           <h2 class="text-3xl lg:text-4xl font-bold mb-2">Quality & Excellence</h2>
           <p class="mb-4">Partnering with premium local producers to deliver authentic Emirati experiences</p>
-          <button class="btn-secondary">Our Values</button>
+          <a href="/company-profile" class="btn-secondary"
+            style="display: inline-flex; align-items: center; justify-content: center;">Explore Our Values</a>
         </div>
       </div>
     </section>
@@ -150,61 +154,61 @@
         </section>
         <% } %>
 
-        <script>
-                function add_or_remove_product_to_wishlist(productId, wishButton) {
-                  const wishlistCount = document.getElementById('wishlist-count');
-                  let count = parseInt(wishlistCount.textContent) || 0;
+          <script>
+            function add_or_remove_product_to_wishlist(productId, wishButton) {
+              const wishlistCount = document.getElementById('wishlist-count');
+              let count = parseInt(wishlistCount.textContent) || 0;
 
-                  fetch('api/add-or-remove-wishlist', {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                      productId
-                    })
-                  })
-                    .then(response => {
-                      if (!response.ok) {
-                        // Handle HTTP errors (400, 404, 500, etc.)
-                        return response.json().then(err => {
-                          throw new Error(err.error || 'Failed to update wishlist');
-                        });
-                      }
-                      return response.json();
-                    })
-                    .then(data => {
-                      if (data.status) {
-                        const funResult = data.status;
-                        switch (funResult) {
-                          case 'ADDED':
-                            wishButton.innerHTML = '<i class="fas fa-heart text-accent"></i>';
-                            count++;
-                            showToast('Item added to wishlist!');
-                            break;
-                          case 'REMOVED':
-                            wishButton.innerHTML = '<i class="far fa-heart text-gray-600"></i>';
-                            count--;
-                            showToast('Item removed from wishlist!');
-                            break;
-                          default:
-                            window.location.href = '/login';
-                        }
-                        wishlistCount.textContent = count;
-                        animateCartBadge();
-                      } else if (data.error) {
-                        showToast(data.error);
-                      }
-                    })
-                    .catch(error => {
-                      console.error('Wishlist error:', error);
-                      showToast(error.message || 'An error occurred while updating wishlist');
-                      if (error.message.includes('login') || error.message.includes('User not found')) {
-                        window.location.href = '/login';
-                      }
+              fetch('api/add-or-remove-wishlist', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  productId
+                })
+              })
+                .then(response => {
+                  if (!response.ok) {
+                    // Handle HTTP errors (400, 404, 500, etc.)
+                    return response.json().then(err => {
+                      throw new Error(err.error || 'Failed to update wishlist');
                     });
-                }
-            </script>
+                  }
+                  return response.json();
+                })
+                .then(data => {
+                  if (data.status) {
+                    const funResult = data.status;
+                    switch (funResult) {
+                      case 'ADDED':
+                        wishButton.innerHTML = '<i class="fas fa-heart text-accent"></i>';
+                        count++;
+                        showToast('Item added to wishlist!');
+                        break;
+                      case 'REMOVED':
+                        wishButton.innerHTML = '<i class="far fa-heart text-gray-600"></i>';
+                        count--;
+                        showToast('Item removed from wishlist!');
+                        break;
+                      default:
+                        window.location.href = '/login';
+                    }
+                    wishlistCount.textContent = count;
+                    animateCartBadge();
+                  } else if (data.error) {
+                    showToast(data.error);
+                  }
+                })
+                .catch(error => {
+                  console.error('Wishlist error:', error);
+                  showToast(error.message || 'An error occurred while updating wishlist');
+                  if (error.message.includes('login') || error.message.includes('User not found')) {
+                    window.location.href = '/login';
+                  }
+                });
+            }
+          </script>
           <!-- Loyalty Program Section -->
           <section class="mb-12 bg-accent rounded-2xl overflow-hidden">
             <div class="flex flex-col lg:flex-row">
@@ -241,7 +245,8 @@
                     licensed
                     delivery vehicles available.</li>
                 </ul>
-                <button class="btn-primary">See Our Items</button>
+                <a href="/shop" class="btn-primary"
+                  style="display: inline-flex; align-items: center; justify-content: center;">See Our Items</a>
               </div>
               <div class="lg:w-1/2">
                 <img src="/assets/static-pages/home-page/fact.jpg" alt="Loyalty Program"
@@ -330,10 +335,57 @@
             <p class="mb-6 max-w-lg mx-auto">Subscribe to our newsletter for exclusive offers, new product
               announcements, and coffee brewing tips.</p>
             <div class="flex flex-col md:flex-row max-w-md mx-auto">
-              <input type="email" placeholder="Your email address"
+              <input type="email" id="newsletter-email" placeholder="Your email address"
                 class="px-4 py-3 rounded md:flex-grow focus:outline-none text-black">
-              <button class="btn-secondary rounded-r-lg mt-2 md:mt-0">Subscribe</button>
+              <button id="newsletter-subscribe-btn" class="btn-secondary rounded-r-lg mt-2 md:mt-0">Subscribe</button>
             </div>
           </section>
+
+          <script>
+            document.getElementById('newsletter-subscribe-btn').addEventListener('click', async function () {
+              const emailInput = document.getElementById('newsletter-email');
+              const email = emailInput.value.trim();
+
+              if (!email) {
+                showToast('Please enter your email address');
+                return;
+              }
+
+              // Simple email validation
+              const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+              if (!emailRegex.test(email)) {
+                showToast('Please provide a valid email address');
+                return;
+              }
+
+              try {
+                this.disabled = true;
+                this.textContent = 'Subscribing...';
+
+                const response = await fetch('/api/subscribe-newsletter', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                  showToast(data.userMessage);
+                  emailInput.value = '';
+                } else {
+                  showToast(data.userMessage || 'Something went wrong. Please try again.');
+                }
+              } catch (error) {
+                console.error('Newsletter error:', error);
+                showToast('An error occurred. Please try again later.');
+              } finally {
+                this.disabled = false;
+                this.textContent = 'Subscribe';
+              }
+            });
+          </script>
   </main>
   <%- include('./partials/Footer') %>

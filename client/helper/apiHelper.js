@@ -9,6 +9,7 @@ const Inventory = require("../model/inventorySchema");
 const Charges = require("../model/chargingSchema");
 const Store = require("../model/storeBranchSchema");
 const Order = require("../model/orderSchema");
+const Newsletter = require("../model/newsletterSchema");
 
 const apiFun = {
     wishlistAction: async (req, res) => {
@@ -1022,6 +1023,10 @@ const apiFun = {
                     });
                 }
 
+                // Prepare filtered wishlist
+                const validProducts = [];
+                const updatedWishlist = [];
+
                 // Get inventories for the selected branch
                 const branchId = res.locals.customer.selectedBranch;
                 const productIds = user.wishlist.map(p => p._id);
@@ -1068,6 +1073,9 @@ const apiFun = {
             if (res.locals.customer.user === "guest") {
                 req.session.cart = req.session.cart || [];
                 req.session.wishlist = req.session.wishlist || [];
+
+                const validProductIds = [];
+                const updatedWishlist = [];
 
                 const branchId = res.locals.customer.selectedBranch;
                 const inventories = await Inventory.find({
@@ -1205,6 +1213,51 @@ const apiFun = {
         } catch (err) {
             console.error("Error fetching order history:", err);
             return res.status(500).json({ message: "Internal server error" });
+        }
+    },
+    subscribeNewsletter: async (req, res) => {
+        try {
+            const { email } = req.body;
+            if (!email) {
+                return res.status(400).json({
+                    success: false,
+                    userMessage: "Email is required"
+                });
+            }
+
+            // Simple email validation
+            const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+            if (!emailRegex.test(email)) {
+                return res.status(400).json({
+                    success: false,
+                    userMessage: "Please provide a valid email address"
+                });
+            }
+
+            // Check if already subscribed
+            const existingSubscriber = await Newsletter.findOne({ email });
+            if (existingSubscriber) {
+                return res.status(200).json({
+                    success: true,
+                    userMessage: "You are already subscribed to our newsletter!"
+                });
+            }
+
+            // Save new subscriber
+            const newSubscriber = new Newsletter({ email });
+            await newSubscriber.save();
+
+            return res.status(200).json({
+                success: true,
+                userMessage: "Thank you for subscribing to our newsletter!"
+            });
+
+        } catch (err) {
+            console.error("Newsletter subscription error:", err);
+            return res.status(500).json({
+                success: false,
+                userMessage: "Failed to process your request. Please try again later."
+            });
         }
     },
 
