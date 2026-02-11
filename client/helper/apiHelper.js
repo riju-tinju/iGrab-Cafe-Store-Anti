@@ -1207,9 +1207,21 @@ const apiFun = {
             }
             // queryUserId= queryUserId.toString()
 
-            const orders = await Order.find({ 'userId': queryUserId });
-            console.log("\n\n\nOrders found:", orders)
-            return res.status(200).json({ orders });
+            const limit = parseInt(req.body.limit) || 10;
+            const offset = parseInt(req.body.offset) || 0;
+
+            const orders = await Order.find({ 'userId': queryUserId })
+                .sort({ orderDate: -1 })
+                .skip(offset)
+                .limit(limit);
+
+            const totalOrders = await Order.countDocuments({ 'userId': queryUserId });
+
+            console.log("\n\n\nOrders found:", orders.length)
+            return res.status(200).json({
+                orders,
+                hasMore: offset + orders.length < totalOrders
+            });
         } catch (err) {
             console.error("Error fetching order history:", err);
             return res.status(500).json({ message: "Internal server error" });

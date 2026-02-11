@@ -62,12 +62,35 @@
         text-transform: uppercase;
     }
 
-    .status-placed { background: #fff3cd; color: #856404; }
-    .status-confirmed { background: #d1ecf1; color: #0c5460; }
-    .status-preparing { background: #d4edda; color: #155724; }
-    .status-ready { background: #cce5ff; color: #004085; }
-    .status-delivered { background: #d1f2eb; color: #0f5132; }
-    .status-cancelled { background: #f8d7da; color: #721c24; }
+    .status-placed {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-confirmed {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .status-preparing {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-ready {
+        background: #cce5ff;
+        color: #004085;
+    }
+
+    .status-delivered {
+        background: #d1f2eb;
+        color: #0f5132;
+    }
+
+    .status-cancelled {
+        background: #f8d7da;
+        color: #721c24;
+    }
 
     .payment-status {
         font-size: 11px;
@@ -76,8 +99,15 @@
         font-weight: 500;
     }
 
-    .payment-paid { background: #d1f2eb; color: #0f5132; }
-    .payment-unpaid { background: #fff3cd; color: #856404; }
+    .payment-paid {
+        background: #d1f2eb;
+        color: #0f5132;
+    }
+
+    .payment-unpaid {
+        background: #fff3cd;
+        color: #856404;
+    }
 
     .order-items-toggle {
         color: #007bff;
@@ -191,8 +221,13 @@
     }
 
     @keyframes loading {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+        0% {
+            background-position: 200% 0;
+        }
+
+        100% {
+            background-position: -200% 0;
+        }
     }
 
     .empty-orders {
@@ -227,7 +262,8 @@
         <!-- Profile Header - Keep your existing code -->
         <% if (customer.user=='guest' ) { %>
             <div class="flex items-center mb-8">
-                <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white text-3xl ml-4">
+                <div
+                    class="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white text-3xl ml-4">
                     <i class="fas fa-user"></i>
                 </div>
                 <div>
@@ -239,82 +275,96 @@
                     </div>
                 </div>
             </div>
-        <% } else { %>
-            <div class="flex items-center mb-8">
-                <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white text-3xl ml-4"
-                    style="background-image: url('<%= customer?.profilePicture || '/images/default-profile.png' %>'); background-size: cover; background-position: center;">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold"><%= customer?.name %></h3>
-                </div>
-            </div>
-        <% } %>
-
-        <!-- Quick Links -->
-        <div class="space-y-4">
-            <% if (customer.user !== 'guest') { %>
-                <a href="#" id="order-history-btn" class="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm">
-                    <div class="flex items-center">
-                        <i class="fas fa-history text-lg text-primary ml-3"></i>
-                        <span>سجل الطلبات</span>
+            <% } else { %>
+                <div class="flex items-center mb-8">
+                    <div class="w-20 h-20 bg-primary rounded-full flex items-center justify-center text-white text-3xl ml-4"
+                        style="background-image: url('<%= customer?.profilePicture || '/images/default-profile.png' %>'); background-size: cover; background-position: center;">
+                        <i class="fas fa-user"></i>
                     </div>
-                    <i class="fas fa-chevron-left text-gray-400"></i>
-                </a>
+                    <div>
+                        <h3 class="text-xl font-bold">
+                            <%= customer?.name %>
+                        </h3>
+                    </div>
+                </div>
+                <% } %>
 
-                <!-- Order History Container -->
-                <div class="order-history-container" id="order-history-container">
-                    <!-- Skeleton Loading (initially hidden) -->
-                    <div class="skeleton-container" id="order-skeleton">
-                        <div class="skeleton-card">
-                            <div class="flex justify-between items-center mb-3">
-                                <div>
-                                    <div class="skeleton skeleton-line short"></div>
-                                    <div class="skeleton skeleton-line tiny"></div>
+                    <!-- Quick Links -->
+                    <div class="space-y-4">
+                        <% if (customer.user !=='guest' ) { %>
+                            <a href="#" id="order-history-btn"
+                                class="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm">
+                                <div class="flex items-center">
+                                    <i class="fas fa-history text-lg text-primary ml-3"></i>
+                                    <span>سجل الطلبات</span>
                                 </div>
-                                <div class="skeleton skeleton-line tiny"></div>
-                            </div>
-                            <div class="skeleton skeleton-button"></div>
-                            <div class="flex justify-between items-center mt-3 pt-2 border-t">
-                                <div class="skeleton skeleton-line medium"></div>
-                            </div>
-                        </div>
-                        <div class="skeleton-card">
-                            <div class="flex justify-between items-center mb-3">
-                                <div>
-                                    <div class="skeleton skeleton-line short"></div>
-                                    <div class="skeleton skeleton-line tiny"></div>
+                                <i class="fas fa-chevron-left text-gray-400"></i>
+                            </a>
+
+                            <!-- Order History Container -->
+                            <div class="order-history-container" id="order-history-container">
+                                <!-- Skeleton Loading (initially hidden) -->
+                                <div class="skeleton-container" id="order-skeleton">
+                                    <div class="skeleton-card">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <div>
+                                                <div class="skeleton skeleton-line short"></div>
+                                                <div class="skeleton skeleton-line tiny"></div>
+                                            </div>
+                                            <div class="skeleton skeleton-line tiny"></div>
+                                        </div>
+                                        <div class="skeleton skeleton-button"></div>
+                                        <div class="flex justify-between items-center mt-3 pt-2 border-t">
+                                            <div class="skeleton skeleton-line medium"></div>
+                                        </div>
+                                    </div>
+                                    <div class="skeleton-card">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <div>
+                                                <div class="skeleton skeleton-line short"></div>
+                                                <div class="skeleton skeleton-line tiny"></div>
+                                            </div>
+                                            <div class="skeleton skeleton-line tiny"></div>
+                                        </div>
+                                        <div class="skeleton skeleton-button"></div>
+                                        <div class="flex justify-between items-center mt-3 pt-2 border-t">
+                                            <div class="skeleton skeleton-line medium"></div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="skeleton skeleton-line tiny"></div>
+
+                                <!-- Orders will be dynamically inserted here -->
+                                <div id="orders-list"></div>
+
+                                <!-- Load More Button -->
+                                <div id="load-more-orders-container"
+                                    style="display: none; text-align: center; padding: 10px;">
+                                    <button id="load-more-orders-btn"
+                                        class="text-sm font-semibold text-primary hover:underline">
+                                        تحميل المزيد
+                                    </button>
+                                </div>
+
+                                <!-- Empty State -->
+                                <div class="empty-orders" id="empty-orders" style="display: none;">
+                                    <div class="empty-orders-icon">
+                                        <i class="fas fa-receipt"></i>
+                                    </div>
+                                    <h3 class="text-lg font-semibold mb-2">لا توجد طلبات حتى الآن</h3>
+                                    <p class="text-sm">سيظهر سجل طلباتك هنا بمجرد قيامك بتقديم طلبك الأول.</p>
+                                </div>
                             </div>
-                            <div class="skeleton skeleton-button"></div>
-                            <div class="flex justify-between items-center mt-3 pt-2 border-t">
-                                <div class="skeleton skeleton-line medium"></div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Orders will be dynamically inserted here -->
-                    <div id="orders-list"></div>
-
-                    <!-- Empty State -->
-                    <div class="empty-orders" id="empty-orders" style="display: none;">
-                        <div class="empty-orders-icon">
-                            <i class="fas fa-receipt"></i>
-                        </div>
-                        <h3 class="text-lg font-semibold mb-2">لا توجد طلبات حتى الآن</h3>
-                        <p class="text-sm">سيظهر سجل طلباتك هنا بمجرد قيامك بتقديم طلبك الأول.</p>
+                            <a id="logOut-btn"
+                                class="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm">
+                                <div class="flex items-center">
+                                    <i style="color:red"
+                                        class="fas fa-arrow-right-from-bracket text-lg text-primary ml-3"></i>
+                                    <span style="color:red">تسجيل الخروج</span>
+                                </div>
+                            </a>
+                            <% } %>
                     </div>
-                </div>
-
-                <a id="logOut-btn" class="flex justify-between items-center p-4 bg-white rounded-xl shadow-sm">
-                    <div class="flex items-center">
-                        <i style="color:red" class="fas fa-arrow-right-from-bracket text-lg text-primary ml-3"></i>
-                        <span style="color:red">تسجيل الخروج</span>
-                    </div>
-                </a>
-            <% } %>
-        </div>
     </div>
 </div>
 
@@ -323,7 +373,7 @@
     document.getElementById('profile-btn').addEventListener('click', function () {
         document.getElementById('profile-dashboard').classList.toggle('active');
     });
-    
+
     document.getElementById('close-profile-btn').addEventListener('click', function () {
         document.getElementById('profile-dashboard').classList.remove('active');
     });
@@ -340,29 +390,28 @@
                 'Content-Type': 'application/json'
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = '/';
-            } else {
-                showToast('فشل تسجيل الخروج. يرجى المحاولة مرة أخرى.');
-            }
-        })
-        .catch(error => console.error('Error:', error));
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/';
+                } else {
+                    showToast('فشل تسجيل الخروج. يرجى المحاولة مرة أخرى.');
+                }
+            })
+            .catch(error => console.error('Error:', error));
     });
 
     // Order History Implementation
     let ordersData = [];
+    let orderHistoryOffset = 0;
+    const orderHistoryLimit = 10;
     let orderHistoryLoaded = false;
 
     // Order History Button Click Handler
-    document.getElementById('order-history-btn').addEventListener('click', async function(e) {
+    document.getElementById('order-history-btn').addEventListener('click', function (e) {
         e.preventDefault();
-        
+
         const container = document.getElementById('order-history-container');
-        const skeleton = document.getElementById('order-skeleton');
-        const ordersList = document.getElementById('orders-list');
-        const emptyOrders = document.getElementById('empty-orders');
 
         // Toggle container visibility
         if (container.classList.contains('active')) {
@@ -377,69 +426,105 @@
             return;
         }
 
-        // Show skeleton loading
-        skeleton.style.display = 'block';
-        ordersList.innerHTML = '';
-        emptyOrders.style.display = 'none';
+        fetchOrderHistory();
+    });
+
+    // Load More Button Click Handler
+    document.getElementById('load-more-orders-btn').addEventListener('click', function () {
+        fetchOrderHistory(true);
+    });
+
+    // Function to fetch order history
+    async function fetchOrderHistory(isLoadMore = false) {
+        const skeleton = document.getElementById('order-skeleton');
+        const ordersList = document.getElementById('orders-list');
+        const emptyOrders = document.getElementById('empty-orders');
+        const loadMoreContainer = document.getElementById('load-more-orders-container');
+        const loadMoreBtn = document.getElementById('load-more-orders-btn');
+
+        if (!isLoadMore) {
+            // Initial load
+            skeleton.style.display = 'block';
+            ordersList.innerHTML = '';
+            emptyOrders.style.display = 'none';
+            loadMoreContainer.style.display = 'none';
+            orderHistoryOffset = 0;
+        } else {
+            // Loading more
+            loadMoreBtn.disabled = true;
+            loadMoreBtn.textContent = 'جاري التحميل...';
+        }
 
         try {
-            // Send POST request to backend
             const response = await fetch('/api/get-order-history', {
                 method: 'POST',
-                credentials: 'include', // Important!
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({
+                    offset: orderHistoryOffset,
+                    limit: orderHistoryLimit
+                })
             });
 
             const data = await response.json();
-
-            // Hide skeleton loading
             skeleton.style.display = 'none';
 
             if (!response.ok) {
-                // Handle error response
-                container.classList.remove('active');
-                if (typeof showToast === 'function') {
-                    showToast('حدث خطأ..');
-                } else {
-                    alert('حدث خطأ..');
-                }
-                return;
+                throw new Error('Failed to fetch orders');
             }
 
-            // Success - process orders
-            ordersData = data.orders || [];
-            orderHistoryLoaded = true;
+            const newOrders = data.orders || [];
 
-            if (ordersData.length === 0) {
-                // Show empty state
-                emptyOrders.style.display = 'block';
+            if (!isLoadMore) {
+                ordersData = newOrders;
+                orderHistoryLoaded = true;
+                if (ordersData.length === 0) {
+                    emptyOrders.style.display = 'block';
+                }
             } else {
-                // Render orders
-                renderOrders(ordersData);
+                ordersData = [...ordersData, ...newOrders];
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.textContent = 'تحميل المزيد';
+            }
+
+            // Render newly fetched orders
+            renderOrders(newOrders, isLoadMore);
+
+            // Update pagination state
+            orderHistoryOffset += newOrders.length;
+
+            // Show/hide load more button
+            if (data.hasMore) {
+                loadMoreContainer.style.display = 'block';
+            } else {
+                loadMoreContainer.style.display = 'none';
             }
 
         } catch (error) {
             console.error('Error fetching order history:', error);
             skeleton.style.display = 'none';
-            container.classList.remove('active');
-            
+            if (loadMoreBtn) {
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.textContent = 'تحميل المزيد';
+            }
+
             if (typeof showToast === 'function') {
-                showToast('حدث خطأ..');
-            } else {
-                alert('حدث خطأ..');
+                showToast('حدث خطأ أثناء تحميل الطلبات.');
             }
         }
-    });
+    }
 
     // Function to render orders
-    function renderOrders(orders) {
+    function renderOrders(orders, append = false) {
         const ordersList = document.getElementById('orders-list');
-        ordersList.innerHTML = '';
+        if (!append) ordersList.innerHTML = '';
 
-        orders.forEach((order, index) => {
-            const orderCard = createOrderCard(order, index);
+        orders.forEach((order) => {
+            // Find total index for toggleOrderItems
+            const globalIndex = ordersData.findIndex(o => o._id === order._id);
+            const orderCard = createOrderCard(order, globalIndex);
             ordersList.appendChild(orderCard);
         });
     }
@@ -448,7 +533,7 @@
     function createOrderCard(order, index) {
         const card = document.createElement('div');
         card.className = 'order-card';
-        
+
         const orderDate = new Date(order.orderDate).toLocaleDateString('ar-SA', {
             year: 'numeric',
             month: 'short',
@@ -531,15 +616,9 @@
                 </div>
             </div>
 
-            <!-- Total & Action -->
+            <!-- Total -->
             <div class="mt-4 flex justify-between items-center border-t pt-3">
                 <p class="text-sm font-semibold">المجموع: درهم ${order.totalAmount}</p>
-                ${order.status.toLowerCase() === 'delivered' ? `
-                    <button class="text-xs text-blue-600 underline hover:text-blue-800" 
-                            onclick="reorderItems('${order._id}')">
-                        إعادة الطلب
-                    </button>
-                ` : ''}
             </div>
         `;
 
@@ -550,7 +629,7 @@
     function toggleOrderItems(index) {
         const itemsList = document.getElementById(`order-items-${index}`);
         const toggleBtn = itemsList.previousElementSibling;
-        
+
         if (itemsList.classList.contains('show')) {
             itemsList.classList.remove('show');
             toggleBtn.textContent = `عرض العناصر (${ordersData[index].orderItems.length})`;
@@ -560,15 +639,4 @@
         }
     }
 
-    // Function to handle reorder (optional)
-    function reorderItems(orderId) {
-        const order = ordersData.find(o => o._id === orderId);
-        if (order) {
-            // You can implement reorder functionality here
-            console.log('Reordering items from order:', orderId);
-            if (typeof showToast === 'function') {
-                showToast('ميزة إعادة الطلب قريباً!');
-            }
-        }
-    }
 </script>

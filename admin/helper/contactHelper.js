@@ -1,55 +1,6 @@
 const Contact = require('../model/contactSchema');
 
 module.exports = {
-    // Submit a new contact form
-    submitContact: (req, res) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const { name, email, phone, inquiryType, message } = req.body;
-
-                // Validate required fields
-                if (!name || !email || !message) {
-                    return resolve({
-                        success: false,
-                        error: 'Please fill in all required fields'
-                    });
-                }
-
-                // Get IP address
-                const ipAddress = req.ip || req.connection.remoteAddress;
-
-                // Get branch from customer session (optional)
-                const storeBranch = res.locals.customer?.selectedBranch || req.session?.selectedBranch || null;
-
-                // Create new contact
-                const contact = new Contact({
-                    name: name.trim(),
-                    email: email.trim().toLowerCase(),
-                    phone: phone ? phone.trim() : null,
-                    storeBranch: storeBranch,
-                    inquiryType: inquiryType || 'general',
-                    message: message.trim(),
-                    ipAddress,
-                    submittedAt: new Date()
-                });
-
-                await contact.save();
-
-                return resolve({
-                    success: true,
-                    message: 'Your message has been sent successfully! We will get back to you soon.',
-                    contactId: contact._id
-                });
-            } catch (error) {
-                console.error('submitContact error:', error);
-                return resolve({
-                    success: false,
-                    error: 'An error occurred while sending your message. Please try again.'
-                });
-            }
-        });
-    },
-
     // Get all contacts with pagination and filtering
     getContacts: (req, res) => {
         return new Promise(async (resolve, reject) => {

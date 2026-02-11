@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const contactHelper = require('../../client/helper/contactHelper');
+const contactHelper = require('../helper/contactHelper');
 
 // Get all contacts with pagination and filtering
 router.get('/contacts', async function (req, res, next) {
@@ -9,7 +9,7 @@ router.get('/contacts', async function (req, res, next) {
 
 // Debug endpoint to check admin session
 router.get('/api/contacts/debug/session', async function (req, res, next) {
-    const Contact = require('../../client/model/contactSchema');
+    const Contact = require('../model/contactSchema');
 
     const adminSession = req.session?.admin;
     const totalContacts = await Contact.countDocuments({});
