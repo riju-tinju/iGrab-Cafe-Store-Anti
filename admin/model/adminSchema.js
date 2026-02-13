@@ -19,6 +19,10 @@ const adminSchema = new mongoose.Schema({
     type: String,
     // unique: true
   },
+  countryCode: {
+    type: String,
+    // default: "+971"
+  },
 
   role: {
     type: String,

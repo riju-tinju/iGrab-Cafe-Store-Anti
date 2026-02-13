@@ -53,7 +53,8 @@
       min-height: 500px;
     }
 
-    .login-card, .otp-card {
+    .login-card,
+    .otp-card {
       position: absolute;
       top: 0;
       left: 0;
@@ -121,8 +122,8 @@
       background: transparent;
     }
 
-    .input-field:focus + .input-label,
-    .input-field:not(:placeholder-shown) + .input-label {
+    .input-field:focus+.input-label,
+    .input-field:not(:placeholder-shown)+.input-label {
       transform: translateY(-2rem) scale(0.8);
       color: #1E7065;
       font-weight: 500;
@@ -198,9 +199,19 @@
     }
 
     @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-5px);
+      }
+
+      75% {
+        transform: translateX(5px);
+      }
     }
 
     /* Timer progress bar */
@@ -262,8 +273,13 @@
     }
 
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
 
     /* Mobile-specific optimizations */
@@ -350,7 +366,9 @@
 
     /* Prevent zoom on iOS */
     @supports (-webkit-touch-callout: none) {
-      .input-field, .otp-input {
+
+      .input-field,
+      .otp-input {
         font-size: 16px;
       }
     }
@@ -363,7 +381,8 @@
       view: 'login',
       error: '',
       name: '',
-      email: '',
+      countryCode: '+971',
+      phone: '',
       otpValues: ['','','','','',''],
       isSubmitting: false,
       timer: 300,
@@ -372,7 +391,7 @@
       otpError: false,
       otpErrorMessage: '',
       attemptsRemaining: 3,
-      maskedEmail: '',
+      maskedPhone: '',
 
       async submitForm() {
         if (!this.validateForm()) return;
@@ -386,7 +405,7 @@
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ name: this.name, email: this.email })
+            body: JSON.stringify({ name: this.name, countryCode: this.countryCode, phone: this.phone })
           });
 
           const data = await response.json();
@@ -395,7 +414,7 @@
             throw new Error(data.error || 'Failed to submit');
           }
 
-          this.maskedEmail = this.maskEmail(this.email);
+          this.maskedPhone = this.maskPhone(this.phone);
           this.showOtpCard();
         } catch (err) {
           this.error = err.message;
@@ -433,7 +452,7 @@
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ email: this.email, otp })
+            body: JSON.stringify({ countryCode: this.countryCode, phone: this.phone, otp })
           });
 
           const data = await response.json();
@@ -492,11 +511,10 @@
         }, 1000);
       },
 
-      maskEmail(email) {
-        if (!email) return '';
-        const [username, domain] = email.split('@');
-        if (!username || !domain) return email;
-        return username.charAt(0) + '***' + '@' + domain;
+      maskPhone(phone) {
+        if (!phone) return '';
+        if (phone.length < 4) return phone;
+        return phone.slice(0, 2) + '****' + phone.slice(-2);
       },
 
       handleOtpInput(e, index) {
@@ -541,14 +559,14 @@
           return false;
         }
 
-        if (!this.email.trim()) {
-          this.error = 'Please enter your email';
+        if (!this.phone.trim()) {
+          this.error = 'Please enter your phone number';
           return false;
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(this.email)) {
-          this.error = 'Please enter a valid email address';
+        const phoneRegex = /^[0-9]{7,15}$/;
+        if (!phoneRegex.test(this.phone)) {
+          this.error = 'Please enter a valid phone number';
           return false;
         }
 
@@ -562,7 +580,7 @@
         return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
       }
     }" class="auth-card">
-      
+
       <div class="card-container">
         <!-- Login Card -->
         <div id="login-card" class="login-card">
@@ -583,35 +601,35 @@
           <!-- Login Form -->
           <form @submit.prevent="submitForm()">
             <div class="input-group">
-              <input 
-                type="text" 
-                id="name" 
-                class="input-field" 
-                placeholder=" " 
-                x-model="name"
-                :class="{'error': error && !name}"
-                autocomplete="name"
-                required>
+              <input type="text" id="name" class="input-field" placeholder=" " x-model="name"
+                :class="{'error': error && !name}" autocomplete="name" required>
               <label for="name" class="input-label">Full Name</label>
             </div>
 
-            <div class="input-group">
-              <input 
-                type="email" 
-                id="email" 
-                class="input-field" 
-                placeholder=" " 
-                x-model="email"
-                :class="{'error': error && !email}"
-                autocomplete="email"
-                required>
-              <label for="email" class="input-label">Email Address</label>
+            <div class="flex gap-2">
+              <div class="input-group w-32">
+                <select id="countryCode" class="input-field appearance-none" x-model="countryCode" required>
+                  <option value="+971">+971 (UAE)</option>
+                  <option value="+966">+966 (KSA)</option>
+                  <option value="+968">+968 (OMN)</option>
+                  <option value="+965">+965 (KWT)</option>
+                  <option value="+973">+973 (BHR)</option>
+                  <option value="+974">+974 (QAT)</option>
+                  <option value="+91">+91 (IND)</option>
+                </select>
+                <label for="countryCode" class="input-label">Code</label>
+                <div class="absolute right-3 top-4 pointer-events-none text-gray-400">
+                  <i class="fas fa-chevron-down text-xs"></i>
+                </div>
+              </div>
+              <div class="input-group flex-1">
+                <input type="tel" id="phone" class="input-field" placeholder=" " x-model="phone"
+                  :class="{'error': error && !phone}" autocomplete="tel" required>
+                <label for="phone" class="input-label">Phone Number</label>
+              </div>
             </div>
 
-            <button 
-              type="submit" 
-              class="btn-primary" 
-              :disabled="isSubmitting">
+            <button type="submit" class="btn-primary" :disabled="isSubmitting">
               <span x-show="!isSubmitting">Access Portal</span>
               <span x-show="isSubmitting" class="flex items-center gap-2">
                 <div class="spinner"></div>
@@ -637,7 +655,7 @@
             <h2 class="text-2xl font-bold text-gray-900 mb-2">Verify Access</h2>
             <p class="text-gray-600 text-sm mb-4">
               We've sent a 6-digit code to<br>
-              <span class="font-semibold text-teal-700" x-text="maskedEmail"></span>
+              <span class="font-semibold text-teal-700" x-text="countryCode + ' ' + maskedPhone"></span>
             </p>
           </div>
 
@@ -650,23 +668,13 @@
           <!-- OTP Input -->
           <div class="otp-container">
             <template x-for="(digit, index) in 6" :key="index">
-              <input 
-                :id="'otp-' + index" 
-                type="text" 
-                maxlength="1" 
-                class="otp-input"
-                x-model="otpValues[index]"
-                @input="handleOtpInput($event, index)"
-                @keydown="handleOtpKeydown($event, index)"
-                autocomplete="one-time-code"
-                inputmode="numeric">
+              <input :id="'otp-' + index" type="text" maxlength="1" class="otp-input" x-model="otpValues[index]"
+                @input="handleOtpInput($event, index)" @keydown="handleOtpKeydown($event, index)"
+                autocomplete="one-time-code" inputmode="numeric">
             </template>
           </div>
 
-          <button 
-            @click="submitOtp" 
-            class="btn-primary" 
-            :disabled="isSubmitting">
+          <button @click="submitOtp" class="btn-primary" :disabled="isSubmitting">
             <span x-show="!isSubmitting">Verify & Continue</span>
             <span x-show="isSubmitting" class="flex items-center gap-2">
               <div class="spinner"></div>
@@ -688,7 +696,7 @@
           <div class="text-center mt-6">
             <p class="text-gray-500 text-xs">
               <i class="fas fa-clock mr-1"></i>
-              Didn't receive the code? Check your spam folder
+              Didn't receive the code? Check your phone
             </p>
           </div>
         </div>

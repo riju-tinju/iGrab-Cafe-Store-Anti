@@ -16,24 +16,41 @@ let transporter = nodemailer.createTransport({
   }
 });
 
+// Twilio Client Getter (Lazily initialized)
+let twilioClient = null;
+const getTwilioClient = () => {
+  if (twilioClient) return twilioClient;
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  if (!accountSid || !authToken) {
+    console.error("Twilio SID or Auth Token missing in .env");
+    return null;
+  }
+  return require('twilio')(accountSid, authToken);
+};
+
 const customerFun = {
   createSuperAdmin: async (req, res) => {
     try {
-      const { name, email } = req.params;
+      const { name, countryCode, phone } = req.params;
 
-      if (!name || !email) {
-        return res.status(400).json({ success: false, message: "Name and email are required" });
+      if (!name || !countryCode || !phone) {
+        return res.status(400).json({ success: false, message: "Name, countryCode and phone are required" });
       }
 
+      const sanitizedPhone = phone.replace(/\s/g, '');
+
       // Check if admin already exists
-      const exists = await Admin.findOne({ email });
+      const exists = await Admin.findOne({ phone: sanitizedPhone, countryCode });
       if (exists) {
         return res.status(409).json({ success: false, message: "Super admin already exists" });
       }
 
       const admin = new Admin({
         name,
-        email,
+        email: `${sanitizedPhone}@igrab.com`, // Placeholder email
+        phone: sanitizedPhone,
+        countryCode,
         role: 'superadmin',
         isActive: true
       });
@@ -57,17 +74,34 @@ const customerFun = {
   },
   checkAndGenerateOTPUser: async (req, res) => {
     try {
-      const { email, name } = req.body;
+      const { name, countryCode, phone } = req.body;
 
       // Basic validations
-      if (!email) return res.status(400).json({ error: "Email is required" });
+      if (!countryCode) return res.status(400).json({ error: "Country code is required" });
+      if (!phone) return res.status(400).json({ error: "Phone number is required" });
       if (!name) return res.status(400).json({ error: "Name is required" });
+
+      const sanitizedPhone = phone.replace(/\s/g, '');
+      const fullPhoneNumber = `${countryCode}${sanitizedPhone}`;
 
       // Generate OTP and expiry
       const otp = customerFun.generateOTP();
       const otpExpiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
 
-      let user = await Admin.findOne({ email });
+      // Robust search: try with separate fields first, then fallback to phone field matching full number
+      let user = await Admin.findOne({ phone: sanitizedPhone, countryCode: countryCode });
+
+      if (!user) {
+        // Fallback: search for admins who might have the full phone number stored in the 'phone' field
+        user = await Admin.findOne({ phone: { $in: [fullPhoneNumber, `+${fullPhoneNumber}`, sanitizedPhone] } });
+
+        if (user) {
+          // Fix the user record for future logins
+          user.phone = sanitizedPhone;
+          user.countryCode = countryCode;
+          await user.save();
+        }
+      }
 
       if (user) {
         // User exists – update OTP
@@ -76,16 +110,18 @@ const customerFun = {
         user.otp.chances = 3; // Reset chances
         await user.save();
 
-        console.log("OTP regenerated for existing user:", otp);
-        await customerFun.sendOtpEmail(name, email, otp, "login").catch(err => {
-          console.error("Failed to send OTP email:", err);
-          return res.status(500).json({ error: "Failed to send OTP email" });
-        });
+        console.log("OTP regenerated for existing user:", fullPhoneNumber, otp);
 
-        return res.status(200).json({ success: true });
+        try {
+          await customerFun.sendOtpSMS(fullPhoneNumber, otp, "login");
+          return res.status(200).json({ success: true, message: "OTP sent successfully" });
+        } catch (err) {
+          console.error("Failed to send SMS:", err);
+          return res.status(500).json({ error: "Failed to send OTP SMS. Please try again." });
+        }
       }
 
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: "Admin user not found" });
     } catch (err) {
       console.error("Error in checkAndGenerateOTPUser:", err);
       return res.status(500).json({ error: "Internal server error" });
@@ -93,38 +129,40 @@ const customerFun = {
   },
 
   /**
-   * Sends an OTP email to the user.
+   * Sends an OTP SMS to the user via Twilio.
    */
-  sendOtpEmail: async (name, email, otp, type = "login") => {
+  sendOtpSMS: async (to, otp, type = "login") => {
     try {
-      const subject =
-        type === "register"
-          ? "Your OTP for Registration"
-          : "Your OTP for Login";
+      const client = getTwilioClient();
+      if (!client) {
+        throw new Error("Twilio client not initialized. Check your .env file.");
+      }
 
-      const text = `Your One Time Password (OTP) to ${type} is: ${otp}. This OTP is valid for 5 minutes.`;
+      const body = `Your iGrab Admin OTP is ${otp}. Valid for 5 minutes.`;
 
-      const html = `
-      <p>Hi <b>${name}</b>,</p>
-      <p>Your One Time Password (OTP) to ${type} is: 
-      <strong>${otp}</strong>. This OTP is valid for 5 minutes.</p>
-    `;
+      if (!process.env.TWILIO_PHONE_NUMBER) {
+        console.warn("TWILIO_PHONE_NUMBER not set in .env. SMS will not be sent.");
+        return true;
+      }
 
-      const mailOptions = {
-        from: `"${process.env.BRAND_NAME}" <${process.env.EMAIL}>`,
-        to: email,
-        subject,
-        text,
-        html
-      };
+      console.log(`Attempting to send OTP SMS to ${to} from ${process.env.TWILIO_PHONE_NUMBER}...`);
 
+      const message = await client.messages.create({
+        body: body,
+        from: process.env.TWILIO_PHONE_NUMBER,
+        to: to
+      });
 
-      await transporter.sendMail(mailOptions);
-      console.log(`OTP email sent to ${email}`);
+      console.log(`OTP SMS successfully sent to ${to}. Message SID: ${message.sid}`);
       return true;
     } catch (err) {
-      console.error("Failed to send OTP email:", err);
-      throw new Error("Email sending failed");
+      console.error("Failed to send OTP SMS error details:", {
+        message: err.message,
+        code: err.code,
+        status: err.status,
+        moreInfo: err.moreInfo
+      });
+      throw new Error(`SMS sending failed: ${err.message}`);
     }
   },
 
@@ -136,19 +174,19 @@ const customerFun = {
   },
   verifyOTPUser: async (req, res) => {
     try {
-      const { email, otp } = req.body;
+      const { countryCode, phone, otp } = req.body;
 
       // Validate input
-      if (!email || !otp) {
+      if (!countryCode || !phone || !otp) {
         return res.status(400).json({
-          error: "Both email and OTP are required"
+          error: "Country code, phone, and OTP are required"
         });
       }
 
-      // Find user by email
-      const user = await Admin.findOne({ email });
+      // Find user by phone
+      const user = await Admin.findOne({ phone: phone, countryCode: countryCode });
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        return res.status(404).json({ error: "Admin user not found" });
       }
 
       // Check OTP validity
@@ -233,6 +271,8 @@ const customerFun = {
         admin = new Admin({
           name: "System Admin",
           email: "jadhugd@gmail.com", // Using the email from nodemailer config
+          phone: "500000000", // Default phone for seeding
+          countryCode: "+971",
           role: 'superadmin',
           isActive: true,
           branches: [branch._id],

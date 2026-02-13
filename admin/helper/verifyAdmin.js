@@ -2,18 +2,21 @@ const mongoose = require("mongoose");
 const User = require("../model/userSchema");
 const Admin = require("../model/adminSchema");
 
-const verifyCustomer = async (req, res, next) => {
+const verifyAdmin = async (req, res, next) => {
   try {
-    // For testing purposes, automatically log in as the first available admin
-    if (!req.session.admin) {
-      const findAdmin = await Admin.findOne({}) || null;
+    // For testing purposes, automatically log in if enabled in .env
+    if (process.env.ADMIN_AUTO_LOGIN === 'true' && !req.session.admin) {
+      const findAdmin = await Admin.findOne({ role: 'superadmin' }) || await Admin.findOne({});
       if (findAdmin) {
-        req.session.admin = { id: findAdmin._id };
-        console.log("Auto-logged in as admin for testing:", findAdmin.email);
+        req.session.admin = {
+          id: findAdmin._id,
+          role: findAdmin.role,
+          name: findAdmin.name
+        };
+        console.log(`[TEST] Auto-logged in as ${findAdmin.role}: ${findAdmin.email || findAdmin.phone}`);
       }
     }
 
-    console.log(req.session.admin);
     if (req.session.admin && req.session.admin.id) {
       return next(); // Authenticated user
     }
@@ -22,9 +25,9 @@ const verifyCustomer = async (req, res, next) => {
     return res.redirect("/login");
 
   } catch (error) {
-    console.error("Error in verifyCustomer middleware:", error);
+    console.error("Error in verifyAdmin middleware:", error);
     return res.status(500).send("Internal Server Error");
   }
 };
 
-module.exports = verifyCustomer;
+module.exports = verifyAdmin;
