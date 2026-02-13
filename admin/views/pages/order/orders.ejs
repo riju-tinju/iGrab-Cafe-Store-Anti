@@ -626,9 +626,6 @@
                 <th class="text-left p-4 font-semibold text-gray-900 cursor-pointer hover:bg-gray-100" id="sortByDate">
                   Date <i class="fas fa-sort ml-1"></i>
                 </th>
-                <th class="text-left p-4 font-semibold text-gray-900">
-                  <i class="fas fa-motorcycle ml-1"></i>
-                </th>
                 <!-- <th class="text-left p-4 font-semibold text-gray-900">Actions</th> -->
               </tr>
             </thead>
@@ -1258,12 +1255,6 @@
               <div class="text-xs text-gray-600">${new Date(order.orderDate).toLocaleTimeString()}</div>
             </td>
 
-            <td class="p-4">
-               <button ${deliveryBoyIdQuery} onclick="selectDeliveryExecutive('${order._id}')" style="cursor: pointer;">    
-                 ${order.deliveryExecutive ? order.deliveryExecutive.name : 'N/A'}
-                 <i  class="fas fa-chevron-down fa-sm"></i>  
-               </button>
-             </td>
             
           `;
             // <td class="p-4">
@@ -1988,5 +1979,4 @@
       window.viewOrderDetails = viewOrderDetails;
       window.printInvoice = printInvoice;
     </script>
-    <%- include('./deliveryBoySelection') %>
-      <%- include('../../partials/Footer') %>
+    <%- include('../../partials/Footer') %>
