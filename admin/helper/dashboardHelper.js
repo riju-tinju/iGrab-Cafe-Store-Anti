@@ -14,7 +14,8 @@ const Admin = require("../model/adminSchema");
 const dashboardFun = {
   getDashboardOverview: async (req, res) => {
     try {
-      const branchId = req.session.admin?.selectedBranch;
+      let branchId = req.session.admin?.selectedBranch;
+      if (branchId) branchId = branchId.toString();
       if (!branchId) {
         // Check if any branches exist at all
         const anyBranch = await Store.findOne({});
@@ -33,7 +34,10 @@ const dashboardFun = {
             }
           });
         }
-        return res.status(400).json({ success: false, message: "Branch not selected", code: "BRANCH_REQUIRED" });
+        // If a branch exists but none is selected, auto-select the first one for the response
+        const autoBranchId = anyBranch._id.toString();
+        req.session.admin.selectedBranch = autoBranchId;
+        return res.redirect(req.originalUrl);
       }
 
 
@@ -86,32 +90,32 @@ const dashboardFun = {
         totalSalesToday
       ] = await Promise.all([
         Order.aggregate([
-          { $match: { storeId: branchId, paymentStatus: "Paid", orderDate: { $gte: startOfToday, $lte: endOfToday } } },
+          { $match: { storeId: branchId, paymentStatus: "Paid", status: { $ne: "Cancelled" }, orderDate: { $gte: startOfToday, $lte: endOfToday } } },
           { $group: { _id: null, total: { $sum: "$totalAmount" } } },
         ]).then(r => r[0]?.total || 0),
 
         Order.aggregate([
-          { $match: { storeId: branchId, paymentStatus: "Paid", orderDate: { $gte: yesterdayStart, $lte: yesterdayEnd } } },
+          { $match: { storeId: branchId, paymentStatus: "Paid", status: { $ne: "Cancelled" }, orderDate: { $gte: yesterdayStart, $lte: yesterdayEnd } } },
           { $group: { _id: null, total: { $sum: "$totalAmount" } } },
         ]).then(r => r[0]?.total || 0),
 
         Order.aggregate([
-          { $match: { storeId: branchId, paymentStatus: "Paid", orderDate: { $gte: startOfWeek, $lte: endOfWeek } } },
+          { $match: { storeId: branchId, paymentStatus: "Paid", status: { $ne: "Cancelled" }, orderDate: { $gte: startOfWeek, $lte: endOfWeek } } },
           { $group: { _id: null, total: { $sum: "$totalAmount" } } },
         ]).then(r => r[0]?.total || 0),
 
         Order.aggregate([
-          { $match: { storeId: branchId, paymentStatus: "Paid", orderDate: { $gte: startOfLastWeek, $lte: endOfLastWeek } } },
+          { $match: { storeId: branchId, paymentStatus: "Paid", status: { $ne: "Cancelled" }, orderDate: { $gte: startOfLastWeek, $lte: endOfLastWeek } } },
           { $group: { _id: null, total: { $sum: "$totalAmount" } } },
         ]).then(r => r[0]?.total || 0),
 
         Order.aggregate([
-          { $match: { storeId: branchId, paymentStatus: "Paid", orderDate: { $gte: startOfMonth, $lte: endOfMonth } } },
+          { $match: { storeId: branchId, paymentStatus: "Paid", status: { $ne: "Cancelled" }, orderDate: { $gte: startOfMonth, $lte: endOfMonth } } },
           { $group: { _id: null, total: { $sum: "$totalAmount" } } },
         ]).then(r => r[0]?.total || 0),
 
         Order.aggregate([
-          { $match: { storeId: branchId, paymentStatus: "Paid", orderDate: { $gte: startOfLastMonth, $lte: endOfLastMonth } } },
+          { $match: { storeId: branchId, paymentStatus: "Paid", status: { $ne: "Cancelled" }, orderDate: { $gte: startOfLastMonth, $lte: endOfLastMonth } } },
           { $group: { _id: null, total: { $sum: "$totalAmount" } } },
         ]).then(r => r[0]?.total || 0),
 
@@ -139,20 +143,22 @@ const dashboardFun = {
           return { total, newToday, newThisWeek, activeCustomers, growthRate: 12.3 };
         })(),
 
-        Product.countDocuments(),
-        Product.countDocuments({ status: "published" }),
-        Inventory.countDocuments({ branchId, stock: { $lt: 5, $gt: 0 } }),
+        Product.countDocuments({ branchIds: branchId }),
+        Product.countDocuments({ branchIds: branchId, "status.isPublished": true }),
+        Inventory.countDocuments({ branchId, stock: { $lt: 10, $gt: 0 } }),
         Inventory.countDocuments({ branchId, stock: 0 }),
-        Product.find({}).sort({ totalOrders: -1 }).limit(5),
+        Product.find({ branchIds: branchId }).sort({ "sales.totalOrders": -1 }).limit(5),
 
         Store.find({}),
         Order.aggregate([
-          { $match: { storeId: branchId, orderDate: { $gte: startOfToday, $lte: endOfToday } } },
-          { $group: { _id: null, total: { $sum: "$totalAmount" } } }
-        ]).then(r => r[0]?.total || 0),
+          { $match: { paymentStatus: "Paid", status: { $ne: "Cancelled" }, orderDate: { $gte: startOfToday, $lte: endOfToday } } },
+          { $group: { _id: "$storeId", total: { $sum: "$totalAmount" } } },
+          { $sort: { total: -1 } }
+        ]),
       ]);
 
       const percentageChange = revenueLastMonth ? (((revenueThisMonth - revenueLastMonth) / revenueLastMonth) * 100).toFixed(2) : 0;
+
 
       res.status(200).json({
         success: true,
@@ -179,8 +185,8 @@ const dashboardFun = {
             branches: {
               total: branches.length,
               active: branches.filter(b => b.isActive).length,
-              topPerforming: "Downtown Dubai",
-              totalSalesToday
+              topPerforming: totalSalesToday.length > 0 ? (await Store.findById(totalSalesToday[0]._id))?.name || "N/A" : "N/A",
+              totalSalesToday: totalSalesToday.reduce((sum, b) => sum + b.total, 0)
             }
           }
         }
@@ -198,7 +204,8 @@ const dashboardFun = {
   fetchRevenue: async (req, res) => {
     try {
       const { period = "7days" } = req.query;
-      const branchId = req.session.admin?.selectedBranch;
+      let branchId = req.session.admin?.selectedBranch;
+      if (branchId) branchId = branchId.toString();
       if (!branchId) {
         const anyBranch = await Store.findOne({});
         if (!anyBranch) {
@@ -223,6 +230,7 @@ const dashboardFun = {
           $match: {
             storeId: branchId,
             paymentStatus: "Paid",
+            status: { $ne: "Cancelled" },
             orderDate: { $gte: startDate, $lte: endDate },
           },
         },
@@ -235,7 +243,6 @@ const dashboardFun = {
             orders: { $sum: 1 },
           },
         },
-        { $sort: { _id: -1 } },
       ]);
 
       const formattedData = [];
@@ -269,6 +276,7 @@ const dashboardFun = {
           $match: {
             storeId: branchId,
             paymentStatus: "Paid",
+            status: { $ne: "Cancelled" },
             orderDate: { $gte: prevStart, $lte: prevEnd },
           },
         },
@@ -308,7 +316,8 @@ const dashboardFun = {
   },
   getOrderAnalytics: async (req, res) => {
     try {
-      const branchId = req.session.admin?.selectedBranch;
+      let branchId = req.session.admin?.selectedBranch;
+      if (branchId) branchId = branchId.toString();
       if (!branchId) {
         const anyBranch = await Store.findOne({});
         if (!anyBranch) {
@@ -344,7 +353,8 @@ const dashboardFun = {
   getTopProducts: async (req, res) => {
     try {
       const { limit = 5 } = req.query;
-      const branchId = req.session.admin?.selectedBranch;
+      let branchId = req.session.admin?.selectedBranch;
+      if (branchId) branchId = branchId.toString();
       if (!branchId) {
         const anyBranch = await Store.findOne({});
         if (!anyBranch) {
@@ -353,8 +363,20 @@ const dashboardFun = {
         return res.status(400).json({ success: false, message: "Branch not selected" });
       }
 
+      const days = parseInt((req.query.period || "7days").replace("days", "")) || 7;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - (days - 1));
+      startDate.setHours(0, 0, 0, 0);
+
       const result = await Order.aggregate([
-        { $match: { storeId: branchId, paymentStatus: "Paid" } },
+        {
+          $match: {
+            storeId: branchId,
+            paymentStatus: "Paid",
+            status: { $ne: "Cancelled" },
+            orderDate: { $gte: startDate }
+          }
+        },
         { $unwind: "$orderItems" },
         {
           $group: {
@@ -394,7 +416,6 @@ const dashboardFun = {
           },
         },
       ]);
-
       res.status(200).json({ success: true, data: { topProducts: result } });
     } catch (err) {
       console.error("Error in getTopProducts:", err);
@@ -408,23 +429,38 @@ const dashboardFun = {
       const startOfToday = new Date(today.setHours(0, 0, 0, 0));
       const endOfToday = new Date(today.setHours(23, 59, 59, 999));
 
+      const yesterdayStart = new Date();
+      yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+      yesterdayStart.setHours(0, 0, 0, 0);
+      const yesterdayEnd = new Date();
+      yesterdayEnd.setDate(yesterdayEnd.getDate() - 1);
+      yesterdayEnd.setHours(23, 59, 59, 999);
+
       const branches = await Store.find({});
       const branchPerformance = await Promise.all(
         branches.map(async (branch) => {
-          const todayOrders = await Order.find({
-            storeId: branch._id,
-            orderDate: { $gte: startOfToday, $lte: endOfToday },
-            paymentStatus: "Paid"
-          });
+          const [todayPerf, yesterdayPerf] = await Promise.all([
+            Order.aggregate([
+              { $match: { storeId: branch._id.toString(), paymentStatus: "Paid", status: { $ne: "Cancelled" }, orderDate: { $gte: startOfToday, $lte: endOfToday } } },
+              { $group: { _id: null, total: { $sum: "$totalAmount" }, count: { $sum: 1 } } }
+            ]).then(r => r[0] || { total: 0, count: 0 }),
+            Order.aggregate([
+              { $match: { storeId: branch._id.toString(), paymentStatus: "Paid", status: { $ne: "Cancelled" }, orderDate: { $gte: yesterdayStart, $lte: yesterdayEnd } } },
+              { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+            ]).then(r => r[0]?.total || 0)
+          ]);
 
-          const todayRevenue = todayOrders.reduce((sum, order) => sum + order.totalAmount, 0);
-          const growth = parseFloat((Math.random() * 20).toFixed(1));
+          const todayRevenue = todayPerf.total;
+          const todayOrders = todayPerf.count;
+          const growth = yesterdayPerf > 0
+            ? parseFloat(((todayRevenue - yesterdayPerf) / yesterdayPerf * 100).toFixed(1))
+            : (todayRevenue > 0 ? 100 : 0);
 
           return {
             branchId: branch._id,
             name: branch.name,
             todayRevenue: parseFloat(todayRevenue.toFixed(2)),
-            todayOrders: todayOrders.length,
+            todayOrders: todayOrders,
             growth
           };
         })

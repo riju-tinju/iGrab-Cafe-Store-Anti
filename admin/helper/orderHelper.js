@@ -50,7 +50,8 @@ const orderFun = {
       const sortOptions = {};
       sortOptions[sortField] = sortDirection === "asc" ? 1 : -1;
 
-      const branchId = req.session.admin?.selectedBranch;
+      let branchId = req.session.admin?.selectedBranch;
+      if (branchId) branchId = branchId.toString();
       if (!branchId) {
         // Check if any branches exist at all
         const anyBranch = await Store.findOne({});
@@ -140,15 +141,17 @@ const orderFun = {
         Order.countDocuments({ storeId: branchId, status: "Delivered" }),
         Order.countDocuments({ storeId: branchId, status: "Cancelled" }),
         Order.countDocuments({ storeId: branchId, paymentStatus: "Unpaid" }),
-        Order.countDocuments({
-          storeId: branchId,
-          orderDate: {
-            $gte: new Date(new Date().setHours(0, 0, 0, 0)),
-            $lte: new Date(new Date().setHours(23, 59, 59, 999)),
-          },
-        }),
+        (async () => {
+          const now = new Date();
+          const startOfToday = new Date(now.setHours(0, 0, 0, 0));
+          const endOfToday = new Date(now.setHours(23, 59, 59, 999));
+          return await Order.countDocuments({
+            storeId: branchId,
+            orderDate: { $gte: startOfToday, $lte: endOfToday },
+          });
+        })(),
         Order.aggregate([
-          { $match: { storeId: branchId, paymentStatus: "Paid" } },
+          { $match: { storeId: branchId, paymentStatus: "Paid", status: { $ne: "Cancelled" } } },
           { $group: { _id: null, total: { $sum: "$totalAmount" } } },
         ]).then(res => res[0]?.total || 0),
       ]);

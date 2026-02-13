@@ -1134,6 +1134,18 @@
               </div>
             </div>
           </div>
+
+          <div class="bg-white p-4 rounded-lg shadow-sm border fade-in">
+            <div class="flex items-center">
+              <div class="bg-purple-500 text-white p-3 rounded-lg">
+                <i class="fas fa-calendar-day"></i>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm text-gray-600">Today's Orders</p>
+                <p class="text-xl font-bold">${stats.todayOrders || 0}</p>
+              </div>
+            </div>
+          </div>
           
           <div class="bg-white p-4 rounded-lg shadow-sm border fade-in">
             <div class="flex items-center">
@@ -1150,7 +1162,7 @@
           <div class="bg-white p-4 rounded-lg shadow-sm border fade-in">
             <div class="flex items-center">
               <div class="bg-green-500 text-white p-3 rounded-lg">
-                <i class="fas fa-truck"></i>
+                <i class="fas fa-check-double"></i>
               </div>
               <div class="ml-4">
                 <p class="text-sm text-gray-600">Delivered</p>
@@ -1162,23 +1174,11 @@
           <div class="bg-white p-4 rounded-lg shadow-sm border fade-in">
             <div class="flex items-center">
               <div class="brand-orange text-white p-3 rounded-lg">
-                <i class="fas fa-dollar-sign"></i>
+                <i class="fas fa-wallet"></i>
               </div>
               <div class="ml-4">
-                <p class="text-sm text-gray-600">Revenue</p>
+                <p class="text-sm text-gray-600">Total Revenue</p>
                 <p class="text-xl font-bold">AED ${(stats.totalRevenue || 0).toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div class="bg-white p-4 rounded-lg shadow-sm border fade-in">
-            <div class="flex items-center">
-              <div class="bg-red-500 text-white p-3 rounded-lg">
-                <i class="fas fa-exclamation-triangle"></i>
-              </div>
-              <div class="ml-4">
-                <p class="text-sm text-gray-600">Unpaid</p>
-                <p class="text-xl font-bold">${stats.unpaidOrders || 0}</p>
               </div>
             </div>
           </div>

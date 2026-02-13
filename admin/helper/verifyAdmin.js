@@ -11,9 +11,10 @@ const verifyAdmin = async (req, res, next) => {
         req.session.admin = {
           id: findAdmin._id,
           role: findAdmin.role,
-          name: findAdmin.name
+          name: findAdmin.name,
+          selectedBranch: findAdmin.branch ? findAdmin.branch.toString() : null
         };
-        console.log(`[TEST] Auto-logged in as ${findAdmin.role}: ${findAdmin.email || findAdmin.phone}`);
+        console.log(`[TEST] Auto-logged in as ${findAdmin.role}: ${findAdmin.email || findAdmin.phone} (Branch: ${req.session.admin.selectedBranch})`);
       }
     }
 
