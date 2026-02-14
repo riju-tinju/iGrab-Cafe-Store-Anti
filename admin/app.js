@@ -43,7 +43,10 @@ app.use(helmet({
         "https://cdn.jsdelivr.net",
         "https://unpkg.com",
         "https://code.jquery.com",
-        "https://cdn.datatables.net"
+        "https://cdn.datatables.net",
+        "https://cdnjs.cloudflare.com",
+        "https://stackpath.bootstrapcdn.com",
+        "https://maxcdn.bootstrapcdn.com"
       ],
       styleSrc: [
         "'self'",
@@ -51,20 +54,33 @@ app.use(helmet({
         "https://cdn.jsdelivr.net",
         "https://unpkg.com",
         "https://fonts.googleapis.com",
-        "https://cdn.datatables.net"
+        "https://cdn.datatables.net",
+        "https://cdnjs.cloudflare.com",
+        "https://stackpath.bootstrapcdn.com",
+        "https://maxcdn.bootstrapcdn.com",
+        "https://use.fontawesome.com"
       ],
       fontSrc: [
         "'self'",
+        "data:",
         "https://fonts.gstatic.com",
-        "https://cdn.jsdelivr.net"
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com",
+        "https://use.fontawesome.com",
+        "https://stackpath.bootstrapcdn.com",
+        "https://maxcdn.bootstrapcdn.com"
       ],
       imgSrc: [
         "'self'",
         "data:",
+        "blob:",
         "https:",
         "http:"
       ],
-      connectSrc: ["'self'"]
+      connectSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'self'"]
     }
   }
 }));

@@ -38,23 +38,34 @@ app.use(helmet({
         "https://unpkg.com",
         "https://js.stripe.com",
         "https://maps.googleapis.com",
-        "https://fonts.googleapis.com"
+        "https://fonts.googleapis.com",
+        "https://cdnjs.cloudflare.com",
+        "https://stackpath.bootstrapcdn.com",
+        "https://code.jquery.com"
       ],
       styleSrc: [
         "'self'",
         "'unsafe-inline'", // Required for inline styles and Tailwind
         "https://cdn.jsdelivr.net",
         "https://unpkg.com",
-        "https://fonts.googleapis.com"
+        "https://fonts.googleapis.com",
+        "https://cdnjs.cloudflare.com",
+        "https://stackpath.bootstrapcdn.com",
+        "https://use.fontawesome.com"
       ],
       fontSrc: [
         "'self'",
+        "data:",
         "https://fonts.gstatic.com",
-        "https://cdn.jsdelivr.net"
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com",
+        "https://use.fontawesome.com",
+        "https://stackpath.bootstrapcdn.com"
       ],
       imgSrc: [
         "'self'",
         "data:",
+        "blob:",
         "https:",
         "http:",
         "https://images.unsplash.com"
@@ -68,7 +79,9 @@ app.use(helmet({
         "'self'",
         "https://js.stripe.com",
         "https://hooks.stripe.com"
-      ]
+      ],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"]
     }
   }
 }));
