@@ -1,3 +1,7 @@
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const rateLimit = require('express-rate-limit');
+const crypto = require('crypto');
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -14,22 +18,96 @@ var checkoutRouter = require('./routes/checkout');
 var userAuthRouter = require('./routes/userAuth');
 var stripeWebhookRouter = require('./routes/stripe-webhookRouter');
 
-require("dotenv").config();// custom
-const db = require("./config/connection");// custom
-db.DBconnect();// custom
+require("dotenv").config();
+const db = require("./config/connection");
+db.DBconnect();
 
 var app = express();
 
+// Security Headers with CSP configuration
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'", // Required for inline scripts in EJS templates
+        "'unsafe-eval'", // Required for Alpine.js and other frameworks that use Function()
+        "https://cdn.jsdelivr.net",
+        "https://unpkg.com",
+        "https://js.stripe.com",
+        "https://maps.googleapis.com",
+        "https://fonts.googleapis.com"
+      ],
+      styleSrc: [
+        "'self'",
+        "'unsafe-inline'", // Required for inline styles and Tailwind
+        "https://cdn.jsdelivr.net",
+        "https://unpkg.com",
+        "https://fonts.googleapis.com"
+      ],
+      fontSrc: [
+        "'self'",
+        "https://fonts.gstatic.com",
+        "https://cdn.jsdelivr.net"
+      ],
+      imgSrc: [
+        "'self'",
+        "data:",
+        "https:",
+        "http:",
+        "https://images.unsplash.com"
+      ],
+      connectSrc: [
+        "'self'",
+        "https://api.stripe.com",
+        "https://maps.googleapis.com"
+      ],
+      frameSrc: [
+        "'self'",
+        "https://js.stripe.com",
+        "https://hooks.stripe.com"
+      ]
+    }
+  }
+}));
+
+// NoSQL Injection Protection
+app.use(mongoSanitize());
+
+// Rate Limiting
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests, please try again later'
+});
+app.use('/api/', apiLimiter);
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: 'Too many requests, please try again later'
+});
+app.use('/userAuth/', authLimiter);
+
 // Setup session middleware
+const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+if (!process.env.SESSION_SECRET) {
+  console.warn('WARNING: SESSION_SECRET not set in .env. Using a generated random secret.');
+}
+
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'supersecretkey', // use env for security
+    secret: sessionSecret,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
-      maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days in milliseconds
-      httpOnly: true, // set to true if you want to prevent client-side access to the cookie
-      secure: false // set to true if using HTTPS
+      maxAge: 14 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
     }
   })
 );
@@ -38,12 +116,12 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // Set the partials directory
-app.locals.partials = path.join(__dirname, 'views/partials'); //custom
+app.locals.partials = path.join(__dirname, 'views/partials');
 
 app.use('/stripe-webhook', stripeWebhookRouter);
 app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, '../uploads')));

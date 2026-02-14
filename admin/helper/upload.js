@@ -20,6 +20,23 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const imageFilter = function (req, file, cb) {
+  // Accept images only
+  if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|webp|WEBP|gif|GIF)$/)) {
+    req.fileValidationError = 'Only image files are allowed!';
+    return cb(new Error('Only image files are allowed!'), false);
+  }
+  cb(null, true);
+};
+
+const imageSizeLimit = (parseFloat(process.env.IMAGE_SIZE_LIMIT) || 5) * 1024 * 1024;
+
+const upload = multer({
+  storage: storage,
+  fileFilter: imageFilter,
+  limits: {
+    fileSize: imageSizeLimit
+  }
+});
 
 module.exports = upload;

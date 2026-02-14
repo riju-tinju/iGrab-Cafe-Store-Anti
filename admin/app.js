@@ -1,4 +1,7 @@
-require('dotenv').config();
+const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const rateLimit = require('express-rate-limit');
+const crypto = require('crypto');
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -19,36 +22,99 @@ var settingRouter = require('./routes/settings')
 var contactRouter = require('./routes/contacts');
 
 const getAdmin = require('./helper/getAdmin');
-require("dotenv").config();// custom
-const db = require("./config/connection");// custom
-db.DBconnect();// custom
+require("dotenv").config();
+const db = require("./config/connection");
+db.DBconnect();
 const adminHelper = require("./helper/adminHelper");
-adminHelper.ensureInitialData(); // Seed initial data if database is empty
+adminHelper.ensureInitialData();
 
 var app = express();
 
+// Security Headers with CSP configuration
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'", // Required for inline scripts in EJS templates
+        "'unsafe-eval'", // Required for Alpine.js and other frameworks that use Function()
+        "https://cdn.jsdelivr.net",
+        "https://unpkg.com",
+        "https://code.jquery.com",
+        "https://cdn.datatables.net"
+      ],
+      styleSrc: [
+        "'self'",
+        "'unsafe-inline'", // Required for inline styles
+        "https://cdn.jsdelivr.net",
+        "https://unpkg.com",
+        "https://fonts.googleapis.com",
+        "https://cdn.datatables.net"
+      ],
+      fontSrc: [
+        "'self'",
+        "https://fonts.gstatic.com",
+        "https://cdn.jsdelivr.net"
+      ],
+      imgSrc: [
+        "'self'",
+        "data:",
+        "https:",
+        "http:"
+      ],
+      connectSrc: ["'self'"]
+    }
+  }
+}));
+
+// NoSQL Injection Protection
+app.use(mongoSanitize());
+
+// Rate Limiting
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests from this IP, please try again after 15 minutes'
+});
+app.use('/api/', apiLimiter);
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: 'Too many login attempts, please try again after 15 minutes'
+});
+app.use('/api/auth/', authLimiter);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // Setup session middleware
+const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+if (!process.env.SESSION_SECRET) {
+  console.warn('WARNING: SESSION_SECRET not set in .env. Using a generated random secret. Sessions will not persist across restarts.');
+}
+
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || 'supersecretkey', // use env for security
+    secret: sessionSecret,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
-      maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days in milliseconds
-      httpOnly: true, // set to true if you want to prevent client-side access to the cookie
-      secure: false // set to true if using HTTPS
+      maxAge: 14 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
     }
   })
 );
 
 app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, '../uploads')));

@@ -15,10 +15,8 @@ router.post('/', bodyParser.raw({ type: 'application/json' }), async (request, r
   let event;
 
   try {
-    // Fetch secret key and webhook secret from DB or Env
-    let paymentSettings = await Payment.findOne({});
-    const secretKey = paymentSettings?.stripe?.secretKey || process.env.STRIPE_SECRET_KEY;
-    const webhookSecret = paymentSettings?.stripe?.webhookSecret || process.env.STRIPE_WEBHOOK_SECRET;
+    const secretKey = paymentSettings?.stripe?.secretKey;
+    const webhookSecret = paymentSettings?.stripe?.webhookSecret;
 
     if (!secretKey) {
       console.error("Stripe Secret Key not found");
