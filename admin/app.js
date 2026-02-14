@@ -8,6 +8,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const session = require('express-session');
+const { MongoStore } = require('connect-mongo');
 const verifyAdmin = require('./helper/verifyAdmin');
 const verifySuperAdmin = require('./helper/verifySuperAdmin');
 
@@ -92,7 +93,7 @@ app.use('/api/auth/', authLimiter);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// Setup session middleware
+// Setup session middleware with MongoDB store
 const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 if (!process.env.SESSION_SECRET) {
   console.warn('WARNING: SESSION_SECRET not set in .env. Using a generated random secret. Sessions will not persist across restarts.');
@@ -103,6 +104,13 @@ app.use(
     secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: `mongodb://localhost:27017/${process.env.DB_NAME || 'iGrab_DB'}`,
+      collectionName: 'admin_sessions',
+      ttl: 14 * 24 * 60 * 60, // 14 days in seconds
+      autoRemove: 'native', // Let MongoDB handle expired session cleanup
+      touchAfter: 24 * 3600 // Lazy session update - update session once per 24 hours
+    }),
     cookie: {
       maxAge: 14 * 24 * 60 * 60 * 1000,
       httpOnly: true,
