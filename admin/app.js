@@ -142,6 +142,17 @@ app.use(
   })
 );
 
+// Session Debug Middleware
+app.use((req, res, next) => {
+  console.log('--- Session Debug ---');
+  console.log('Session ID:', req.sessionID);
+  console.log('Session User:', req.session.admin);
+  console.log('Cookie:', req.session.cookie);
+  console.log('Headers:', req.headers);
+  console.log('---------------------');
+  next();
+});
+
 app.use(logger('dev'));
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: false, limit: '10kb' }));

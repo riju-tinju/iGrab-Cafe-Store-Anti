@@ -138,6 +138,17 @@ app.use(
     }
   })
 );
+
+// Session Debug Middleware
+app.use((req, res, next) => {
+  console.log('--- Session Debug ---');
+  console.log('Session ID:', req.sessionID);
+  console.log('Session User:', req.session.user);
+  console.log('Cookie:', req.session.cookie);
+  console.log('Headers:', req.headers);
+  console.log('---------------------');
+  next();
+});
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
