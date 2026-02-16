@@ -28,65 +28,65 @@ var app = express();
 // Security Headers with CSP configuration
 // TEMPORARILY DISABLED FOR TESTING
 
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: [
-        "'self'",
-        "'unsafe-inline'", // Required for inline scripts in EJS templates
-        "'unsafe-eval'", // Required for Alpine.js and other frameworks that use Function()
-        "https://cdn.jsdelivr.net",
-        "https://unpkg.com",
-        "https://js.stripe.com",
-        "https://maps.googleapis.com",
-        "https://fonts.googleapis.com",
-        "https://cdnjs.cloudflare.com",
-        "https://stackpath.bootstrapcdn.com",
-        "https://code.jquery.com"
-      ],
-      styleSrc: [
-        "'self'",
-        "'unsafe-inline'", // Required for inline styles and Tailwind
-        "https://cdn.jsdelivr.net",
-        "https://unpkg.com",
-        "https://fonts.googleapis.com",
-        "https://cdnjs.cloudflare.com",
-        "https://stackpath.bootstrapcdn.com",
-        "https://use.fontawesome.com"
-      ],
-      fontSrc: [
-        "'self'",
-        "data:",
-        "https://fonts.gstatic.com",
-        "https://cdn.jsdelivr.net",
-        "https://cdnjs.cloudflare.com",
-        "https://use.fontawesome.com",
-        "https://stackpath.bootstrapcdn.com"
-      ],
-      imgSrc: [
-        "'self'",
-        "data:",
-        "blob:",
-        "https:",
-        "http:",
-        "https://images.unsplash.com"
-      ],
-      connectSrc: [
-        "'self'",
-        "https://api.stripe.com",
-        "https://maps.googleapis.com"
-      ],
-      frameSrc: [
-        "'self'",
-        "https://js.stripe.com",
-        "https://hooks.stripe.com"
-      ],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"]
-    }
-  }
-}));
+// app.use(helmet({
+//   contentSecurityPolicy: {
+//     directives: {
+//       defaultSrc: ["'self'"],
+//       scriptSrc: [
+//         "'self'",
+//         "'unsafe-inline'", // Required for inline scripts in EJS templates
+//         "'unsafe-eval'", // Required for Alpine.js and other frameworks that use Function()
+//         "https://cdn.jsdelivr.net",
+//         "https://unpkg.com",
+//         "https://js.stripe.com",
+//         "https://maps.googleapis.com",
+//         "https://fonts.googleapis.com",
+//         "https://cdnjs.cloudflare.com",
+//         "https://stackpath.bootstrapcdn.com",
+//         "https://code.jquery.com"
+//       ],
+//       styleSrc: [
+//         "'self'",
+//         "'unsafe-inline'", // Required for inline styles and Tailwind
+//         "https://cdn.jsdelivr.net",
+//         "https://unpkg.com",
+//         "https://fonts.googleapis.com",
+//         "https://cdnjs.cloudflare.com",
+//         "https://stackpath.bootstrapcdn.com",
+//         "https://use.fontawesome.com"
+//       ],
+//       fontSrc: [
+//         "'self'",
+//         "data:",
+//         "https://fonts.gstatic.com",
+//         "https://cdn.jsdelivr.net",
+//         "https://cdnjs.cloudflare.com",
+//         "https://use.fontawesome.com",
+//         "https://stackpath.bootstrapcdn.com"
+//       ],
+//       imgSrc: [
+//         "'self'",
+//         "data:",
+//         "blob:",
+//         "https:",
+//         "http:",
+//         "https://images.unsplash.com"
+//       ],
+//       connectSrc: [
+//         "'self'",
+//         "https://api.stripe.com",
+//         "https://maps.googleapis.com"
+//       ],
+//       frameSrc: [
+//         "'self'",
+//         "https://js.stripe.com",
+//         "https://hooks.stripe.com"
+//       ],
+//       objectSrc: ["'none'"],
+//       mediaSrc: ["'self'"]
+//     }
+//   }
+// }));
 
 
 // NoSQL Injection Protection
