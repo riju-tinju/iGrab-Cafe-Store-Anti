@@ -25,6 +25,9 @@ db.DBconnect();
 
 var app = express();
 
+// Trust Proxy (Required for Nginx/Heroku/Load Balancers)
+app.set('trust proxy', 1);
+
 // Security Headers with CSP configuration
 // TEMPORARILY DISABLED FOR TESTING
 
