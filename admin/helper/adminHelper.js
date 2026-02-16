@@ -224,11 +224,20 @@ const customerFun = {
 
       // Set session
       req.session.admin = { id: user._id };
-      console.log(req.session.admin);
-      console.log("OTP verified successfully for user:", user);
-      return res.status(200).json({
-        success: true,
-        message: "OTP verified successfully"
+
+      // Explicitly save session to MongoDB
+      req.session.save((err) => {
+        if (err) {
+          console.error("Error saving session:", err);
+          return res.status(500).json({ error: "Failed to save session" });
+        }
+
+        console.log("Session saved successfully:", req.session.admin);
+        console.log("OTP verified successfully for user:", user);
+        return res.status(200).json({
+          success: true,
+          message: "OTP verified successfully"
+        });
       });
 
     } catch (err) {

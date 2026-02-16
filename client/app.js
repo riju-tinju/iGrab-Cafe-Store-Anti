@@ -125,7 +125,10 @@ app.use(
       collectionName: 'client_sessions',
       ttl: 14 * 24 * 60 * 60, // 14 days in seconds
       autoRemove: 'native', // Let MongoDB handle expired session cleanup
-      touchAfter: 24 * 3600 // Lazy session update - update session once per 24 hours
+      touchAfter: 24 * 3600, // Lazy session update - update session once per 24 hours
+      crypto: {
+        secret: sessionSecret
+      }
     }),
     cookie: {
       maxAge: 14 * 24 * 60 * 60 * 1000,
