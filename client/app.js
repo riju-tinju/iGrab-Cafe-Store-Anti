@@ -27,7 +27,7 @@ var app = express();
 
 // Security Headers with CSP configuration
 // TEMPORARILY DISABLED FOR TESTING
-/*
+
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -87,7 +87,7 @@ app.use(helmet({
     }
   }
 }));
-*/
+
 
 // NoSQL Injection Protection
 app.use(mongoSanitize());
