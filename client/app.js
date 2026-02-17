@@ -145,10 +145,13 @@ app.use(
 // Session Debug Middleware
 app.use((req, res, next) => {
   console.log('--- Session Debug ---');
+  console.log('Protocol:', req.protocol);
+  console.log('Secure:', req.secure);
+  console.log('X-Forwarded-Proto:', req.get('X-Forwarded-Proto'));
   console.log('Session ID:', req.sessionID);
   console.log('Session User:', req.session.user);
-  console.log('Cookie:', req.session.cookie);
-  console.log('Headers:', req.headers);
+  console.log('Incoming Cookie Header:', req.headers.cookie);
+  console.log('Cookie Config:', req.session.cookie);
   console.log('---------------------');
   next();
 });
