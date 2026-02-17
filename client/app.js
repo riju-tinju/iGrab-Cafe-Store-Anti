@@ -136,7 +136,7 @@ app.use(
     cookie: {
       maxAge: 14 * 24 * 60 * 60 * 1000,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === 'production' && process.env.COOKIE_SECURE !== 'false',
       sameSite: 'lax'
     }
   })
