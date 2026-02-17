@@ -186,54 +186,7 @@
       </button>
     </div>
 
-    <!-- Sort Modal (Bottom Sheet) - Hidden by default -->
-    <div id="sort-modal"
-      class="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-lg transform translate-y-full transition-transform duration-300 ease-in-out z-50"
-      dir="rtl">
-      <div class="p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-bold">ترتيب</h3>
-          <button id="close-sort-modal" class="text-gray-500">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
 
-        <form id="sort-form">
-          <!-- Sort Option 1 -->
-          <div class="flex items-center py-3 border-b border-gray-100">
-            <input type="radio" id="new" name="sort" value="new" checked class="h-4 w-4 text-primary">
-            <label for="new" class="mr-3 text-gray-800">الجديد</label>
-          </div>
-
-          <!-- Sort Option 2 -->
-          <div class="flex items-center py-3 border-b border-gray-100">
-            <input type="radio" id="price-high" name="sort" value="price-high" class="h-4 w-4 text-primary">
-            <label for="price-high" class="mr-3 text-gray-800">السعر من الأعلى للأقل</label>
-          </div>
-
-          <!-- Sort Option 3 -->
-          <div class="flex items-center py-3 border-b border-gray-100">
-            <input type="radio" id="price-low" name="sort" value="price-low" class="h-4 w-4 text-primary">
-            <label for="price-low" class="mr-3 text-gray-800">السعر من الأقل للأعلى</label>
-          </div>
-
-          <!-- Sort Option 4 -->
-          <div class="flex items-center py-3 border-b border-gray-100">
-            <input type="radio" id="name-az" name="sort" value="name-az" class="h-4 w-4 text-primary">
-            <label for="name-az" class="mr-3 text-gray-800">الاسم من أ إلى ي</label>
-          </div>
-
-          <!-- Sort Option 5 -->
-          <div class="flex items-center py-3 border-b border-gray-100">
-            <input type="radio" id="name-za" name="sort" value="name-za" class="h-4 w-4 text-primary">
-            <label for="name-za" class="mr-3 text-gray-800">الاسم من ي إلى أ</label>
-          </div>
-
-          <!-- Apply Button -->
-          <button type="submit" class="w-full mt-6 py-3 bg-red-600 text-white rounded-lg font-bold">تطبيق</button>
-        </form>
-      </div>
-    </div>
 
     <!-- Overlay for Modal Background - Hidden by default -->
     <div id="modal-overlay"
@@ -594,6 +547,6 @@
   </script>
 
   <%- include('./function/loadmoreProduct') %>
-    <%- include('./function/brandSlider') %>
-      <%- include('./function/sortSlider') %>
+    <%- include('./function/brandSlider_Ar') %>
+      <%- include('./function/sortSlider_Ar') %>
         <%- include('../../partials/Footer') %>

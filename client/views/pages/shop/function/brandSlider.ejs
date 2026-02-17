@@ -156,6 +156,9 @@
   </div>
 </div>
 
+<!-- Hidden element to store brands data safely -->
+<textarea id="brands-data-source" style="display: none;"><%= JSON.stringify(locals.brands || []) %></textarea>
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     // Get DOM elements
@@ -166,9 +169,17 @@
     const applyBrandBtn = document.getElementById('apply-brand');
     const brandSearch = document.getElementById('brand-search');
 
+    // Retrieve data from hidden textarea
+    const brandsDataElement = document.getElementById('brands-data-source');
+    let brands = [];
+    try {
+      brands = brandsDataElement ? JSON.parse(brandsDataElement.value) : [];
+    } catch (e) {
+      console.error('Failed to parse brands data:', e);
+      brands = [];
+    }
 
-    //  const brands ='<%- JSON.stringify(brands) %>' 
-    const brands = <%- JSON.stringify(locals.brands || []) %>;
+    console.log('BrandSlider script executing. Brands:', brands);
 
     // const brands =
     // [
