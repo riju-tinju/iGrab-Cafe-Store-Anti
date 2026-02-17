@@ -31,65 +31,65 @@ app.set('trust proxy', 1);
 // Security Headers with CSP configuration
 // TEMPORARILY DISABLED FOR TESTING
 
-// app.use(helmet({
-//   contentSecurityPolicy: {
-//     directives: {
-//       defaultSrc: ["'self'"],
-//       scriptSrc: [
-//         "'self'",
-//         "'unsafe-inline'", // Required for inline scripts in EJS templates
-//         "'unsafe-eval'", // Required for Alpine.js and other frameworks that use Function()
-//         "https://cdn.jsdelivr.net",
-//         "https://unpkg.com",
-//         "https://js.stripe.com",
-//         "https://maps.googleapis.com",
-//         "https://fonts.googleapis.com",
-//         "https://cdnjs.cloudflare.com",
-//         "https://stackpath.bootstrapcdn.com",
-//         "https://code.jquery.com"
-//       ],
-//       styleSrc: [
-//         "'self'",
-//         "'unsafe-inline'", // Required for inline styles and Tailwind
-//         "https://cdn.jsdelivr.net",
-//         "https://unpkg.com",
-//         "https://fonts.googleapis.com",
-//         "https://cdnjs.cloudflare.com",
-//         "https://stackpath.bootstrapcdn.com",
-//         "https://use.fontawesome.com"
-//       ],
-//       fontSrc: [
-//         "'self'",
-//         "data:",
-//         "https://fonts.gstatic.com",
-//         "https://cdn.jsdelivr.net",
-//         "https://cdnjs.cloudflare.com",
-//         "https://use.fontawesome.com",
-//         "https://stackpath.bootstrapcdn.com"
-//       ],
-//       imgSrc: [
-//         "'self'",
-//         "data:",
-//         "blob:",
-//         "https:",
-//         "http:",
-//         "https://images.unsplash.com"
-//       ],
-//       connectSrc: [
-//         "'self'",
-//         "https://api.stripe.com",
-//         "https://maps.googleapis.com"
-//       ],
-//       frameSrc: [
-//         "'self'",
-//         "https://js.stripe.com",
-//         "https://hooks.stripe.com"
-//       ],
-//       objectSrc: ["'none'"],
-//       mediaSrc: ["'self'"]
-//     }
-//   }
-// }));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'", // Required for inline scripts in EJS templates
+        "'unsafe-eval'", // Required for Alpine.js and other frameworks that use Function()
+        "https://cdn.jsdelivr.net",
+        "https://unpkg.com",
+        "https://js.stripe.com",
+        "https://maps.googleapis.com",
+        "https://fonts.googleapis.com",
+        "https://cdnjs.cloudflare.com",
+        "https://stackpath.bootstrapcdn.com",
+        "https://code.jquery.com"
+      ],
+      styleSrc: [
+        "'self'",
+        "'unsafe-inline'", // Required for inline styles and Tailwind
+        "https://cdn.jsdelivr.net",
+        "https://unpkg.com",
+        "https://fonts.googleapis.com",
+        "https://cdnjs.cloudflare.com",
+        "https://stackpath.bootstrapcdn.com",
+        "https://use.fontawesome.com"
+      ],
+      fontSrc: [
+        "'self'",
+        "data:",
+        "https://fonts.gstatic.com",
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com",
+        "https://use.fontawesome.com",
+        "https://stackpath.bootstrapcdn.com"
+      ],
+      imgSrc: [
+        "'self'",
+        "data:",
+        "blob:",
+        "https:",
+        "http:",
+        "https://images.unsplash.com"
+      ],
+      connectSrc: [
+        "'self'",
+        "https://api.stripe.com",
+        "https://maps.googleapis.com"
+      ],
+      frameSrc: [
+        "'self'",
+        "https://js.stripe.com",
+        "https://hooks.stripe.com"
+      ],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"]
+    }
+  }
+}));
 
 
 // NoSQL Injection Protection
@@ -142,19 +142,9 @@ app.use(
   })
 );
 
-// Session Debug Middleware
-app.use((req, res, next) => {
-  console.log('--- Session Debug ---');
-  console.log('Protocol:', req.protocol);
-  console.log('Secure:', req.secure);
-  console.log('X-Forwarded-Proto:', req.get('X-Forwarded-Proto'));
-  console.log('Session ID:', req.sessionID);
-  console.log('Session User:', req.session.user);
-  console.log('Incoming Cookie Header:', req.headers.cookie);
-  console.log('Cookie Config:', req.session.cookie);
-  console.log('---------------------');
-  next();
-});
+// Session Debug Middleware - REMOVED after verification
+// app.use((req, res, next) => { ... });
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');

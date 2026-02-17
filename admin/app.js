@@ -35,8 +35,6 @@ var app = express();
 app.set('trust proxy', 1);
 
 // Security Headers with CSP configuration
-// TEMPORARILY DISABLED FOR TESTING
-/*
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -89,7 +87,6 @@ app.use(helmet({
     }
   }
 }));
-*/
 
 // NoSQL Injection Protection
 app.use(mongoSanitize());
@@ -145,19 +142,8 @@ app.use(
   })
 );
 
-// Session Debug Middleware
-app.use((req, res, next) => {
-  console.log('--- Session Debug ---');
-  console.log('Protocol:', req.protocol);
-  console.log('Secure:', req.secure);
-  console.log('X-Forwarded-Proto:', req.get('X-Forwarded-Proto'));
-  console.log('Session ID:', req.sessionID);
-  console.log('Session User:', req.session.admin);
-  console.log('Incoming Cookie Header:', req.headers.cookie);
-  console.log('Cookie Config:', req.session.cookie);
-  console.log('---------------------');
-  next();
-});
+// Session Debug Middleware - REMOVED after verification
+// app.use((req, res, next) => { ... });
 
 app.use(logger('dev'));
 app.use(express.json({ limit: '10kb' }));
