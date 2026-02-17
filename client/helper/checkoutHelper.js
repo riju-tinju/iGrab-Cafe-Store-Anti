@@ -26,7 +26,7 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 const checkoutFun = {
-  getCheckoutData: async (req, res) => {
+  getCheckoutData: async (req, res, viewName = "pages/checkout/checkout") => {
     try {
       let checkoutData = {
         items: [],
@@ -99,8 +99,10 @@ const checkoutFun = {
           });
         }
 
+        const lang = viewName.includes('_ar') ? 'ar' : 'en';
+
         checkoutItems.push({
-          productName: product.name.en,
+          productName: product.name[lang] || product.name.en, // Use localized name
           qty: actualQty,
           unitPrice: product.pricing.price,
           total: actualQty * product.pricing.price,
@@ -155,7 +157,7 @@ const checkoutFun = {
       res.locals.paymentSettings = paymentSettings;
       console.log(paymentSettings)
       checkoutData.storeId = storeId;
-      return res.status(200).render("pages/checkout/checkout", { checkoutData, googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY });
+      return res.status(200).render(viewName, { checkoutData, googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY });
     } catch (err) {
       console.error("Error in getCheckoutData:", err);
       return res.status(500).json({ error: "Internal server error" });

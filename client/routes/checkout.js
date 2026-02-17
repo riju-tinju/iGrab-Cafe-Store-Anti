@@ -4,10 +4,15 @@ const checkoutHelprer = require('../helper/checkoutHelper');
 
 
 router.get('/', async (req, res) => {
-  // checking user authentication is Already done as middleware in app.js
+  const viewName = res.locals.customer?.language === 'ar'
+    ? "pages/checkout/checkout_ar"
+    : "pages/checkout/checkout";
+  let checkoutData = await checkoutHelprer.getCheckoutData(req, res, viewName);
+});
 
-  let checkoutData = await checkoutHelprer.getCheckoutData(req, res);
-  // return res.status(200).render("pages/checkout/checkout");
+router.get('/ar', async (req, res) => {
+  // checking user authentication is Already done as middleware in app.js
+  let checkoutData = await checkoutHelprer.getCheckoutData(req, res, "pages/checkout/checkout_ar");
 });
 router.get('/api/delivery-charge', async (req, res) => {
   await checkoutHelprer.getDeliveryCharge(req, res);
