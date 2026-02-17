@@ -35,58 +35,58 @@ var app = express();
 app.set('trust proxy', 1);
 
 // Security Headers with CSP configuration
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: [
-        "'self'",
-        "'unsafe-inline'", // Required for inline scripts in EJS templates
-        "'unsafe-eval'", // Required for Alpine.js and other frameworks that use Function()
-        "https://cdn.jsdelivr.net",
-        "https://unpkg.com",
-        "https://code.jquery.com",
-        "https://cdn.datatables.net",
-        "https://cdnjs.cloudflare.com",
-        "https://stackpath.bootstrapcdn.com",
-        "https://maxcdn.bootstrapcdn.com"
-      ],
-      styleSrc: [
-        "'self'",
-        "'unsafe-inline'", // Required for inline styles
-        "https://cdn.jsdelivr.net",
-        "https://unpkg.com",
-        "https://fonts.googleapis.com",
-        "https://cdn.datatables.net",
-        "https://cdnjs.cloudflare.com",
-        "https://stackpath.bootstrapcdn.com",
-        "https://maxcdn.bootstrapcdn.com",
-        "https://use.fontawesome.com"
-      ],
-      fontSrc: [
-        "'self'",
-        "data:",
-        "https://fonts.gstatic.com",
-        "https://cdn.jsdelivr.net",
-        "https://cdnjs.cloudflare.com",
-        "https://use.fontawesome.com",
-        "https://stackpath.bootstrapcdn.com",
-        "https://maxcdn.bootstrapcdn.com"
-      ],
-      imgSrc: [
-        "'self'",
-        "data:",
-        "blob:",
-        "https:",
-        "http:"
-      ],
-      connectSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'self'"]
-    }
-  }
-}));
+// app.use(helmet({
+//   contentSecurityPolicy: {
+//     directives: {
+//       defaultSrc: ["'self'"],
+//       scriptSrc: [
+//         "'self'",
+//         "'unsafe-inline'", // Required for inline scripts in EJS templates
+//         "'unsafe-eval'", // Required for Alpine.js and other frameworks that use Function()
+//         "https://cdn.jsdelivr.net",
+//         "https://unpkg.com",
+//         "https://code.jquery.com",
+//         "https://cdn.datatables.net",
+//         "https://cdnjs.cloudflare.com",
+//         "https://stackpath.bootstrapcdn.com",
+//         "https://maxcdn.bootstrapcdn.com"
+//       ],
+//       styleSrc: [
+//         "'self'",
+//         "'unsafe-inline'", // Required for inline styles
+//         "https://cdn.jsdelivr.net",
+//         "https://unpkg.com",
+//         "https://fonts.googleapis.com",
+//         "https://cdn.datatables.net",
+//         "https://cdnjs.cloudflare.com",
+//         "https://stackpath.bootstrapcdn.com",
+//         "https://maxcdn.bootstrapcdn.com",
+//         "https://use.fontawesome.com"
+//       ],
+//       fontSrc: [
+//         "'self'",
+//         "data:",
+//         "https://fonts.gstatic.com",
+//         "https://cdn.jsdelivr.net",
+//         "https://cdnjs.cloudflare.com",
+//         "https://use.fontawesome.com",
+//         "https://stackpath.bootstrapcdn.com",
+//         "https://maxcdn.bootstrapcdn.com"
+//       ],
+//       imgSrc: [
+//         "'self'",
+//         "data:",
+//         "blob:",
+//         "https:",
+//         "http:"
+//       ],
+//       connectSrc: ["'self'"],
+//       objectSrc: ["'none'"],
+//       mediaSrc: ["'self'"],
+//       frameSrc: ["'self'"]
+//     }
+//   }
+// }));
 
 // NoSQL Injection Protection
 app.use(mongoSanitize());
