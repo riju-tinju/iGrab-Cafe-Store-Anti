@@ -21,7 +21,16 @@ const customerFun = {
       // Basic validations
       if (!countryCode) return res.status(400).json({ error: "Country code is required" });
       if (!phone) return res.status(400).json({ error: "Phone number is required" });
-      if (!name) return res.status(400).json({ error: "Name is required" });
+      // if (!name) return res.status(400).json({ error: "Name is required" }); // Name is optional for login
+
+      // Server-side phone validation: digits only, reasonable length
+      const phoneClean = phone.replace(/\s+/g, '');
+      if (!/^\d+$/.test(phoneClean)) {
+        return res.status(400).json({ error: "Invalid phone number format. Only digits are allowed." });
+      }
+      if (phoneClean.length < 7 || phoneClean.length > 15) {
+        return res.status(400).json({ error: "Invalid phone number length (7-15 digits)." });
+      }
 
       const fullPhoneNumber = `${countryCode}${phone}`;
 
@@ -30,8 +39,15 @@ const customerFun = {
       const otpExpiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
 
       let user = await User.findOne({ phone: phone, countryCode: countryCode });
+      const { authMode } = req.body;
 
       if (user) {
+        if (authMode === 'signup') {
+          return res.status(400).json({
+            error: "User already exists with this phone number. Please log in.",
+            code: "USER_ALREADY_EXISTS"
+          });
+        }
         // User exists – update OTP
         user.otp.otp = otp;
         user.otp.expiresAt = otpExpiresAt;
@@ -50,9 +66,16 @@ const customerFun = {
       }
 
       // User doesn't exist – create new user
+      if (!name) {
+        return res.status(404).json({
+          error: "Account not found.",
+          code: "USER_NOT_FOUND",
+          message: "This phone number is not registered. Please sign up."
+        });
+      }
+
       const newUser = new User({
         firstName: name,
-        email: null, // Email is now optional
         countryCode,
         phone,
         otp: {
@@ -75,9 +98,15 @@ const customerFun = {
 
     } catch (err) {
       console.error("Error in checkAndGenerateOTPUser:", err);
-      // Handle MongoDB duplicate key error cleanly if sparse index fails
+      // Handle MongoDB duplicate key error cleanly
       if (err.code === 11000) {
-        return res.status(400).json({ error: "User with this phone number already exists." });
+        const field = Object.keys(err.keyPattern || {})[0];
+        if (field === 'phone') {
+          return res.status(400).json({ error: "User with this phone number already exists." });
+        } else if (field === 'email') {
+          return res.status(400).json({ error: "This email address is already in use." });
+        }
+        return res.status(400).json({ error: "Duplicate entry detected." });
       }
       return res.status(500).json({ error: "Internal server error" });
     }

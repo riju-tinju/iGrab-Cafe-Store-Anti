@@ -10,8 +10,6 @@ const UserSchema = new Schema({
     type: String,
     required: false,
     trim: true,
-    unique: true, // Keep unique if provided
-    sparse: true // Allow multiple nulls/undefined
   },
   phone: {
     type: String,

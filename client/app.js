@@ -101,16 +101,24 @@ const apiLimiter = rateLimit({
   max: 100,
   standardHeaders: true,
   legacyHeaders: false,
-  message: 'Too many requests, please try again later'
+  message: 'Too many requests from this IP, please try again later'
 });
-app.use('/api/', apiLimiter);
 
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  message: 'Too many requests, please try again later'
+// Strict limiter for OTP and authentication (Brute-force protection)
+const otpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 attempts
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many OTP attempts, please try again after 15 minutes'
 });
-app.use('/userAuth/', authLimiter);
+
+// Specific strict limits for OTP verify and signup (Applied first)
+app.use('/api/auth/verify-otp', otpLimiter);
+app.use('/api/auth/signup', otpLimiter);
+
+// General API Rate Limit
+app.use('/api/', apiLimiter);
 
 // Setup session middleware with MongoDB store
 const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
