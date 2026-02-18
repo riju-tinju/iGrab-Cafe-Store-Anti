@@ -114,11 +114,11 @@ const checkoutFun = {
       // Update cart in database
       user.cart = updatedCart;
       await user.save();
-      console.log("checkoutItems", checkoutItems);
+      // console.log("checkoutItems", checkoutItems);
       checkoutData.items = checkoutItems;
       checkoutData.subTotal = checkoutItems.reduce((sum, item) => sum + item.total, 0);
 
-      console.log("checkoutData", checkoutData);
+      // console.log("checkoutData", checkoutData);
 
       // 🧮 Charges
       const chargingDocs = await Charging.find({});
@@ -139,7 +139,7 @@ const checkoutFun = {
       // ➕ Calculate totalAmount
       const totalAmount = charges.reduce((acc, item) => acc + item.price, checkoutData.subTotal);
       checkoutData.totalAmount = Math.ceil(totalAmount * 100) / 100; // rounded to 2 decimals
-      console.log(checkoutData)
+      // console.log(checkoutData)
 
       let paymentSettings = {
         stripe: {
@@ -155,7 +155,7 @@ const checkoutFun = {
         paymentSettings.stripe.secretKey = null
       }
       res.locals.paymentSettings = paymentSettings;
-      console.log(paymentSettings)
+      // console.log(paymentSettings)
       checkoutData.storeId = storeId;
       return res.status(200).render(viewName, { checkoutData, googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY });
     } catch (err) {
@@ -250,11 +250,11 @@ const checkoutFun = {
       // Update cart in database
       user.cart = updatedCart;
       await user.save();
-      console.log("checkoutItems", checkoutItems);
+      // console.log("checkoutItems", checkoutItems);
       checkoutData.items = checkoutItems;
       checkoutData.subTotal = checkoutItems.reduce((sum, item) => sum + item.total, 0);
 
-      console.log("checkoutData", checkoutData);
+      // console.log("checkoutData", checkoutData);
 
       // 🧮 Charges
       const chargingDocs = await Charging.find({});
@@ -275,7 +275,7 @@ const checkoutFun = {
       // ➕ Calculate totalAmount
       const totalAmount = charges.reduce((acc, item) => acc + item.price, checkoutData.subTotal);
       checkoutData.totalAmount = Math.ceil(totalAmount * 100) / 100; // rounded to 2 decimals
-      console.log(checkoutData)
+      // console.log(checkoutData)
       if (!checkoutData.items || checkoutData.items.length === 0) {
         return res.status(400).json({ error: "No items available for checkout" });
       }
@@ -379,7 +379,7 @@ const checkoutFun = {
         throw new Error("Failed to create order record in database");
       }
 
-      console.log("Order Created:", savedOrder.orderId);
+      // console.log("Order Created:", savedOrder.orderId);
 
       // 3. Deduct Stock (ONLY FOR COD)
       // For Online payment, stock is deducted after successful payment confirmation (webhook)

@@ -158,7 +158,7 @@ const orderFun = {
 
       const totalPages = Math.ceil(totalOrders / limit);
 
-      console.log('\n\norders:\n', formattedOrders)
+      // console.log('\n\norders:\n', formattedOrders)
 
       return res.status(200).json({
         success: true,

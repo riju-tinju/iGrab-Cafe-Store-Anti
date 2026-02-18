@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const productHelper = require('../helper/product-helper');
 const upload = require("../helper/upload");
+const asyncHandler = require('../helper/asyncHandler');
 let products = [
   {
     _id: "507f1f77bcf86cd799439011",
@@ -129,7 +130,7 @@ router.get('/product', function (req, res, next) {
   res.render('pages/products/products', { title: 'Product Management' });
 });
 /* GET users listing. */
-router.get('/api/products', async function (req, res, next) {
+router.get('/api/products', asyncHandler(async function (req, res, next) {
   await productHelper.getProductByFilter(req, res);
 
   // const response = {
@@ -154,93 +155,72 @@ router.get('/api/products', async function (req, res, next) {
 
   // res.json(response);
 });
-router.delete('/api/products/:id', async function (req, res, next) {
+router.delete('/api/products/:id', asyncHandler(async function (req, res, next) {
   await productHelper.deleteProduct(req, res);
-});
+}));
 
-router.patch('/api/products/:id/stock', async function (req, res, next) {
+router.patch('/api/products/:id/stock', asyncHandler(async function (req, res, next) {
   await productHelper.setStockToProduct(req, res);
-});
+}));
 
 
 // creta product
-router.get('/product/create', async function (req, res, next) {
+router.get('/product/create', asyncHandler(async function (req, res, next) {
   let { brands, stores, categories } = await productHelper.getDataForCreateProduct(req, res);
   const imageLimit = parseInt(process.env.IMAGE_LIMIT) || 10;
   const imageSizeLimit = parseFloat(process.env.IMAGE_SIZE_LIMIT) || 5;
   res.render('pages/products/create-product', { brands, stores, categories, imageLimit, imageSizeLimit });
-});
-router.post('/product/create', async function (req, res, next) {
+}));
+router.post('/product/create', asyncHandler(async function (req, res, next) {
   await productHelper.createProduct(req, res);
-});
+}));
 
 // POST /upload/images
-router.post('/upload/images', upload.array('images', 10), async function (req, res, next) {
-  try {
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No files uploaded",
-        code: "NO_FILES"
-      });
-    }
-
-    const savedFilenames = [];
-
-    // Save each file name to DB
-    for (const file of req.files) {
-      // const newImage = new ProductImage({
-      //   filename: file.filename,
-      //   path: `/uploads/${file.filename}`
-      // });
-      // await newImage.save();
-      savedFilenames.push(`${file.filename}`);
-    }
-
-    res.status(200).json({
-      success: true,
-      data: {
-        urls: savedFilenames
-      }
-    });
-
-  } catch (err) {
-    console.error("Upload error:", err);
-    res.status(500).json({
+router.post('/upload/images', upload.array('images', 10), asyncHandler(async function (req, res, next) {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({
       success: false,
-      message: "Internal server error",
-      code: "SERVER_ERROR"
+      message: "No files uploaded",
+      code: "NO_FILES"
     });
   }
-});
 
-router.post('/categories', upload.array('image', 10), async function (req, res) {
-  console.log("Creating category", req.body);
+  const savedFilenames = [];
+
+  // Save each file name to DB
+  for (const file of req.files) {
+    savedFilenames.push(`${file.filename}`);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: {
+      urls: savedFilenames
+    }
+  });
+}));
+
+router.post('/categories', upload.array('image', 10), asyncHandler(async function (req, res) {
   await productHelper.createCategory(req, res, req.files[0]?.filename || null);
-
-});
-router.post('/brands', upload.array('logo', 10), async function (req, res) {
-  console.log("Creating category", req.body);
+}));
+router.post('/brands', upload.array('logo', 10), asyncHandler(async function (req, res) {
   await productHelper.createBrand(req, res, req.files[0]?.filename || null);
-
-});
+}));
 
 
 // EDIT product
-router.get('/product/edit/:id', async function (req, res, next) {
+router.get('/product/edit/:id', asyncHandler(async function (req, res, next) {
   let { brands, stores, categories } = await productHelper.getDataForCreateProduct(req, res);
   let product = await productHelper.getProductById(req.params.id);
   if (!product) {
-    return res.status(404).send('Product not found');
+    return res.status(404).render('error/404'); // Use custom error page
   }
   const imageLimit = parseInt(process.env.IMAGE_LIMIT) || 10;
   const imageSizeLimit = parseFloat(process.env.IMAGE_SIZE_LIMIT) || 5;
-  console.log("\n", product, "\n", brands, "\n", stores, "\n", categories);
   res.render('pages/products/edit-product', { brands, stores, categories, product, imageLimit, imageSizeLimit });
-});
+}));
 
-router.post('/product/edit', async function (req, res, next) {
-  console.log(req.body)
+router.post('/product/edit', asyncHandler(async function (req, res, next) {
   await productHelper.editProduct(req, res);
-});
+}));
 module.exports = router;

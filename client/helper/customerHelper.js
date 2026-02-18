@@ -38,7 +38,7 @@ const customerFun = {
         user.otp.chances = 3; // Reset chances
         await user.save();
 
-        console.log("OTP regenerated for existing user:", fullPhoneNumber, otp);
+        // console.log("OTP regenerated for existing user:", fullPhoneNumber, otp);
 
         try {
           await customerFun.sendOtpSMS(fullPhoneNumber, otp, "login");
@@ -63,7 +63,7 @@ const customerFun = {
       });
 
       await newUser.save();
-      console.log("New user created with OTP:", fullPhoneNumber, otp);
+      // console.log("New user created with OTP:", fullPhoneNumber, otp);
 
       try {
         await customerFun.sendOtpSMS(fullPhoneNumber, otp, "register");
@@ -102,7 +102,7 @@ const customerFun = {
         to: to
       });
 
-      console.log(`OTP SMS sent to ${to}`);
+      // console.log(`OTP SMS sent to ${to}`);
       return true;
     } catch (err) {
       console.error("Failed to send OTP SMS:", err);
@@ -186,7 +186,7 @@ const customerFun = {
           return res.status(500).json({ error: "Failed to save session" });
         }
 
-        console.log("Session saved successfully:", req.session.user);
+        // console.log("Session saved successfully:", req.session.user);
         return res.status(200).json({
           success: true,
           message: "OTP verified successfully"

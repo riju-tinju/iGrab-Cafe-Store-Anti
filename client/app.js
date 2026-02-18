@@ -152,8 +152,8 @@ app.set('view engine', 'ejs');
 // Set the partials directory
 app.locals.partials = path.join(__dirname, 'views/partials');
 
-app.use('/stripe-webhook', stripeWebhookRouter);
 app.use(logger('dev'));
+app.use('/stripe-webhook', stripeWebhookRouter);
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 app.use(cookieParser());
@@ -175,20 +175,21 @@ app.use(verifyCustomer);
 app.use('/checkout', checkoutRouter);
 
 
+const errorHandler = require('./middleware/errorHandler');
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  next(createError(404));
+  // Check if it's an API request
+  if (req.originalUrl.startsWith('/api') || req.headers.accept.includes('application/json')) {
+    return res.status(404).json({
+      success: false,
+      message: 'Not Found'
+    });
+  }
+  res.status(404).render('error/404');
 });
 
 // error handler
-app.use(function (err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+app.use(errorHandler);
 
 module.exports = app;

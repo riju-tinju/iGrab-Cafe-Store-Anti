@@ -67,13 +67,13 @@ module.exports = {
 
                 // Filter by admin's selected branch
                 const adminBranch = req.session?.admin?.selectedBranch;
-                console.log('Admin selected branch:', adminBranch);
+                // console.log('Admin selected branch:', adminBranch);
 
                 if (adminBranch) {
                     query.storeBranch = adminBranch;
-                    console.log('Filtering contacts by branch:', adminBranch);
+                    // console.log('Filtering contacts by branch:', adminBranch);
                 } else {
-                    console.log('No admin branch filter - showing all contacts');
+                    // console.log('No admin branch filter - showing all contacts');
                 }
 
                 // Filter by status
@@ -94,8 +94,8 @@ module.exports = {
                 const sort = {};
                 sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
-                console.log('Contact query:', JSON.stringify(query));
-                console.log('Fetching contacts with pagination:', { page, limit, skip });
+                // console.log('Contact query:', JSON.stringify(query));
+                // console.log('Fetching contacts with pagination:', { page, limit, skip });
 
                 const [contacts, total] = await Promise.all([
                     Contact.find(query)
@@ -106,7 +106,7 @@ module.exports = {
                     Contact.countDocuments(query)
                 ]);
 
-                console.log('Found contacts:', contacts.length, 'Total:', total);
+                // console.log('Found contacts:', contacts.length, 'Total:', total);
 
                 // Get status counts (respecting branch filter)
                 const statusCounts = await Contact.aggregate([

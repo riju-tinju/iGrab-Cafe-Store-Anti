@@ -446,7 +446,7 @@ const settingFun = {
 
       await newExecutive.save();
 
-      console.log("New delivery executive created:\n", newExecutive);
+      // console.log("New delivery executive created:\n", newExecutive);
 
       // Populate branches in response
       const populatedExecutive = await DeliveryExecutive.findById(newExecutive._id)

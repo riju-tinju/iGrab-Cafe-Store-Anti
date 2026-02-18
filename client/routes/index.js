@@ -6,6 +6,7 @@ let Product = require("../model/productSchema");
 const gaetCustomer = require("../helper/getCustomer");
 const startingHelper = require("../helper/startingHelper");
 let resRender = require("../helper/resRender");
+const asyncHandler = require('../helper/asyncHandler');
 
 let wishlistItems = [
   {
@@ -365,7 +366,7 @@ const dummyProducts = [
 
 
 /* GET home page. */
-router.get("/", async function (req, res, next) {
+router.get("/", asyncHandler(async function (req, res, next) {
   let categories = await userFun.getCategory(req, res);
   // let brands= await userFun.getBrand(req, res)
   let productArray = await userFun.getProduct(
@@ -382,14 +383,14 @@ router.get("/", async function (req, res, next) {
     products: productArray,
     brands: brandsArray,
   })
-});
+}));
 router.get("/not-found", function (req, res, next) {
   res.render("error/404", { title: "Express" });
 });
 router.get("/server-err", function (req, res, next) {
   res.render("Err/server_err", { title: "Express" });
 });
-router.get("/shop", async function (req, res, next) {
+router.get("/shop", asyncHandler(async function (req, res, next) {
   let categories = await userFun.getCategory(req, res);
   // let brands= await userFun.getBrand(req, res)
   let productArray = await userFun.getProduct(
@@ -414,8 +415,8 @@ router.get("/shop", async function (req, res, next) {
     }
   })
 
-});
-router.get("/product/:url", async function (req, res, next) {
+}));
+router.get("/product/:url", asyncHandler(async function (req, res, next) {
   let product = await userFun.getProductByURL(req, res);
   if (!product) {
     return res.redirect('/not-found');
@@ -425,9 +426,6 @@ router.get("/product/:url", async function (req, res, next) {
   product.reviews = await userFun.getProductReviews(req, res, product._id);
   product.isWishlisted = await userFun.isProductWishlisted(req, res, product._id);
   product.isInCart = await userFun.isProductInCart(req, res, product._id);
-  console.log("Product: ", product);
-  console.log(res.locals.customer.wishlist);
-  console.log(product);
   // 
   resRender(req, res, "pages/product/product", "pages/product/product_AR", {
     product,
@@ -438,9 +436,7 @@ router.get("/product/:url", async function (req, res, next) {
       keywords: product.meta.keywords
     }
   })
-  // res.json(product);
-  // res.render("pages/product/product_AR", { product });
-})
+}));
 router.post("/get-wishlist", function (req, res, next) {
   let randomValue = Math.random(); // Random value between 0 and 1
   console.log("Random Value: ", randomValue);
@@ -464,20 +460,15 @@ router.post("/get-cart", (req, res) => {
   return res.status(200).json(cart);
 });
 
-router.post("/get-products", async (req, res) => {
-  try {
-    let filteredProducts = await userFun.getProductByFilter(req, res);
-    req.body.limit = process.env.PRODUCT_LIMIT;
+router.post("/get-products", asyncHandler(async (req, res) => {
+  let filteredProducts = await userFun.getProductByFilter(req, res);
+  req.body.limit = process.env.PRODUCT_LIMIT;
 
-    let wishArray = res.locals.customer.wishlist
-    // console.log("Customer wishlist: ", res.locals.customer);
-    res.status(200).json({ filteredProducts, wishArray });
-  } catch (err) {
-    console.log(err);
-  }
-});
+  let wishArray = res.locals.customer.wishlist
+  res.status(200).json({ filteredProducts, wishArray });
+}));
 
-router.get("/contact", async (req, res) => {
+router.get("/contact", asyncHandler(async (req, res) => {
   resRender(req, res, "pages/contact/contact", "pages/contact/contact_AR", {
     meta: {
       title: res.locals.customer.language === 'en' ? "Contact Us | iGrab Story" : "اتصل بنا | آي جراب ستوري",
@@ -488,16 +479,17 @@ router.get("/contact", async (req, res) => {
     }
   })
 
-})
+}));
 
 // Contact form submission API
-router.post("/api/submit-contact", async (req, res) => {
+// Contact form submission API
+router.post("/api/submit-contact", asyncHandler(async (req, res) => {
   const contactHelper = require("../helper/contactHelper");
   const result = await contactHelper.submitContact(req, res);
   res.json(result);
-});
+}));
 
-router.get("/faq", async (req, res) => {
+router.get("/faq", asyncHandler(async (req, res) => {
   res.render("pages/FAQ/FAQ", {
     meta: {
       title: res.locals.customer.language === 'en' ? "Frequently Asked Questions | iGrab Story" : "الأسئلة الشائعة | آي جراب ستوري",
@@ -505,15 +497,14 @@ router.get("/faq", async (req, res) => {
       keywords: ["faq", "help", "questions"]
     }
   })
-})
-router.get("/company-profile", async (req, res) => {
+}));
+router.get("/company-profile", asyncHandler(async (req, res) => {
   let brands = []
   brands = await userFun.getAllBrands(req, res);
-  console.log("\nBrands: \n", brands);
   resRender(req, res, "pages/profile/profile", "pages/profile/profile_AR", { brands })
 
-})
-router.get("/privacy-policy", async (req, res) => {
+}));
+router.get("/privacy-policy", asyncHandler(async (req, res) => {
   resRender(req, res, "privacy-policy", "privacy-policy_AR", {
     meta: {
       title: "Privacy Policy | iGrab Story",
@@ -521,8 +512,8 @@ router.get("/privacy-policy", async (req, res) => {
       keywords: ["privacy", "data", "policy"]
     }
   })
-})
-router.get("/terms-and-conditions", async (req, res) => {
+}));
+router.get("/terms-and-conditions", asyncHandler(async (req, res) => {
   resRender(req, res, "terms-and-conditions", "terms-and-conditions_AR", {
     meta: {
       title: "Terms and Conditions | iGrab Story",
@@ -530,7 +521,7 @@ router.get("/terms-and-conditions", async (req, res) => {
       keywords: ["terms", "conditions", "legal"]
     }
   })
-})
+}));
 router.get("/template", async (req, res) => {
   res.render("template")
 })
@@ -538,17 +529,17 @@ router.get("/template1", async (req, res) => {
   res.render("template1")
 })
 
-router.get("/add-dummy-data", async (req, res) => {
+router.get("/add-dummy-data", asyncHandler(async (req, res) => {
   await startingHelper.createDummyData(req, res);
-})
+}));
 
-router.get("/add-dummy-charges", async (req, res) => {
+router.get("/add-dummy-charges", asyncHandler(async (req, res) => {
   await startingHelper.createDummyCharges(req, res);
-})
+}));
 
-router.get("/add-dummy-order", async (req, res) => {
+router.get("/add-dummy-order", asyncHandler(async (req, res) => {
   await startingHelper.createDummyOrder(req, res);
-})
+}));
 
 router.get("/map", async (req, res) => {
   res.render("map")

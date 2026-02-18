@@ -8,7 +8,7 @@ const User = require("../model/userSchema");
 const userFun = {
   getProduct: (req, res, productLimit, pageNumber) => {
     return new Promise(async (resolve, reject) => {
-      console.log("+++++++ userFun.getProduct() with category join +++++++");
+      // console.log("+++++++ userFun.getProduct() with category join +++++++");
 
       try {
         const limit = parseInt(productLimit) || 2;
@@ -59,16 +59,14 @@ const userFun = {
         ]);
         return resolve(products.length ? products : []);
       } catch (err) {
-        console.log("getProduct error:\n", err);
+        console.error("getProduct error:\n", err);
         return resolve([]);
       }
     });
   },
   getCategory: (req, res) => {
     return new Promise(async (resolve, reject) => {
-      console.log(
-        "+++++++++++++++++++     userFun.getCategory()     +++++++++++++++++++++++++++"
-      );
+      // console.log("+++++++++++++++++++     userFun.getCategory()     +++++++++++++++++++++++++++");
       try {
         let categories = await Category.find({});
         if (categories) return resolve(categories);
@@ -81,7 +79,7 @@ const userFun = {
   },
   getBrand: (req, res, lang) => {
     return new Promise(async (resolve, reject) => {
-      console.log("++++++++++++++ userFun.getBrand() ++++++++++++++");
+      // console.log("++++++++++++++ userFun.getBrand() ++++++++++++++");
 
       try {
         const validLang = ["en", "ar"];
@@ -110,7 +108,7 @@ const userFun = {
   },
   getProductByFilter: (req, res) => {
     return new Promise(async (resolve, reject) => {
-      console.log("+++++++++ userFun.getFilteredProducts() +++++++++");
+      // console.log("+++++++++ userFun.getFilteredProducts() +++++++++");
 
       try {
         const {
@@ -235,7 +233,7 @@ const userFun = {
   },
   getProductByURL: (req, res) => {
     return new Promise(async (resolve, reject) => {
-      console.log("+++++++++ userFun.getProductByName() +++++++++");
+      // console.log("+++++++++ userFun.getProductByName() +++++++++");
 
       try {
         const productURL = req.params.url;
@@ -260,33 +258,33 @@ const userFun = {
   },
   getCategoryByProductId: (req, res, categoryId) => {
     return new Promise(async (resolve, reject) => {
-      console.log("+++++++++ userFun.getCategoryByProductId() +++++++++");
+      // console.log("+++++++++ userFun.getCategoryByProductId() +++++++++");
       try {
         if (!categoryId) return resolve(null);
         const category = await Category.findOne({ _id: categoryId });
         return resolve(category);
       } catch (err) {
-        console.log("getCategoryByProductId error:\n", err);
+        console.error("getCategoryByProductId error:\n", err);
         return resolve(null);
       }
     });
   },
   getBrandById: (req, res, brandId) => {
     return new Promise(async (resolve, reject) => {
-      console.log("+++++++++ userFun.getBrandByBrandId() +++++++++");
+      // console.log("+++++++++ userFun.getBrandByBrandId() +++++++++");
       try {
         if (!brandId) return resolve(null);
         const brand = await Brand.findOne({ _id: brandId });
         return resolve(brand);
       } catch (err) {
-        console.log("getBrandByBrandId error:\n", err);
+        console.error("getBrandByBrandId error:\n", err);
         return resolve(null);
       }
     });
   },
   getProductReviews: (req, res, productId) => {
     return new Promise(async (resolve, reject) => {
-      console.log("+++++++++ userFun.getProductReviews() +++++++++");
+      // console.log("+++++++++ userFun.getProductReviews() +++++++++");
       try {
         if (!productId) return resolve([]);
         const reviews = await Reviews.find({
@@ -296,7 +294,7 @@ const userFun = {
 
         return resolve(reviews.map(review => review.toObject()));
       } catch (err) {
-        console.log("getProductReviews error:\n", err);
+        console.error("getProductReviews error:\n", err);
         return resolve([]);
       }
     });
@@ -371,7 +369,7 @@ const userFun = {
   },
   getAllBrands: (req, res) => {
     return new Promise(async (resolve, reject) => {
-      console.log("++++++++++++++ userFun.getAllBrands() ++++++++++++++");
+      // console.log("++++++++++++++ userFun.getAllBrands() ++++++++++++++");
 
       try {
         const brands = await Brand.find({});

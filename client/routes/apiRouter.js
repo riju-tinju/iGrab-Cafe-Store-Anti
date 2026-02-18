@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const apiFun = require('../helper/apiHelper');
-router.post('/add-or-remove-wishlist', async (req, res) => {
-  console.log("API route for wishlist action hit");
+const asyncHandler = require('../helper/asyncHandler');
+router.post('/add-or-remove-wishlist', asyncHandler(async (req, res) => {
   await apiFun.wishlistAction(req, res)
-})
+}));
 
 let wishlistItems = [
   {
@@ -48,143 +48,67 @@ let wishlistItems = [
       "https://images.unsplash.com/photo-1497636577773-f1231844b336?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
   },
 ];
-router.post('/get-wishlist', async (req, res) => {
+router.post('/get-wishlist', asyncHandler(async (req, res) => {
   await apiFun.getWishlist(req, res);
-})
+}));
 
-router.post("/remove-wishlist/", async (req, res) => {
-  try {
-    await apiFun.removeItemFromWishlist(req, res);
-  } catch (err) {
-    console.error("Error removing item from wishlist:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
+router.post("/remove-wishlist/", asyncHandler(async (req, res) => {
+  await apiFun.removeItemFromWishlist(req, res);
+}));
+router.post("/remove-item-from-cart", asyncHandler(async (req, res) => {
+  let cartAfteritemRemoval = await apiFun.removeItemFromCart(req, res);
+}));
+router.post("/update-cartItem-qty", asyncHandler(async (req, res) => {
+  let updateCartQty = await apiFun.updateCartQty(req, res);
+}));
+router.post("/update-cartItem-qty-for-product-page", asyncHandler(async (req, res) => {
+  let updateCartQty = await apiFun.updateCartQtyForProductPage(req, res);
+}));
+router.post("/cart/add", asyncHandler(async (req, res) => {
+  await apiFun.addToCart(req, res);
+}));
 
-});
-router.post("/remove-item-from-cart", async (req, res) => {
-  try {
-    let cartAfteritemRemoval = await apiFun.removeItemFromCart(req, res);
-  } catch (err) {
-    console.error("Error removing item from wishlist:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
+router.post("/get-cart", asyncHandler(async (req, res) => {
+  let cartArray = await apiFun.getCartArray(req, res);
+  let getStructuredCart = await apiFun.getStructuredCart(cartArray, req, res);
+  res.status(200).json(getStructuredCart);
+}));
 
-});
-router.post("/update-cartItem-qty", async (req, res) => {
-  console.log(req.body);
-  try {
+router.post("/addItemToCartFromWishlist", asyncHandler(async (req, res) => {
+  await apiFun.addItemToCartFromWishlist(req, res);
+}));
 
-    let updateCartQty = await apiFun.updateCartQty(req, res);
-  } catch (err) {
-    console.error("Error removing item from wishlist:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
+router.post("/addAlltoCartFromWishlist", asyncHandler(async (req, res) => {
+  await apiFun.addAlltoCartFromWishlist(req, res);
+}));
 
-});
-router.post("/update-cartItem-qty-for-product-page", async (req, res) => {
-  console.log(req.body);
-  try {
+router.post("/change-language", asyncHandler(async (req, res) => {
+  let setLang = await apiFun.setLang(req, res)
+}));
 
-    let updateCartQty = await apiFun.updateCartQtyForProductPage(req, res);
-  } catch (err) {
-    console.error("Error removing item from wishlist:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
+router.post("/change-branch", asyncHandler(async (req, res) => {
+  let setBranch = await apiFun.setBranch(req, res)
+}));
 
-});
-router.post("/cart/add", async (req, res) => {
-  try {
-    await apiFun.addToCart(req, res);
-  } catch (err) {
-    console.error("Error Adding item into cart:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-
-});
-
-router.post("/get-cart", async (req, res) => {
-  try {
-    let cartArray = await apiFun.getCartArray(req, res);
-    let getStructuredCart = await apiFun.getStructuredCart(cartArray, req, res);
-    res.status(200).json(getStructuredCart);
-  } catch (err) {
-    console.error("Error getting cart items :", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-
-});
-
-router.post("/addItemToCartFromWishlist", async (req, res) => {
-  try {
-    await apiFun.addItemToCartFromWishlist(req, res);
-  } catch (err) {
-    console.error("Error Adding item into cart:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-router.post("/addAlltoCartFromWishlist", async (req, res) => {
-  try {
-    await apiFun.addAlltoCartFromWishlist(req, res);
-  } catch (err) {
-    console.error("Error Adding item into cart:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-
-});
-
-router.post("/change-language", async (req, res) => {
-  try {
-    let setLang = await apiFun.setLang(req, res)
-
-  } catch (err) {
-    console.error("Error Adding item into cart:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-
-});
-
-router.post("/change-branch", async (req, res) => {
-  try {
-    let setBranch = await apiFun.setBranch(req, res)
-    // return res.status(400).json({ message: "Invalid language provided" });
-  } catch (err) {
-    console.error("Error Adding item into cart:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-
-});
-
-router.post("/logOut", async (req, res) => {
-  try {
+router.post("/logOut", asyncHandler(async (req, res) => {
+  await new Promise((resolve, reject) => {
     req.session.destroy((err) => {
-      if (err) {
-        console.error("Error destroying session:", err);
-        return res.status(500).json({ success: false, message: "Internal server error" });
-      }
-      res.clearCookie('connect.sid'); // Clear the session cookie
-      res.status(200).json({ success: true, message: "Logged out successfully" });
+      if (err) reject(err);
+      else resolve();
     });
-  } catch (err) {
-    console.error("Error Adding item into cart:", err);
-    return res.status(500).json({ success: false, message: "Internal server error" });
-  }
+  });
+  res.clearCookie('connect.sid'); // Clear the session cookie
+  res.status(200).json({ success: true, message: "Logged out successfully" });
+}));
 
-});
+router.post("/get-order-history", asyncHandler(async (req, res) => {
+  let orderHistory = await apiFun.getOrderHistory(req, res);
+  // res.status(200).json(orderHistory);
+}));
 
-router.post("/get-order-history", async (req, res) => {
-  try {
-    let orderHistory = await apiFun.getOrderHistory(req, res);
-    // res.status(200).json(orderHistory);
-  } catch (err) {
-    console.error("Error getting order history:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-})
-
-router.post("/subscribe-newsletter", async (req, res) => {
+router.post("/subscribe-newsletter", asyncHandler(async (req, res) => {
   await apiFun.subscribeNewsletter(req, res);
-});
+}));
 
 
 

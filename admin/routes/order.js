@@ -3,6 +3,7 @@ var router = express.Router();
 const productHelper = require('../helper/product-helper');
 const orderHelper = require('../helper/orderHelper')
 const upload = require("../helper/upload");
+const asyncHandler = require('../helper/asyncHandler');
 let products = [
   {
     _id: "507f1f77bcf86cd799439011",
@@ -130,120 +131,30 @@ router.get('/orders', function (req, res, next) {
   res.render('pages/order/orders', { title: 'Order Management' });
 });
 /* GET users listing. */
-router.get('/api/orders', async function (req, res, next) {
+router.get('/api/orders', asyncHandler(async function (req, res, next) {
   await orderHelper.getOrderByFilter(req, res);
-
-  // const response = {
-  //   "success": true,
-  //   "data": {
-  //     "orders": [
-  //       {
-  //         "_id": "507f1f77bcf86cd799439011",
-  //         "orderId": "ORD-2023-001234",
-  //         "storeId": "STORE-001",
-  //         "userId": {
-  //           "_id": "user123",
-  //           "name": "Ahmed Hassan",
-  //           "email": "ahmed@example.com",
-  //           "phone": "+971501234567"
-  //         },
-  //         "orderDate": "2023-12-20T10:30:00Z",
-  //         "status": "Confirmed",
-  //         "paymentStatus": "Paid",
-  //         "paymentMethod": "Online",
-  //         "subTotal": 85.50,
-  //         "charges": [
-  //           { "name": "Delivery Fee", "amount": 10.00 },
-  //           { "name": "Service Fee", "amount": 4.25 }
-  //         ],
-  //         "discount": 8.55,
-  //         "totalAmount": 91.20,
-  //         "couponCode": "SAVE10",
-  //         "orderItems": [
-  //           {
-  //             "productId": "prod123",
-  //             "name": "Classic Espresso",
-  //             "image": "https://image-url.jpg",
-  //             "qty": 2,
-  //             "unitPrice": 18.00,
-  //             "total": 36.00
-  //           }
-  //         ],
-  //         "address": {
-  //           "fullName": "Ahmed Hassan",
-  //           "phone": "+971501234567",
-  //           "building": "Al Manara Tower",
-  //           "flat": "1204",
-  //           "street": "Sheikh Zayed Road",
-  //           "area": "Downtown Dubai",
-  //           "city": "Dubai",
-  //           "landmark": "Near Dubai Mall"
-  //         },
-  //         "assignedTo": {
-  //           "_id": "delivery123",
-  //           "name": "Mohammed Ali",
-  //           "phone": "+971507654321"
-  //         },
-  //         "updatedAt": "2023-12-20T11:15:00Z"
-  //       }
-  //     ],
-  //     "pagination": {
-  //       "currentPage": 1,
-  //       "totalPages": 25,
-  //       "totalOrders": 247,
-  //       "limit": 10,
-  //       "hasNext": true,
-  //       "hasPrev": false
-  //     },
-  //     "stats": {
-  //       "totalOrders": 247,
-  //       "pendingOrders": 15,
-  //       "confirmedOrders": 42,
-  //       "processingOrders": 23,
-  //       "deliveredOrders": 156,
-  //       "cancelledOrders": 11,
-  //       "totalRevenue": 45230,
-  //       "todayOrders": 18,
-  //       "unpaidOrders": 8
-  //     }
-  //   }
-  // }
-
-  // res.json(response);
-});
-router.patch('/api/orders/:id/status', async function (req, res, next) {
+}));
+router.patch('/api/orders/:id/status', asyncHandler(async function (req, res, next) {
   await orderHelper.updateOrderStatus(req, res);
-});
-router.patch('/api/orders/bulk-update', async function (req, res, next) {
+}));
+router.patch('/api/orders/bulk-update', asyncHandler(async function (req, res, next) {
   await orderHelper.bulkUpdateOrderStatus(req, res);
-})
+}));
 
-router.post('/api/orders/export', async function (req, res, next) {
-  console.log(req.body);
+router.post('/api/orders/export', asyncHandler(async function (req, res, next) {
   await orderHelper.exportOrders(req, res);
+}));
 
-  // let response={
-  // "success": true,
-  // "data": {
-  //   "downloadUrl": "https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=400",
-  //   "fileName": "orders-export-20231220.xlsx",
-  //   "recordCount": 15,
-  //   "expiresAt": "2023-12-21T14:30:22Z"
-  // }}
-  // res.json(response)
-
-})
-
-router.get("/api/orders/delivery-executives", async (req, res) => {
+router.get("/api/orders/delivery-executives", asyncHandler(async (req, res) => {
   await orderHelper.getAllExecutives(req, res)
-})
+}));
 
-router.post('/api/delivery-executives/:executiveId/toggle-save', async (req, res) => {
+router.post('/api/delivery-executives/:executiveId/toggle-save', asyncHandler(async (req, res) => {
   await orderHelper.saveDeliveryExecutiveByAdmin(req, res);
-})
+}));
 
-router.post('/api/orders/:orderId/assign-delivery', async (req, res) => {
+router.post('/api/orders/:orderId/assign-delivery', asyncHandler(async (req, res) => {
   await orderHelper.assignDeliveryExecutive(req, res);
-})
+}));
 
 module.exports = router;

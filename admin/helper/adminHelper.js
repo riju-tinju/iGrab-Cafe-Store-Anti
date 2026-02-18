@@ -110,7 +110,7 @@ const customerFun = {
         user.otp.chances = 3; // Reset chances
         await user.save();
 
-        console.log("OTP regenerated for existing user:", fullPhoneNumber, otp);
+        // console.log("OTP regenerated for existing user:", fullPhoneNumber, otp);
 
         try {
           await customerFun.sendOtpSMS(fullPhoneNumber, otp, "login");
@@ -145,7 +145,7 @@ const customerFun = {
         return true;
       }
 
-      console.log(`Attempting to send OTP SMS to ${to} from ${process.env.TWILIO_PHONE_NUMBER}...`);
+      // console.log(`Attempting to send OTP SMS to ${to} from ${process.env.TWILIO_PHONE_NUMBER}...`);
 
       const message = await client.messages.create({
         body: body,
@@ -153,7 +153,7 @@ const customerFun = {
         to: to
       });
 
-      console.log(`OTP SMS successfully sent to ${to}. Message SID: ${message.sid}`);
+      // console.log(`OTP SMS successfully sent to ${to}. Message SID: ${message.sid}`);
       return true;
     } catch (err) {
       console.error("Failed to send OTP SMS error details:", {
@@ -232,8 +232,8 @@ const customerFun = {
           return res.status(500).json({ error: "Failed to save session" });
         }
 
-        console.log("Session saved successfully:", req.session.admin);
-        console.log("OTP verified successfully for user:", user);
+        // console.log("Session saved successfully:", req.session.admin);
+        // console.log("OTP verified successfully for user:", user);
         return res.status(200).json({
           success: true,
           message: "OTP verified successfully"
@@ -258,7 +258,7 @@ const customerFun = {
       // 1. Ensure at least one branch exists
       let branch = await StoreBranch.findOne();
       if (!branch) {
-        console.log("No branches found. Creating default branch...");
+        // console.log("No branches found. Creating default branch...");
         branch = new StoreBranch({
           name: "Main Branch",
           address: "Default Address, Dubai",
@@ -270,13 +270,13 @@ const customerFun = {
           }
         });
         await branch.save();
-        console.log("Default branch created:", branch.name);
+        // console.log("Default branch created:", branch.name);
       }
 
       // 2. Ensure at least one Super Admin exists
       let admin = await Admin.findOne({ role: 'superadmin' });
       if (!admin) {
-        console.log("No super admin found. Creating default super admin...");
+        // console.log("No super admin found. Creating default super admin...");
         admin = new Admin({
           name: "System Admin",
           email: "jadhugd@gmail.com", // Using the email from nodemailer config
@@ -288,7 +288,7 @@ const customerFun = {
           selectedBranch: branch._id
         });
         await admin.save();
-        console.log("Default super admin created:", admin.email);
+        // console.log("Default super admin created:", admin.email);
       }
 
       return { branch, admin };

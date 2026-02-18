@@ -289,7 +289,7 @@ const settingHelper = {
     getPayment: async (req, res) => {
         try {
             const config = await PaymentConfiguration.findOne();
-            console.log('payment configure:\n\n', config)
+            // console.log('payment configure:\n\n', config)
             //   if (!config) {
             //     return res.status(404).json({
             //       success: false,
@@ -443,7 +443,7 @@ const settingHelper = {
     getCharges: async (req, res) => {
         try {
             const charges = await Charges.find({});
-            console.log(charges)
+            // console.log(charges)
             res.status(200).json({
                 success: true,
                 data: {

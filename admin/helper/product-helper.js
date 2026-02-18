@@ -21,7 +21,7 @@ const productFun = {
       const sortDirection = req.query.sortDirection === "asc" ? 1 : -1;
 
       const branchId = req.session.admin?.selectedBranch;
-      console.log("Selected Branch ID:", branchId);
+      // console.log("Selected Branch ID:", branchId);
       if (!branchId) {
         // Check if any branches exist at all
         const anyBranch = await Store.findOne({});
@@ -309,7 +309,7 @@ const productFun = {
   },
   createCategory: async (req, res, imageName) => {
     try {
-      console.log("Creating category with data:", req.body);
+      // console.log("Creating category with data:", req.body);
       const categoryData = req.body;
       categoryData.image = imageName || null; // Set image if provided
       const category = new Category(categoryData);

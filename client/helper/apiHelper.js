@@ -13,7 +13,7 @@ const Newsletter = require("../model/newsletterSchema");
 
 const apiFun = {
     wishlistAction: async (req, res) => {
-        console.log("Wishlist action initiated");
+        // console.log("Wishlist action initiated");
         const { productId } = req.body;
 
         if (!productId) {
@@ -29,9 +29,9 @@ const apiFun = {
 
                 // Guest user handling
                 if (!req.session.user?.id) {
-                    console.log("Guest user wishlist action");
+                    // console.log("Guest user wishlist action");
                     if (!req.session.wishlist) {
-                        console.log("Initializing wishlist for guest user");
+                        // console.log("Initializing wishlist for guest user");
                         req.session.wishlist = [productId];
                         return res.status(200).json({ status: "ADDED", message: "Product added to wishlist" });
                     }
@@ -83,7 +83,7 @@ const apiFun = {
     },
     getWishlist: async (req, res) => {
         try {
-            console.log("Fetching wishlist");
+            // console.log("Fetching wishlist");
             const branchId = res.locals.customer.selectedBranch;
 
             if (!branchId) {
@@ -167,7 +167,7 @@ const apiFun = {
                 isAvailable: (inventoryMap[product._id.toString()] || 0) > 0,
                 image: product.images[0] || "default-product-image-url"
             }));
-            console.log(formattedGuestWishlist)
+            // console.log(formattedGuestWishlist)
             return res.status(200).json(formattedGuestWishlist);
 
         } catch (err) {
@@ -241,7 +241,7 @@ const apiFun = {
             const inventory = await Inventory.findOne({ productId, branchId });
             const availableStock = inventory ? inventory.stock : 0;
 
-            console.log(`Checking stock for Product: ${productId}, Branch: ${branchId}, Stock: ${availableStock}`);
+            // console.log(`Checking stock for Product: ${productId}, Branch: ${branchId}, Stock: ${availableStock}`);
 
             if (availableStock <= 0) {
                 return res.status(404).json({ ToastMessage: "Product Not Available Now" });
@@ -416,7 +416,7 @@ const apiFun = {
 
             structuredCartwithFullDetails.charges = chargeList;
             structuredCartwithFullDetails.totalAmount = parseFloat(totalAmount.toFixed(2));
-            console.log("Structured Cart with Full Details:", structuredCartwithFullDetails);
+            // console.log("Structured Cart with Full Details:", structuredCartwithFullDetails);
             return structuredCartwithFullDetails;
         } catch (err) {
             console.error("Error formatting structured cart:", err);
@@ -673,7 +673,7 @@ const apiFun = {
     },
     updateCartQty: async (req, res) => {
         try {
-            console.log(req.body);
+            // console.log(req.body);
             const { productId, action } = req.body;
             let isExitsTheItem = true;
             let cartItemQty = 0;
